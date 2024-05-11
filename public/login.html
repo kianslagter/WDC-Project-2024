@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+  
+    <div class="page-content">
+      <div class="login-column">
+        <div class="login-box">
+          <div class="login-container">
+            <div class="login-form">
+            <div>
+              <p>Username</p>
+              <input class="input" type="email">
+            </div>
+            <div>
+              <p>Password</p>
+              <input class="input" type="password">
+            </div>
+            <button class="login-button"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>
