@@ -15,13 +15,13 @@
       </nav>
     </header>
 
-    <div class="page-content">
+    <div class="page-content content">
       <h1>Upcoming Events</h1>
       <p> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
       <div class="search-div">
         <input class="search-bar" type="text" placeholder="Search...">
-        <button class="button primary-button search-button" display="inline">Search</button>
-        <button class="button secondary-button search-button" display="inline">Show Filters</button>
+        <button class="button primary-button search-button" type="button">Search</button>
+        <button class="button secondary-button search-button" type="button">Show Filters</button>
       </div>
       <div id="search-filters">
         <p> Filter by Date of Event: </p>
@@ -34,6 +34,54 @@
         <input type="checkbox" id="b1"> <label for="b1"> Branch 1 </label>
         <input type="checkbox" id="b2"> <label for="b1"> Branch 2 </label>
         <input type="checkbox" id="b3"> <label for="b1"> Branch 3 </label>
+        <br><br><label> Max number of Posts Shown: </label> <input type="number" id="num_posts" value=20>
+      </div>
+
+      <div id="events-results">
+        <h3> Results: </h3>
+
+        <!--
+          ADD A v-if for if no results are found?
+        -->
+
+        <!--
+          ADD some sort of indication when it is loading?
+        -->
+
+        <!--
+          Need another v-for for all the events in search results
+        -->
+        <div class="event-container">
+          <img class="event-image" src="/image_url" alt="Event Image">
+          <h2 class="event-title"> Event title </h2>
+          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
+          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
+          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+        </div>
+
+        <div class="event-container">
+          <img class="event-image" src="/image_url" alt="Event Image">
+          <h2 class="event-title"> Event title </h2>
+          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
+          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
+          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+        </div>
+
+        <div class="event-container">
+          <img class="event-image" src="/image_url" alt="Event Image">
+          <h2 class="event-title"> Event title </h2>
+          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
+          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
+          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+        </div>
+
+        <!--
+          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option
+        -->
+        <button class="button secondary-button center" type="button">Show more results</button>
       </div>
 
     </div>
