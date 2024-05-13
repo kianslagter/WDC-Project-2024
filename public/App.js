@@ -29,7 +29,7 @@ const testEvents = [
     },
     {
         title: 'Event 3 Title',
-        description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
+        description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
         date: '3/8/24',
         startTime: '12pm',
         endTime: '5pm',
@@ -38,6 +38,21 @@ const testEvents = [
     }
 ];
 
+const testBranchSummary = [
+    {
+        id: 1,
+        name: 'Adelaide'
+    },
+    {
+        id: 2,
+        name: 'Sydney'
+    },
+    {
+        id: 3,
+        name: 'Melbourne'
+    },
+]
+
 createApp({
 data() {
     return {
@@ -45,7 +60,23 @@ data() {
         navitems: navitems,
         logged_in: false,
         events_results: testEvents,
-        show_events_filters: false
+        show_events_filters: false,
+        branches_summary: testBranchSummary
     };
+},
+methods: {
+    events_search() {
+        // Get the value of all the relevant filter options and search term
+        let search_term = document.getElementById("events-search").value;
+        let from_date = document.getElementById("from-date").value;
+        let to_date = document.getElementById("to-date").value;
+        let num_events = document.getElementById("num-events").value;
+        // do branches as well
+
+        console.log("search term: " + search_term);
+        console.log("from date: " + from_date);
+        console.log("to date: " + to_date);
+        console.log("num events: " + num_events);
+    }
 }
 }).mount('#app');
