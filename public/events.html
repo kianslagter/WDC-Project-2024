@@ -17,7 +17,7 @@
 
     <div class="page-content content">
       <h1>Upcoming Events</h1>
-      <p> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+      <p v-if="!logged_in"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
       <div class="search-div">
         <input class="search-bar" type="text" placeholder="Search...">
         <button class="button primary-button search-button" type="button">Search</button>
@@ -49,31 +49,17 @@
         -->
 
         <!--
+          ADD day of the week as well as date?
+        -->
+
+        <!--
           Need another v-for for all the events in search results
         -->
-        <div class="event-container">
-          <img class="event-image" src="/image_url" alt="Event Image">
-          <h2 class="event-title"> Event title </h2>
-          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
-          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
-          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
-          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
-        </div>
-
-        <div class="event-container">
-          <img class="event-image" src="/image_url" alt="Event Image">
-          <h2 class="event-title"> Event title </h2>
-          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
-          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
-          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
-          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
-        </div>
-
-        <div class="event-container">
-          <img class="event-image" src="/image_url" alt="Event Image">
-          <h2 class="event-title"> Event title </h2>
-          <span class="event-header"> Day. XX/YY/202X&emsp;1pm-3pm&emsp;Location/Branch</span>
-          <p class="event-description"> event description event description event description event description event description event description event description event description event description event description event description event description </p>
+        <div class="event-container" v-for="event in events_results">
+          <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
+          <h2 class="event-title"> {{event.title}} </h2>
+          <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
+          <p class="event-description"> {{event.description}} </p>
           <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
           <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
         </div>

@@ -15,7 +15,8 @@ const testEvents = [
         date: '1/7/24',
         startTime: '1pm',
         endTime: '3pm',
-        location: 'Adelaide'
+        location: 'Adelaide',
+        image_url: '/not_an_image.png'
     },
     {
         title: 'Event 2 Title',
@@ -23,7 +24,8 @@ const testEvents = [
         date: '3/7/24',
         startTime: '12pm',
         endTime: '5pm',
-        location: 'Sydney'
+        location: 'Sydney',
+        image_url: '/not_an_image.png'
     },
     {
         title: 'Event 3 Title',
@@ -31,7 +33,8 @@ const testEvents = [
         date: '3/8/24',
         startTime: '12pm',
         endTime: '5pm',
-        location: 'Adelaide'
+        location: 'Adelaide',
+        image_url: '/not_an_image.png'
     }
 ];
 
