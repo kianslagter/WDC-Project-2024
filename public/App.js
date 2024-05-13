@@ -119,6 +119,13 @@ methods: {
         }
 
         console.log("request url: " + query_path);
+    },
+    events_show_more_results(){
+        // Increase the max number of events shown by 5
+        document.getElementById("num-events").value = parseInt(document.getElementById("num-events").value) + 5;
+
+        // Call the events_search function to get the events from the server
+        this.events_search();
     }
 }
 }).mount('#app');

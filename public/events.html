@@ -28,16 +28,14 @@
         <label> From: </label><input id="from-date" type="date">
         <label> To: </label><input id="to-date" type="date">
         <p> Filter by Branch: </p>
+
         <!-- Note: need to add an AJAX request on initial page load to update the branches-->
 
-        <!--
-          Need a v-for here, a check box for each branch
-        -->
         <template v-for="branch in branches_summary">
           <input  type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
         </template>
 
-        <br><br><label> Max number of Events Shown: </label> <input type="number" id="num-events" value=20>
+        <br><br><label> Max number of Events Shown: </label> <input type="number" id="num-events" value=10>
       </div>
 
       <div id="events-results">
@@ -68,7 +66,7 @@
         <!--
           SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option
         -->
-        <button class="button secondary-button center" type="button">Show more results</button>
+        <button class="button secondary-button center" type="button" v-on:click="events_show_more_results()">Show more results</button>
       </div>
 
     </div>
