@@ -21,9 +21,9 @@
       <div class="search-div">
         <input class="search-bar" type="text" placeholder="Search...">
         <button class="button primary-button search-button" type="button">Search</button>
-        <button class="button secondary-button search-button" type="button">Show Filters</button>
+        <button class="button secondary-button search-button" type="button" v-on:click="show_events_filters = !show_events_filters">Toggle Filters</button>
       </div>
-      <div id="search-filters">
+      <div id="search-filters" v-if="show_events_filters">
         <p> Filter by Date of Event: </p>
         <label> From: </label><input id="from-date" type="date">
         <label> To: </label><input id="to-date" type="date">
