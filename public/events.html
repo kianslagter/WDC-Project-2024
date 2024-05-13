@@ -14,15 +14,30 @@
         <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
       </nav>
     </header>
-  
+
     <div class="page-content">
-      <h1>Welcome to Your Website!</h1>
-      <h2>{{ message }}</h2>
-      <p>This is the content of your website. You can add more sections, pages, and content here.</p>
-      <button class="button primary-button">Primary Button</button>
-      <button class="button secondary-button">Secondary Button</button>
+      <h1>Upcoming Events</h1>
+      <p> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+      <div class="search-div">
+        <input class="search-bar" type="text" placeholder="Search...">
+        <button class="button primary-button search-button" display="inline">Search</button>
+        <button class="button secondary-button search-button" display="inline">Show Filters</button>
+      </div>
+      <div id="search-filters">
+        <p> Filter by Date of Event: </p>
+        <label> From: </label><input id="from-date" type="date">
+        <label> To: </label><input id="to-date" type="date">
+        <p> Filter by Branch: </p>
+        <!--
+          Need a v-for here, a check box for each branch
+        -->
+        <input type="checkbox" id="b1"> <label for="b1"> Branch 1 </label>
+        <input type="checkbox" id="b2"> <label for="b1"> Branch 2 </label>
+        <input type="checkbox" id="b3"> <label for="b1"> Branch 3 </label>
+      </div>
+
     </div>
-  
+
     <footer>
       &copy; 2024 Your Website. All rights reserved.
     </footer>
