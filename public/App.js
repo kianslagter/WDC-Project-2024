@@ -71,12 +71,54 @@ methods: {
         let from_date = document.getElementById("from-date").value;
         let to_date = document.getElementById("to-date").value;
         let num_events = document.getElementById("num-events").value;
-        // do branches as well
+        let branches_selected = [];
+        let branches_boxes = document.getElementsByName("branch_filters");
+        for(let i = 0; i < branches_boxes.length; i++){
+            if(branches_boxes[i].checked){
+                branches_selected.push(branches_boxes[i].value);
+            }
+        }
 
         console.log("search term: " + search_term);
         console.log("from date: " + from_date);
         console.log("to date: " + to_date);
         console.log("num events: " + num_events);
+        console.log("branches selected: " + branches_selected);
+
+        // Construct the query parameters
+        let query_parameters = "";
+        if(search_term !== ""){
+            query_parameters += "?search=" + search_term + '&';
+        }
+        if(from_date !== ""){
+            query_parameters += "?from=" + from_date + '&';
+        }
+        if(to_date !== ""){
+            query_parameters += "?to=" + to_date + '&';
+        }
+        if(num_events !== ""){
+            query_parameters += "?n=" + num_events + '&';
+        }
+        for(let i = 0; i < branches_selected.length; i++){
+            query_parameters += "?branch=" + branches_selected[i] + '&';
+        }
+        // remove the last &
+        if(query_parameters !== ""){
+            query_parameters = query_parameters.substring(0, query_parameters.length - 1);
+        }
+        console.log("query parameters: " + query_parameters);
+
+        // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
+        let query_path = "";
+        if(this.logged_in){
+            // requires authentication on server
+            query_path = "/users/events/search" + query_parameters;
+        } else {
+            // Only allow public events
+            query_path = "/events/search" + query_parameters;
+        }
+
+        console.log("request url: " + query_path);
     }
 }
 }).mount('#app');
