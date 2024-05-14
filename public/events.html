@@ -59,8 +59,11 @@
           <h2 class="event-title"> <a v-bind:href="'/events/id/' + event.id">{{event.title}} </a></h2>
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
-          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
-          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+          <button v-if="access_level >= 1" class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button v-if="access_level >= 1" class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> View Responses </button>
+          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Edit Event </button>
+
         </div>
 
         <!--
