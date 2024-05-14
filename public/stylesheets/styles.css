@@ -1,6 +1,7 @@
 body {
   margin: 0; /* Reset margin for page */
-  background-color: darkgrey
+  background-color: darkgrey;
+  font-family: 'Poppins', serif;
 }
 
 /* CSS styles for header, navigation, and footer */
@@ -172,6 +173,9 @@ footer {
 
 .event-title {
   margin-bottom: 2px;
+  color: black;
+  text-decoration: none;
+
 }
 
 .event-header {
