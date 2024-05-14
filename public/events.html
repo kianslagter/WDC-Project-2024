@@ -17,8 +17,9 @@
     </header>
 
     <div class="page-content content">
+      <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"> New Event </button>
       <h1>Upcoming Events</h1>
-      <p v-if="!logged_in"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+      <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
       <div class="search-div">
         <input id="events-search" class="search-bar" type="text" placeholder="Search...">
         <button class="button primary-button search-button" type="button" v-on:click="events_search()">Search</button>

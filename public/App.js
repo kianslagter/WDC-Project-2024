@@ -102,7 +102,6 @@ data() {
         access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
         message: 'Hello Vue!',
         navitems: navitems,
-        logged_in: false,
         events_results: testEvents,
         show_events_filters: false,
         branches_summary: testBranchSummary,
