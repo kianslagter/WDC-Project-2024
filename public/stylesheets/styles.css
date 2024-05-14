@@ -191,7 +191,26 @@ footer {
   display: inline;
 }
 
+.event-details-rsvp-button {
+  display: block;
+  padding: 10px;
+  margin: 5px;
+  width: 80%;
+}
+
+
 .center {
   margin: 0 auto;
   display: block;
+}
+
+.right {
+  float: right;
+}
+
+.event-side-pane {
+  padding: 10px;
+  border-radius: 20px;
+  margin:10px;
+  background-color: lightgrey;
 }

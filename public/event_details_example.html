@@ -19,6 +19,15 @@
         <a href="/events"> &lt; BACK</a>
         <br>
         <template v-if="event_selected !== null">
+            <div class="right event-side-pane">
+                <p><b> Date: </b> {{event_selected.date}} </p>
+                <p><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
+                <p><b> Location: </b> {{event_selected.location}} </p>
+                <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
+                <button class="button primary-button event-details-rsvp-button" type="button">RSVP Yes</button>
+                <button class="button secondary-button event-details-rsvp-button" type="button">RSVP No</button>
+            </div>
+
             <h1> {{event_selected.title}} </h1>
             <p> {{event_selected.description}} </p>
             <template v-if="event_selected.details !== null">
@@ -39,9 +48,10 @@
                             </li>
                         </template>
                     </template>
-
                 </ul>
+                <img v-bind:src="event_selected.image_url" alt="Event Image">
             </template>
+
 
         </template>
         <template v-else>

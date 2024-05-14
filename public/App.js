@@ -78,13 +78,15 @@ const testBranchSummary = [
 createApp({
 data() {
     return {
+        access_level: 0,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
         message: 'Hello Vue!',
         navitems: navitems,
         logged_in: false,
         events_results: testEvents,
         show_events_filters: false,
         branches_summary: testBranchSummary,
-        event_selected: testEventDetails // set to null intially in real thing
+        event_selected: testEventDetails, // set to null intially in real thing
+        event_attendance: 4
     };
 },
 methods: {
