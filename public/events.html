@@ -14,15 +14,64 @@
         <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
       </nav>
     </header>
-  
-    <div class="page-content">
-      <h1>Welcome to Your Website!</h1>
-      <h2>{{ message }}</h2>
-      <p>This is the content of your website. You can add more sections, pages, and content here.</p>
-      <button class="button primary-button">Primary Button</button>
-      <button class="button secondary-button">Secondary Button</button>
+
+    <div class="page-content content">
+      <h1>Upcoming Events</h1>
+      <p v-if="!logged_in"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+      <div class="search-div">
+        <input id="events-search" class="search-bar" type="text" placeholder="Search...">
+        <button class="button primary-button search-button" type="button" v-on:click="events_search()">Search</button>
+        <button class="button secondary-button search-button" type="button" v-on:click="show_events_filters = !show_events_filters">Toggle Filters</button>
+      </div>
+      <div id="search-filters" v-show="show_events_filters">
+        <p> Filter by Date of Event: </p>
+        <label> From: </label><input id="from-date" type="date">
+        <label> To: </label><input id="to-date" type="date">
+        <p> Filter by Branch: </p>
+
+        <!-- Note: need to add an AJAX request on initial page load to update the branches-->
+
+        <template v-for="branch in branches_summary">
+          <input  type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
+        </template>
+
+        <br><br><label> Max number of Events Shown: </label> <input type="number" id="num-events" value=10>
+      </div>
+
+      <div id="events-results">
+        <h3> Results: </h3>
+
+        <!--
+          ADD A v-if for if no results are found?
+        -->
+
+        <!--
+          ADD some sort of indication when it is loading?
+        -->
+
+        <!--
+          ADD day of the week as well as date?
+        -->
+
+        <!-- Render the event results -->
+        <div class="event-container" v-for="event in events_results">
+          <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
+          <h2 class="event-title"> <a v-bind:href="'/events/id/' + event.id">{{event.title}} </a></h2>
+          <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
+          <p class="event-description"> {{event.description}} </p>
+          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+        </div>
+
+        <!--
+          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option, so that if there are no more events
+          to show this is not presented as an option
+        -->
+        <button class="button secondary-button center" type="button" v-on:click="events_show_more_results()">Show more results</button>
+      </div>
+
     </div>
-  
+
     <footer>
       &copy; 2024 Your Website. All rights reserved.
     </footer>
