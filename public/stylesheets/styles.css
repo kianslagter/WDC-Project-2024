@@ -314,3 +314,21 @@ footer {
   text-decoration: none;
   font-size: 1.2em;
 }
+
+.scrolling-wrapper {
+  width: 90%;
+  height: 300px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.inner-scroll {
+  height: 100%;
+  white-space: nowrap;
+}
+.news-pane{
+  width: 200px;
+  height: 90px;
+  display: inline-block;
+}

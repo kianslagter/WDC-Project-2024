@@ -25,12 +25,19 @@
 
       <h1> News </h1>
       <div class="scrolling-wrapper">
-        <template v-for="news in news_array">
-          <div class="news-pane">
-            <h3> Title </h3>
-          </div>
-        </template>
+        <div class="inner-scroll">
+          <template v-for="news in news_array">
+            <div class="news-pane">
+              <img v-bind:src="news.image" class="news-image" alt="News image">
+              <p class="news-branch"> {{news.branch}} </p>
+              <p class="news-date"> {{news.date}} </p>
+              <a v-bind:href="'/news/id/' + news.id"> <h3 class="news-title"> {{news.title}} </h3> </a>
+              <p> {{news.article_start}} </p>
+            </div>
+          </template>
+        </div>
       </div>
+      <button class="button primary-button" onclick="window.location.href='/news'">See all news</button>
 
     </div>
 
