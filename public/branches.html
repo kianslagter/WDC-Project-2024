@@ -21,21 +21,30 @@
   <div class="page-content content">
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_summary">
-      <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
-      <h2 class="branch-name"> {{branch.name}} </h2>
-      <div class="branch-details">
-        <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
-        <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.location}} </p>
-      </div>
-      <div>
-        <p class="branch-description">{{branch.description}}</p>
-      </div>
-      <div class="branch-buttons">
-        <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
-        <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
+      <div class="branch-content">
+        <div class="branch-details-container" style="flex: 2;">
+          <h2 class="branch-name"> {{branch.name}} </h2>
+          <div class="branch-details">
+            <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
+            <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.location}} </p>
+          </div>
+          <div>
+            <p class="branch-description">{{branch.description}}</p>
+          </div>
+          <div class="branch-buttons">
+            <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
+            <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
+          </div>
+        </div>
+        <div class="branch-image-container" style="flex: 1;">
+          <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+        </div>
       </div>
     </div>
   </div>
+
+
+
 
   <footer>
     &copy; 2024 Your Website. All rights reserved.
@@ -43,4 +52,3 @@
 </body>
 
 </html>
-

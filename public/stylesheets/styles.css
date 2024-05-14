@@ -198,17 +198,17 @@ footer {
 
 .branch-container{
   width: 90%;
-  border-radius: 10px;
-  padding: 5px 10px 10px 10px;
+  border-radius: 1em;
+  padding: 1em 2em;
   margin: auto;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 1em;
+  margin-bottom: 1em;
   background-color: lightgray;
   position: relative;
-
 }
+
 .branch-name {
-  margin-bottom: 2px;
+  margin-bottom: 0.2em;
 }
 
 .branch-details {
@@ -216,26 +216,32 @@ footer {
 }
 
 .branch-hours, .branch-location {
-  margin: 5px;
+  margin: 0.5em;
 }
 
 .branch-image {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 200px;
-  object-fit: contain;
-  margin-right: 10px;
+
 }
 
 .branch-buttons {
-  padding-top: 10px;
-  margin: 10px;
+  padding-top: 1em;
+  margin: 1em;
 }
 
 .branch-description {
   text-align: left;
-  padding: 5px 10px;
-  margin: 10px;
+  padding: 0.2em 0.2em;
+  margin: 0.5em;
+  font-size: 1em;
+}
+
+.branch-content {
+  display: flex;
+}
+
+.branch-image-container{
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
