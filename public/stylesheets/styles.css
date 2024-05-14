@@ -1,18 +1,23 @@
 body {
-  margin: 0; /* Reset margin for page */
+  margin: 0;
+  /* Reset margin for page */
   background-color: darkgrey
 }
 
 /* CSS styles for header, navigation, and footer */
 .top-pane {
-  background-color: darkred; /* Changed to red */
+  background-color: darkred;
+  /* Changed to red */
   color: #fff;
-  padding: 0; /* No padding */
+  padding: 0;
+  /* No padding */
   text-align: center;
-  height: 60px; /* Specified height */
+  height: 60px;
+  /* Specified height */
   display: flex;
   align-items: center;
 }
+
 .page-content {
   padding: 10px;
 }
@@ -26,6 +31,7 @@ body {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
 .nav-link {
   color: #fff;
   text-decoration: none;
@@ -33,9 +39,12 @@ body {
   padding: 0 15px;
   margin: 0 5px;
 }
+
 .nav-link:hover {
-  color: #ffd700; /* Change color on hover */
+  color: #ffd700;
+  /* Change color on hover */
 }
+
 .bottom-pane {
   background-color: #ddd;
   padding: 10px 0;
@@ -45,6 +54,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
 .button {
   padding: 10px 20px;
   border: none;
@@ -52,21 +62,26 @@ body {
   cursor: pointer;
   font-size: 16px;
 }
+
 .primary-button {
   background-color: crimson;
   color: #fff;
 }
+
 .primary-button:hover {
   background-color: darkred;
 }
+
 .secondary-button {
   background-color: #6c757d;
   color: #fff;
   margin-left: 10px;
 }
+
 .secondary-button:hover {
   background-color: #5a6268;
 }
+
 footer {
   background-color: #333;
   color: #fff;
@@ -147,7 +162,7 @@ footer {
   border-radius: 5px;
   border-width: 2px;
   box-sizing: border-box;
-  font-size:16px;
+  font-size: 16px;
   color: #000000;
 }
 
@@ -160,6 +175,7 @@ footer {
   margin-top: 5px;
   margin-bottom: 20px;
 }
+
 .event-container {
   width: 90%;
   border-radius: 10px;
@@ -196,7 +212,7 @@ footer {
   display: block;
 }
 
-.branch-container{
+.branch-container {
   width: 90%;
   border-radius: 1em;
   padding: 1em 2em;
@@ -207,6 +223,14 @@ footer {
   position: relative;
 }
 
+.branch-container:hover {
+  background-color: rgb(198, 198, 198);
+}
+
+.branch-container:active {
+  background-color: darkgray;
+}
+
 .branch-name {
   margin-bottom: 0.2em;
 }
@@ -215,12 +239,13 @@ footer {
   justify-content: space-between;
 }
 
-.branch-hours, .branch-location {
+.branch-hours,
+.branch-location {
   margin: 0.5em;
 }
 
 .branch-image {
-
+  width: 20em;
 }
 
 .branch-buttons {
@@ -239,9 +264,20 @@ footer {
   display: flex;
 }
 
-.branch-image-container{
+.branch-image-container {
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.branch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+}
+
+.branch-header h1 {
+  margin: 0;
 }
