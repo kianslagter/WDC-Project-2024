@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
 </head>
@@ -14,15 +15,33 @@
         <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
       </nav>
     </header>
-  
-    <div class="page-content">
-      <h1>Welcome to Your Website!</h1>
-      <h2>{{ message }}</h2>
-      <p>This is the content of your website. You can add more sections, pages, and content here.</p>
-      <button class="button primary-button">Primary Button</button>
-      <button class="button secondary-button">Secondary Button</button>
+
+    <div class="page-content content">
+      <h1>What We Do</h1>
+      <p> A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion.</p>
+      <h1> How You Can Help </h1>
+      <p> By volunteering with mealmates, you can have a real impact whilst gaining valuable experience. Some more text here probably. Register now using the button below</p>
+      <button class="button primary-button">Register Now!</button>
+
+      <h1> News </h1>
+      <div class="scrolling-wrapper">
+        <div class="inner-scroll">
+          <template v-for="news in news_array">
+            <div class="news-pane">
+              <img v-bind:src="news.image" class="news-image" alt="News image">
+              <p class="news-branch"> {{news.branch}} </p>
+              <p class="news-date"> {{news.date}} </p>
+              <a v-bind:href="'/news/id/' + news.id" class="title-link"> <h3 class="news-title"> {{news.title}} </h3> </a>
+              <p class="news-article"> {{news.article_start}} </p>
+            </div>
+          </template>
+        </div>
+      </div>
+      <br>
+      <button class="button primary-button" onclick="window.location.href='/news'">See all news</button>
+
     </div>
-  
+
     <footer>
       &copy; 2024 Your Website. All rights reserved.
     </footer>
