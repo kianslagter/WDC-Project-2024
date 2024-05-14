@@ -204,18 +204,31 @@ footer {
   margin-top: 10px;
   margin-bottom: 10px;
   background-color: lightgray;
+  position: relative;
 
 }
 .branch-name {
   margin-bottom: 2px;
 }
 
-.branch-location {
-  margin-top: 5px;
+.branch-details {
+  justify-content: space-between;
+}
+
+.branch-hours, .branch-location {
+  margin: 10;
 }
 
 .branch-image {
-  float: right;
-  width: 100px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
   object-fit: contain;
+  margin-right: 10px;
+}
+
+.branch-buttons {
+  margin: 10px;
 }

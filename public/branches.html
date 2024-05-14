@@ -7,6 +7,7 @@
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="App.js" defer></script>
 </head>
 
@@ -22,9 +23,14 @@
     <div class="branch-container" v-for="branch in branches_summary">
       <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
       <h2 class="branch-name"> {{branch.name}} </h2>
-      <p class="branch-location"> {{branch.location}} </p>
-      <button class="button primary-button">Phone</button>
-      <button class="button secondary-button">Email</button>
+      <div class="branch-details">
+        <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
+        <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.location}} </p>
+      </div>
+      <div class="branch-buttons">
+        <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
+        <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
+      </div>
     </div>
   </div>
 

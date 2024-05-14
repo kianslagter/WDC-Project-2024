@@ -44,8 +44,8 @@ const testBranchSummary = [
         name: 'Adelaide',
         location: '129 Waymouth Street, Adelaide SA 5000',
         openingHours: '9am-5pm',
-        branchPhone: '0412345678',
-        branchEmail: 'adelaidebranch@mealmates.com',
+        phone: '0412345678',
+        email: 'adelaidebranch@mealmates.com',
         image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg'
     },
     {
@@ -53,8 +53,8 @@ const testBranchSummary = [
         name: 'Sydney',
         location: '212 York Street, Sydney NSW 2000',
         openingHours: '8am-7pm',
-        branchPhone: '0412345678',
-        branchEmail: 'sydneybranch@mealmates.com',
+        phone: '0412345678',
+        email: 'sydneybranch@mealmates.com',
         image_url: '/not_an_image.png'
     },
     {
@@ -62,8 +62,8 @@ const testBranchSummary = [
         name: 'Melbourne',
         location: '73 Lonsdale Steet, Melbourne VIC 3000',
         openingHours: '8.30am-4.30pm',
-        branchPhone: '0412345678',
-        branchEmail: 'melbournebranch@mealmates.com',
+        phone: '0412345678',
+        email: 'melbournebranch@mealmates.com',
         image_url: '/not_an_image.png'
     },
 ]
