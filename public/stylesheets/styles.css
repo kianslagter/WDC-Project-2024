@@ -216,7 +216,7 @@ footer {
 }
 
 .branch-hours, .branch-location {
-  margin: 10;
+  margin: 5px;
 }
 
 .branch-image {
@@ -230,5 +230,12 @@ footer {
 }
 
 .branch-buttons {
+  padding-top: 10px;
+  margin: 10px;
+}
+
+.branch-description {
+  text-align: left;
+  padding: 5px 10px;
   margin: 10px;
 }

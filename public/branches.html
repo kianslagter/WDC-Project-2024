@@ -27,6 +27,9 @@
         <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
         <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.location}} </p>
       </div>
+      <div>
+        <p class="branch-description">{{branch.description}}</p>
+      </div>
       <div class="branch-buttons">
         <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
         <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
