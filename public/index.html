@@ -31,12 +31,13 @@
               <img v-bind:src="news.image" class="news-image" alt="News image">
               <p class="news-branch"> {{news.branch}} </p>
               <p class="news-date"> {{news.date}} </p>
-              <a v-bind:href="'/news/id/' + news.id"> <h3 class="news-title"> {{news.title}} </h3> </a>
-              <p> {{news.article_start}} </p>
+              <a v-bind:href="'/news/id/' + news.id" class="title-link"> <h3 class="news-title"> {{news.title}} </h3> </a>
+              <p class="news-article"> {{news.article_start}} </p>
             </div>
           </template>
         </div>
       </div>
+      <br>
       <button class="button primary-button" onclick="window.location.href='/news'">See all news</button>
 
     </div>

@@ -99,26 +99,26 @@ const testBranchSummary = [
 const testNews = [
     {
         id: 1,
-        title: "one",
-        branch: "adelaide",
+        title: "A longer title for a news article",
+        branch: "Adelaide",
         date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
         image: "news_image.png"
     },
     {
         id: 2,
-        title: "two",
-        branch: "melbourne",
+        title: "Another successful day for mealmates in Melbourne",
+        branch: "Melbourne",
         date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
         image: "news_image.png"
     },
     {
         id: 3,
-        title: "three",
-        branch: "adelaide",
+        title: "The third news post",
+        branch: "Adelaide",
         date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
         image: "news_image.png"
     },
     {
@@ -126,7 +126,7 @@ const testNews = [
         title: "four",
         branch: "adelaide",
         date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
         image: "news_image.png"
     },
     {
