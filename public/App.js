@@ -58,7 +58,7 @@ const testBranchSummary = [
         phone: '0412345678',
         email: 'sydneybranch@mealmates.com',
         description: 'Situated in the bustling city of Sydney, the Meal Mates branch here is known for its large-scale operations. They have a vast network of volunteers who collect surplus food from restaurants, supermarkets, and households, and distribute it to people in need. This branch has made a significant impact in reducing food waste in the city while ensuring that no one goes hungry.',
-        image_url: '/not_an_image.png',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
         page_url: '/branches/sydneybranch'
     },
     {
@@ -69,7 +69,7 @@ const testBranchSummary = [
         phone: '0412345678',
         email: 'melbournebranch@mealmates.com',
         description: 'The Melbourne branch of Meal Mates is renowned for its innovative approach to tackling food insecurity. They run community kitchens where people in need are invited to share a meal, fostering a sense of community and belonging. This branch not only provides food relief but also organizes cooking classes and nutrition workshops, empowering individuals to make healthy food choices.',
-        image_url: '/not_an_image.png',
+        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
         page_url: '/branches/melbournebranch'
     },
 ]
