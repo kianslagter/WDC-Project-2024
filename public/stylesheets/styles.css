@@ -195,3 +195,27 @@ footer {
   margin: 0 auto;
   display: block;
 }
+
+.branch-container{
+  width: 90%;
+  border-radius: 10px;
+  padding: 5px 10px 10px 10px;
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: lightgray;
+
+}
+.branch-name {
+  margin-bottom: 2px;
+}
+
+.branch-location {
+  margin-top: 5px;
+}
+
+.branch-image {
+  float: right;
+  width: 100px;
+  object-fit: contain;
+}

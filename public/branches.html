@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +9,29 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
 </head>
+
 <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
-  
-    <div class="page-content">
-      <h1>Welcome to Your Website!</h1>
-      <h2>{{ message }}</h2>
-      <p>This is the content of your website. You can add more sections, pages, and content here.</p>
-      <button class="button primary-button">Primary Button</button>
-      <button class="button secondary-button">Secondary Button</button>
+  <header class="top-pane">
+    <nav>
+      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+    </nav>
+  </header>
+
+  <div class="page-content content">
+    <h1>Our Branches!</h1>
+    <div class="branch-container" v-for="branch in branches_summary">
+      <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+      <h2 class="branch-name"> {{branch.name}} </h2>
+      <p class="branch-location"> {{branch.location}} </p>
+      <button class="button primary-button">Phone</button>
+      <button class="button secondary-button">Email</button>
     </div>
-  
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-    </footer>
-  </body>
-  </html>
+  </div>
+
+  <footer>
+    &copy; 2024 Your Website. All rights reserved.
+  </footer>
+</body>
+
+</html>
+
