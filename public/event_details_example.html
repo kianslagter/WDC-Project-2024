@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content content">
+        <a href="/events"> &lt; BACK</a>
+        <br>
+        <template v-if="event_selected !== null">
+            <h1> {{event_selected.title}} </h1>
+            <p> {{event_selected.description}} </p>
+            <template v-if="event_selected.details !== null">
+                <h3> More Information: </h3>
+                <ul>
+                    <template v-for="detail in event_selected.details">
+                        <li v-if="typeof detail === 'string'"> {{detail}} </li>
+                        <template v-else>
+                            <li> {{detail[0]}}
+                                <ul>
+                                    <template v-for="(point, index) in detail">
+                                        <li v-if="index">
+                                            {{point}}
+                                        </li>
+                                    </template>
+
+                                </ul>
+                            </li>
+                        </template>
+                    </template>
+
+                </ul>
+            </template>
+
+        </template>
+        <template v-else>
+            <p> Loading Event Details...</p>
+            <!--
+                This could be made nicer probably
+            -->
+        </template>
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>

@@ -56,7 +56,7 @@
         <!-- Render the event results -->
         <div class="event-container" v-for="event in events_results">
           <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
-          <h2 class="event-title"> {{event.title}} </h2>
+          <h2 class="event-title"> <a v-bind:href="'/events/id/' + event.id">{{event.title}} </a></h2>
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
           <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
@@ -64,7 +64,8 @@
         </div>
 
         <!--
-          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option
+          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option, so that if there are no more events
+          to show this is not presented as an option
         -->
         <button class="button secondary-button center" type="button" v-on:click="events_show_more_results()">Show more results</button>
       </div>
