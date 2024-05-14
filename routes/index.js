@@ -12,6 +12,10 @@ router.get('/events', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'events.html'));
 });
 
+router.get('/events/id/:eventId', function(req, res, next){
+  res.sendFile(path.join(__dirname, '..', 'public', 'event_details_example.html'));
+});
+
 router.get('/about', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'about.html'));
 });

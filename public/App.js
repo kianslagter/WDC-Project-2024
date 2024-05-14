@@ -10,6 +10,7 @@ const navitems = [
 
 const testEvents = [
     {
+        id: 1,
         title: 'Event 1 Title',
         description: 'Description of event 1',
         date: '1/7/24',
@@ -19,6 +20,7 @@ const testEvents = [
         image_url: '/not_an_image.png'
     },
     {
+        id: 2,
         title: 'Event 2 Title',
         description: 'Description of event 2, which is a bit longer than event 1 so that it breaks across multiple lines',
         date: '3/7/24',
@@ -28,6 +30,7 @@ const testEvents = [
         image_url: '/not_an_image.png'
     },
     {
+        id: 3,
         title: 'Event 3 Title',
         description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
         date: '3/8/24',
@@ -37,6 +40,25 @@ const testEvents = [
         image_url: '/not_an_image.png'
     }
 ];
+
+const testEventDetails = {
+    id: 3,
+    title: 'Event 3 Title',
+    description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
+    details: [
+        "The first dot point",
+        "The second dot point",
+        "Could list specific requirements here",
+        "Require first aid certificate",
+        ["you can even do nested lists", "like", "this", "one", "here"],
+        "For more details contact name@organisation.org"
+    ],
+    date: '3/8/24',
+    startTime: '12pm',
+    endTime: '5pm',
+    location: 'Adelaide',
+    image_url: '/not_an_image.png'
+};
 
 const testBranchSummary = [
     {
@@ -77,12 +99,15 @@ const testBranchSummary = [
 createApp({
 data() {
     return {
+        access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
         message: 'Hello Vue!',
         navitems: navitems,
         logged_in: false,
         events_results: testEvents,
         show_events_filters: false,
-        branches_summary: testBranchSummary
+        branches_summary: testBranchSummary,
+        event_selected: testEventDetails, // set to null intially in real thing
+        event_attendance: 4
     };
 },
 methods: {

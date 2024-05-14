@@ -56,15 +56,19 @@
         <!-- Render the event results -->
         <div class="event-container" v-for="event in events_results">
           <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
-          <h2 class="event-title"> {{event.title}} </h2>
+          <h2 class="event-title"> <a v-bind:href="'/events/id/' + event.id">{{event.title}} </a></h2>
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
-          <button class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
-          <button class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+          <button v-if="access_level >= 1" class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
+          <button v-if="access_level >= 1" class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> View Responses </button>
+          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Edit Event </button>
+
         </div>
 
         <!--
-          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option
+          SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option, so that if there are no more events
+          to show this is not presented as an option
         -->
         <button class="button secondary-button center" type="button" v-on:click="events_show_more_results()">Show more results</button>
       </div>
@@ -73,6 +77,10 @@
 
     <footer>
       &copy; 2024 Your Website. All rights reserved.
+      These buttons will be removed, for testing purposes only
+      <button type="button" v-on:click="access_level=0"> Visitor </button>
+      <button type="button" v-on:click="access_level=1"> User </button>
+      <button type="button" v-on:click="access_level=2"> Manager </button>
     </footer>
   </body>
   </html>
