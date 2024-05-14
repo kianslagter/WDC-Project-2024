@@ -8,6 +8,11 @@ router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
+/* Temporary page for front end testing to change view from visitor/user/manager/admin */
+router.get('/accesslevel', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'accesslevel.html'));
+});
+
 router.get('/events', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'events.html'));
 });
