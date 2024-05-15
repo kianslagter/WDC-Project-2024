@@ -16,6 +16,7 @@ const testEvents = [
         date: '1/7/24',
         startTime: '1pm',
         endTime: '3pm',
+        dayOfWeek: 'Monday',
         location: 'Adelaide',
         image_url: '/not_an_image.png'
     },
@@ -26,6 +27,7 @@ const testEvents = [
         date: '3/7/24',
         startTime: '12pm',
         endTime: '5pm',
+        dayOfWeek: 'Monday',
         location: 'Sydney',
         image_url: '/not_an_image.png'
     },
@@ -36,6 +38,7 @@ const testEvents = [
         date: '3/8/24',
         startTime: '12pm',
         endTime: '5pm',
+        dayOfWeek: 'Monday',
         location: 'Adelaide',
         image_url: '/not_an_image.png'
     }
@@ -174,7 +177,11 @@ data() {
         branches_summary: testBranchSummary,
         event_selected: testEventDetails, // set to null intially in real thing
         event_attendance: 4,
-        news_array: testNews
+        feauture-events-page
+        news_array: testNews,
+        num_points: 1,
+        point_level: [0]
+
     };
 },
 methods: {
