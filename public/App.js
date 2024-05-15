@@ -177,7 +177,6 @@ data() {
         branches_summary: testBranchSummary,
         event_selected: testEventDetails, // set to null intially in real thing
         event_attendance: 4,
-        feauture-events-page
         news_array: testNews,
         num_points: 1,
         point_level: [0]
