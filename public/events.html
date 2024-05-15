@@ -59,6 +59,7 @@
         <div class="event-container" v-for="event in events_results">
           <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
           <a class="event-title" v-bind:href="'/events/id/' + event.id"> <h2 class="event-title"> {{event.title}} </h2></a>
+          <!-- Link the location to the branch page? -->
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
           <button v-if="access_level >= 1" class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
