@@ -17,7 +17,7 @@
     </header>
 
     <div class="page-content content">
-      <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"> New Event </button>
+      <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/manage/events/create'"> New Event </button>
       <h1>Upcoming Events</h1>
       <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
       <div class="search-div">

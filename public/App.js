@@ -16,6 +16,7 @@ const testEvents = [
         date: '1/7/24',
         startTime: '1pm',
         endTime: '3pm',
+        dayOfWeek: 'Monday',
         location: 'Adelaide',
         image_url: '/not_an_image.png'
     },
@@ -26,6 +27,7 @@ const testEvents = [
         date: '3/7/24',
         startTime: '12pm',
         endTime: '5pm',
+        dayOfWeek: 'Monday',
         location: 'Sydney',
         image_url: '/not_an_image.png'
     },
@@ -36,6 +38,7 @@ const testEvents = [
         date: '3/8/24',
         startTime: '12pm',
         endTime: '5pm',
+        dayOfWeek: 'Monday',
         location: 'Adelaide',
         image_url: '/not_an_image.png'
     }
@@ -94,7 +97,74 @@ const testBranchSummary = [
         image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
         page_url: '/branches/melbournebranch'
     },
-]
+];
+
+const testNews = [
+    {
+        id: 1,
+        title: "A longer title for a news article",
+        branch: "Adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 2,
+        title: "Another successful day for mealmates in Melbourne",
+        branch: "Melbourne",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 3,
+        title: "The third news post",
+        branch: "Adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 4,
+        title: "four",
+        branch: "adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 5,
+        title: "five",
+        branch: "adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 6,
+        title: "six",
+        branch: "adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 7,
+        title: "seven",
+        branch: "adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article",
+        image: "news_image.png"
+    },
+    {
+        id: 8,
+        title: "eight",
+        branch: "adelaide",
+        date: "14/5/24",
+        article_start: "This is the first few sentences of the article",
+        image: "news_image.png"
+    }
+];
 
 createApp({
 data() {
@@ -106,7 +176,10 @@ data() {
         show_events_filters: false,
         branches_summary: testBranchSummary,
         event_selected: testEventDetails, // set to null intially in real thing
-        event_attendance: 4
+        event_attendance: 4,
+        news_array: testNews,
+        num_points: 1,
+        point_level: [0]
     };
 },
 methods: {
