@@ -314,3 +314,34 @@ footer {
   text-decoration: none;
   font-size: 1.2em;
 }
+
+.create-event-details {
+  width: 80%;
+}
+
+.create-event-title {
+  font-size: 1.2em;
+  width: 60%;
+}
+
+.create-event-point-level {
+  margin-top: 10px;
+  margin-right: 10px;
+  float: right;
+}
+
+.create-event-description {
+  width: 90%;
+  height: 3.4em;
+}
+
+.create-event-image-upload {
+  display: block;
+  margin: 10px;
+}
+
+.create-event-button {
+  margin: auto;
+  display: block;
+  margin-bottom: 30px;
+}
