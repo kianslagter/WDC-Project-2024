@@ -62,6 +62,7 @@
           <!-- Link the location to the branch page? -->
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
+          <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
           <button v-if="access_level >= 1" class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
           <button v-if="access_level >= 1" class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
           <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> View Responses </button>
