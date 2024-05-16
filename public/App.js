@@ -132,7 +132,49 @@ const testBranchSummary = [
     },
 ];
 
+const testUpdateDetails = {
+    id: 3,
+    title: 'Welcome Adelaide!',
+    description: "Meal Mates opens its Adelaide branch at 129 Waymouth Street, inviting all to join in addressing hunger and building community from 9 am to 5 pm. With nutritious meals and empowerment initiatives, they strive for a hunger-free future in Adelaide.",
+    details: [
+        "Adelaide, a new dawn has arrived! We are thrilled to inaugurate Meal Mates' Adelaide branch, located at 129 Waymouth Street, and extend a heartfelt welcome to all. Opening our doors from 9 am to 5 pm, we embark on a journey of compassion, solidarity, and nourishment. With a deep-rooted commitment to serving nutritious meals and fostering community connections, we stand ready to make a meaningful impact.",
+        "From cooking classes to nutrition workshops, our aim is not just to feed, but to empower. Adelaide, let's write a new chapter together—one where hunger becomes a thing of the past and every individual thrives.",
+        "For more details contact adelaide@mealmates.org"
+    ],
+    date_posted: '3/8/24',
+    time_posted: '12.00pm',
+    posted_by_branch: 'Adelaide',
+    image_url: '/not_an_image.jpg',
+};
+
 const testNews = [
+    {
+        id: 10,
+        title: "Thanks Melbourne!",
+        description: "Meal Mates extends sincere thanks to our Melbourne branch volunteers. Your dedication helps nourish our community and create a sense of belonging for all.",
+        date_posted: '1/7/24',
+        time_posted: '1.20pm',
+        posted_by_branch: 'Melbourne',
+        image_url: '/not_an_image.jpg'
+    },
+    {
+        id: 20,
+        title: "Branch Opening In Sydney",
+        description: "Discover Meal Mates' newest venture at its Sydney branch, located at 212 York Street, where we're dedicated to combating hunger and cultivating community from 8 am to 7 pm. With hearty meals and enriching initiatives, we're committed to building a brighter future for Sydney.",
+        date_posted: '3/7/24',
+        time_posted: '12.50pm',
+        posted_by_branch: 'Sydney',
+        image_url: '/not_an_image.jpg'
+    },
+    {
+        id: 30,
+        title: "Welcome Adelaide!",
+        description: "Meal Mates opens its Adelaide branch at 129 Waymouth Street, inviting all to join in addressing hunger and building community from 9 am to 5 pm. With nutritious meals and empowerment initiatives, they strive for a hunger-free future in Adelaide.",
+        date_posted: '3/8/24',
+        time_posted: '12.00pm',
+        posted_by_branch: 'Adelaide',
+        image_url: '/not_an_image.jpg'
+    },
     {
         id: 1,
         title: "A longer title for a news article",
@@ -210,10 +252,14 @@ data() {
         branches_summary: testBranchSummary,
         event_selected: testEventDetails, // set to null intially in real thing
         event_attendance: 4,
+        news_results: testNews,
+        show_preview: true,
+        create_news_preview: "",
         news_array: testNews,
         num_points: 1,
         point_level: [0],
-        branch_selected: testBranchSummary[0]
+        branch_selected: testBranchSummary[0],
+        update_selected: testUpdateDetails
     };
 },
 methods: {
@@ -271,6 +317,68 @@ methods: {
         }
 
         console.log("request url: " + query_path);
+    },
+    news_search() {
+        // Get the value of all the relevant filter options and search term
+        let search_term = document.getElementById("news-search").value;
+        let from_date = document.getElementById("from-date").value;
+        let to_date = document.getElementById("to-date").value;
+        let num_news = document.getElementById("num-news").value;
+        let branches_selected = [];
+        let branches_boxes = document.getElementsByName("branch_filters");
+        for(let i = 0; i < branches_boxes.length; i++){
+            if(branches_boxes[i].checked){
+                branches_selected.push(branches_boxes[i].value);
+            }
+        }
+
+        console.log("search term: " + search_term);
+        console.log("from date: " + from_date);
+        console.log("to date: " + to_date);
+        console.log("num news: " + num_news);
+        console.log("branches selected: " + branches_selected);
+
+        // Construct the query parameters
+        let query_parameters = "";
+        if(search_term !== ""){
+            query_parameters += "?search=" + search_term + '&';
+        }
+        if(from_date !== ""){
+            query_parameters += "?from=" + from_date + '&';
+        }
+        if(to_date !== ""){
+            query_parameters += "?to=" + to_date + '&';
+        }
+        if(num_news !== ""){
+            query_parameters += "?n=" + num_news + '&';
+        }
+        for(let i = 0; i < branches_selected.length; i++){
+            query_parameters += "?branch=" + branches_selected[i] + '&';
+        }
+        // remove the last &
+        if(query_parameters !== ""){
+            query_parameters = query_parameters.substring(0, query_parameters.length - 1);
+        }
+        console.log("query parameters: " + query_parameters);
+
+        // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
+        let query_path = "";
+        if(this.logged_in){
+            // requires authentication on server
+            query_path = "/users/news/search" + query_parameters;
+        } else {
+            // Only allow public events
+            query_path = "/news/search" + query_parameters;
+        }
+
+        console.log("request url: " + query_path);
+    },
+    news_show_more_results(){
+        // Increase the max number of events shown by 5
+        document.getElementById("num-events").value = parseInt(document.getElementById("num-news").value) + 5;
+
+        // Call the events_search function to get the events from the server
+        this.events_search();
     },
     events_show_more_results(){
         // Increase the max number of events shown by 5

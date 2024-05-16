@@ -24,6 +24,14 @@ router.get('/news', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news.html'));
 });
 
+router.get('/news/id/:newsId', function(req, res, next){
+  res.sendFile(path.join(__dirname, '..', 'public', 'news_details_example.html'));
+});
+
+router.get('/manage/news/create', function(req, res, next){
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
+});
+
 router.get('/branches', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branches.html'));
 });
