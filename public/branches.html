@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- NOTE: This index.html is for the branches page, not the main page -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Website</title>
-  <link rel="stylesheet" href="../stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
-  <script src="../App.js" defer></script>
+  <script src="/App.js" defer></script>
 </head>
 
 <body id="app">
@@ -22,7 +21,7 @@
   <div class="page-content content">
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_summary" >
-      <a :href="branch.page_url" style="text-decoration: none; color: inherit;">
+      <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)" style="text-decoration: none; color: inherit;">
       <div class="branch-content">
         <div class="branch-details-container" style="flex: 2;">
           <h2 class="branch-name"> {{branch.name}} </h2>

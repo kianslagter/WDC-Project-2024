@@ -36,4 +36,13 @@ router.get('/register', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'register.html'));
 });
 
+router.get('/branches/id/:branchId', function(req, res, next){
+  res.sendFile(path.join(__dirname, '..', 'public', 'branch_details.html'));
+});
+
+
+router.get('/branches', function(req, res, next){
+  res.sendFile(path.join(__dirname, '..', 'public', 'branches.html'));
+});
+
 module.exports = router;

@@ -178,8 +178,8 @@ data() {
         event_attendance: 4,
         news_array: testNews,
         num_points: 1,
-        point_level: [0]
-
+        point_level: [0],
+        branch_selected: testBranchSummary[0]
     };
 },
 methods: {
@@ -258,6 +258,10 @@ methods: {
                 console.log("RSVP No");
             }
         }
+    },
+    selectBranch(branchId) {
+        this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
+        window.location.href = '/branches/id/' + branchId;
     }
-}
+},
 }).mount('#app');
