@@ -3,6 +3,7 @@ const { createApp } = Vue;
 const navitems = [
     { title:'Home',         url:'/' },
     { title:'Events',   url:'/events' },
+    { title: 'News',    url:'/news'},
     { title:'Branches',   url:'/branches' },
     { title:'Login', url:'/login'}
 ];

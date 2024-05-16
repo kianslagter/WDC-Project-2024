@@ -20,8 +20,8 @@ router.get('/manage/events/create', function(req, res, next){
   res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
 });
 
-router.get('/about', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'about.html'));
+router.get('/news', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'news.html'));
 });
 
 router.get('/branches', function(req, res, next) {
