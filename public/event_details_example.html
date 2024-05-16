@@ -26,8 +26,8 @@
                 <p><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
                 <p><b> Location: </b> {{event_selected.location}} </p>
                 <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
-                <button v-if="access_level >= 1" class="button primary-button event-details-rsvp-button" type="button">RSVP Yes</button>
-                <button v-if="access_level >= 1" class="button secondary-button event-details-rsvp-button" type="button">RSVP No</button>
+                <button class="button primary-button event-details-rsvp-button" type="button" v-on:click="RSVP('YES')">RSVP Yes</button>
+                <button class="button secondary-button event-details-rsvp-button" type="button" v-on:click="RSVP('NO')">RSVP No</button>
                 <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button" type="button"> View Responses </button>
                 <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button" type="button"> Edit Event </button>
             </div>
@@ -64,6 +64,7 @@
                 This could be made nicer probably
             -->
         </template>
+    </div>
     <footer>
       &copy; 2024 Your Website. All rights reserved.
       These buttons will be removed, for testing purposes only

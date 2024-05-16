@@ -244,6 +244,20 @@ methods: {
 
         // Call the events_search function to get the events from the server
         this.events_search();
+    },
+    RSVP(response){
+        if(this.access_level == 0){
+            // Visitor, redirect to login page
+            window.location.href = '/login';
+        } else {
+            if(response == "YES"){
+                // Some AJAX request to add later
+                console.log("RSVP Yes");
+            } else {
+                // Some AJAX request to add later
+                console.log("RSVP No");
+            }
+        }
     }
 }
 }).mount('#app');
