@@ -17,7 +17,7 @@ const testEvents = [
         endTime: '3pm',
         dayOfWeek: 'Monday',
         location: 'Adelaide',
-        image_url: '/not_an_image.png'
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
     },
     {
         id: 2,
@@ -28,7 +28,7 @@ const testEvents = [
         endTime: '5pm',
         dayOfWeek: 'Monday',
         location: 'Sydney',
-        image_url: '/not_an_image.png'
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
     },
     {
         id: 3,
@@ -39,8 +39,41 @@ const testEvents = [
         endTime: '5pm',
         dayOfWeek: 'Monday',
         location: 'Adelaide',
-        image_url: '/not_an_image.png'
-    }
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
+    },
+    {
+        id: 4,
+        title: 'Event 4 Title',
+        description: 'Description of event 4',
+        date: '1/7/24',
+        startTime: '1pm',
+        endTime: '3pm',
+        dayOfWeek: 'Monday',
+        location: 'Adelaide',
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
+    },
+    {
+        id: 5,
+        title: 'Event 5 Title',
+        description: 'Description of event 5',
+        date: '1/7/24',
+        startTime: '1pm',
+        endTime: '3pm',
+        dayOfWeek: 'Monday',
+        location: 'Adelaide',
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
+    },
+    {
+        id: 6,
+        title: 'Event 6 Title',
+        description: 'Description of event 6',
+        date: '1/7/24',
+        startTime: '1pm',
+        endTime: '3pm',
+        dayOfWeek: 'Monday',
+        location: 'Adelaide',
+        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
+    },
 ];
 
 const testEventDetails = {
@@ -59,7 +92,7 @@ const testEventDetails = {
     startTime: '12pm',
     endTime: '5pm',
     location: 'Adelaide',
-    image_url: '/not_an_image.png'
+    image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
 };
 
 const testBranchSummary = [

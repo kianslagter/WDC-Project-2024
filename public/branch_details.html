@@ -47,14 +47,15 @@
         <hr>
         <div>
             <h2>Upcoming events:</h2>
-            <p> Event card links here</p>
-            <div class="scrolling-wrapper">
-                <div class="inner-scroll">
+            <div class="scrolling-wrapper-events">
+                <div class="inner-scroll-events">
                   <template v-for="event in events_results">
-                    <div class="news-pane">
-                      <img v-bind:src="event.image" class="event-image" alt="Event image">
+                    <div class="event-pane" v-if="event.location === branch_selected.name">
+                      <div>
+                        <img v-bind:src="event.image_url" class="event-card-image" alt="Event image">
+                      </div>
+                      <a v-bind:href="'/events/id/' + event.id" class="title-link"> <h3 class="event-card-title"> {{event.title}} </h3> </a>
                       <p class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}} </p>
-                      <a v-bind:href="'/events/id/' + event.id" class="title-link"> <h3 class="event-title"> {{event.title}} </h3> </a>
                     </div>
                   </template>
                 </div>

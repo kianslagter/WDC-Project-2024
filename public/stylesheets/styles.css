@@ -406,3 +406,47 @@ footer {
 .title-link{
   text-decoration: none;
 }
+
+.event-pane {
+  border-radius: 1em;
+  padding: 1em 2em;
+  background-color: lightgray;
+  position: relative;
+  width: 200px;
+  height: 80%;
+  display: flex;
+  overflow-x: auto;
+  overflow: hidden;
+  margin-right: 10px;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.event-card-title{
+  margin-bottom: 2px;
+  color: black;
+  font-size: 1.5em;
+  text-decoration: none;
+}
+
+.event-card-image {
+  width: 100%;
+  height: auto;
+}
+
+.scrolling-wrapper-events {
+  width: 100%;
+  height: 350px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.inner-scroll-events {
+  height: 100%;
+  white-space: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
