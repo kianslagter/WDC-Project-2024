@@ -461,3 +461,38 @@ footer {
 .join-branch-button :hover {
   background-color: #5a6268;
 }
+
+.news-details-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+/* Not used yet */
+.news-container {
+width: 90%;
+border-radius: 10px;
+padding: 5px 10px 10px 10px;
+margin: auto;
+margin-top: 10px;
+margin-bottom: 10px;
+background-color: #E2A7A7;
+}
+
+.news-textarea {
+  width: 500px;
+  height: 150px;
+}
+
+.preview {
+  background-color: lightgrey;
+  border-radius: 20px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.news-image {
+  float: right;
+  width: 100px;
+}
