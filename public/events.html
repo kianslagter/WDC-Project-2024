@@ -63,8 +63,8 @@
           <span class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
           <p class="event-description"> {{event.description}} </p>
           <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-          <button v-if="access_level >= 1" class="button primary-button event-rsvp-button" type="button">RSVP Yes</button>
-          <button v-if="access_level >= 1" class="button secondary-button event-rsvp-button" type="button">RSVP No</button>
+          <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('YES')">RSVP Yes</button>
+          <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('NO')">RSVP No</button>
           <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> View Responses </button>
           <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Edit Event </button>
 
