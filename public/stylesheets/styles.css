@@ -450,3 +450,14 @@ footer {
   flex-wrap: nowrap;
   overflow-x: auto;
 }
+
+.join-branch-button {
+  margin-top: 10px;
+  background-color: #6c757d;
+  color: #fff;
+  margin-left: 10px;
+}
+
+.join-branch-button :hover {
+  background-color: #5a6268;
+}

@@ -40,8 +40,9 @@
                     <a v-bind:href="'mailto:' + branch_selected.email" class="button secondary-button">Email</a>
                   </div>
             </div>
-            <div class="branch-image-container" style="flex: 1;">
-                <img class="branch-image" v-bind:src="branches_summary[0].image_url" alt="Branch Image">
+            <div class="branch-image-container" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                <img class="branch-image" v-bind:src="branch_selected.image_url" alt="Branch Image">
+                <a href="/register" class="button join-branch-button">Join Branch</a>
             </div>
         </div>
         <hr>
