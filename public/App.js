@@ -174,7 +174,10 @@ const testNews = [
         time_posted: '12.00pm',
         posted_by_branch: 'Adelaide',
         image_url: '/not_an_image.jpg'
-    },
+    }
+];
+
+const testNews1 = [
     {
         id: 1,
         title: "A longer title for a news article",
@@ -256,6 +259,7 @@ data() {
         show_preview: true,
         create_news_preview: "",
         news_array: testNews,
+        news_array1: testNews1,
         num_points: 1,
         point_level: [0],
         branch_selected: testBranchSummary[0],
