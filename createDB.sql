@@ -14,7 +14,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE branches (
-    branch_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
+    branch_id INT AUTO_INCREMENT,
     branch_name VARCHAR(64) NOT NULL,
     street_number INT,
     street_name VARCHAR(64),
@@ -30,8 +30,8 @@ CREATE TABLE branches (
 );
 
 CREATE TABLE events (
-    event_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
-    branch_id BINARY(16),
+    event_id INT AUTO_INCREMENT,
+    branch_id INT,
     event_name VARCHAR(64),
     start_date_time DATETIME,
     end_date_time DATETIME,
@@ -43,8 +43,8 @@ CREATE TABLE events (
 );
 
 CREATE TABLE news (
-    article_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
-    branch_id BINARY(16),
+    article_id INT AUTO_INCREMENT,
+    branch_id INT,
     title VARCHAR(64),
     content VARCHAR(1024),
     is_public BOOLEAN DEFAULT FALSE,
@@ -56,7 +56,7 @@ CREATE TABLE news (
 );
 
 CREATE TABLE user_branch_affiliation (
-    branch_id BINARY(16),
+    branch_id INT,
     username VARCHAR(64),
     is_manager BOOLEAN NOT NULL DEFAULT FALSE,
 
@@ -66,7 +66,7 @@ CREATE TABLE user_branch_affiliation (
 );
 
 CREATE TABLE user_event_attendance (
-    event_id BINARY(16),
+    event_id int,
     username VARCHAR(64),
     rsvp BOOLEAN NOT NULL,
 
