@@ -3,6 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mysql = require('mysql');
+
+var dbConnectionPool = mysql.createPool({
+  host: 'localhost',
+  database: 'volunteer_management_system'
+});
 
 const indexRouter = require('./routes/index');
 
@@ -11,6 +17,11 @@ var app = express();
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('view engine', 'jade');
+
+app.use(function(req, res, next) {
+  req.pool = dbConnectionPool;
+  next();
+});
 
 app.use(logger('dev'));
 app.use(express.json());
