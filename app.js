@@ -13,6 +13,7 @@ var dbConnectionPool = mysql.createPool({
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const manageRouter = require('./routes/manage');
 
 var app = express();
 
@@ -53,6 +54,10 @@ app.use('/', indexRouter);
 // Authentication step (need to be logged in for further routes goes here I think)
 
 app.use('/users', usersRouter);
+
+// Authentication (branch managers only)
+
+app.use('/manage', manageRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
