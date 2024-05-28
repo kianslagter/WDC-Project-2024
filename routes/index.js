@@ -43,6 +43,18 @@ router.post('/login', function(req, res, next){
         // log user in
         req.session.isLoggedIn = true;
         req.session.username = uname;
+        // Get the users userID from the DB
+        var query = "SELECT user_id FROM users WHERE username=?;";
+        connection.query(query, [uname], function(err, rows, fields) {
+          connection.release(); // release connection
+          if (err) {
+            console.log(err);
+            res.sendStatus(500);
+            return;
+          }
+          req.session.userID = rows[0].user_id;
+          return;
+        });
 
         // Will likely need to add:
         // an array of branches they are a member of
