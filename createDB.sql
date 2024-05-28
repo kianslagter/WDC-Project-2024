@@ -8,6 +8,7 @@ CREATE TABLE users (
     first_name VARCHAR(64),
     last_name VARCHAR(64),
     phone_num VARCHAR(12),
+    system_admin BOOLEAN DEFAULT FALSE,
 
     PRIMARY KEY (username)
 );
@@ -22,7 +23,7 @@ CREATE TABLE branches (
     postcode INT,
     email VARCHAR(64),
     phone VARCHAR(12),
-    image_url VARCHAR(64),
+    image_url VARCHAR(256),
     branch_description VARCHAR(1024),
 
     PRIMARY KEY (branch_id)
@@ -34,7 +35,8 @@ CREATE TABLE events (
     event_name VARCHAR(64),
     start_date_time DATETIME,
     end_date_time DATETIME,
-    event_description VARCHAR(1024),
+    event_description VARCHAR(2048),
+    is_public BOOLEAN DEFAULT FALSE,
 
     PRIMARY KEY (event_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id)
