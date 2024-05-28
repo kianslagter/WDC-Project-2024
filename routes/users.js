@@ -20,11 +20,37 @@ router.post('/events/rsvp', function(req, res, next){
     res.send();
   }
 
-  // Update the database
-  // need the username to do this
-  let username = "admin";
-  
+  // Check user belongs to the correct branch???
 
+  // Update the database
+  let username = req.session.username;  // Username of user
+  let event_id = req.body.eventID;      // Event ID of the event theyre RSVPing to
+  let response = false;                 // Their response to the event
+  if(req.body.RSVP == 'yes'){
+    response = true;
+  }
+
+  req.pool.getConnection( function(err,connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    var query = "INSERT INTO user_event_attendance (event_id, username, rsvp) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rsvp=?;";
+    connection.query(query, [event_id, username, response, response], function(err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      console.log(rows);
+      res.sendStatus(200);
+      return;
+    });
+  });
 });
+
+
 
 module.exports = router;
