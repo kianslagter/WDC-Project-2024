@@ -29,6 +29,7 @@ router.post('/events/rsvp', function(req, res, next){
   if(req.body.RSVP == 'yes'){
     response = true;
   }
+  console.log("Sesion: " + req.session.id + " uID: " + req.session.userID);
 
   req.pool.getConnection( function(err,connection) {
     if (err) {
@@ -36,7 +37,7 @@ router.post('/events/rsvp', function(req, res, next){
       res.sendStatus(500);
       return;
     }
-    var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rsvp=?;";
+    var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
     connection.query(query, [event_id, req.session.userID, response, response], function(err, rows, fields) {
       connection.release(); // release connection
       if (err) {

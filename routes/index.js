@@ -27,7 +27,6 @@ router.post('/login', function(req, res, next){
     }
     var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
     connection.query(query, [uname, pwd], function(err, rows, fields) {
-      connection.release(); // release connection
       if (err) {
         console.log(err);
         res.sendStatus(500);
@@ -44,7 +43,7 @@ router.post('/login', function(req, res, next){
         req.session.isLoggedIn = true;
         req.session.username = uname;
         // Get the users userID from the DB
-        var query = "SELECT user_id FROM users WHERE username=?;";
+        var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
         connection.query(query, [uname], function(err, rows, fields) {
           connection.release(); // release connection
           if (err) {
@@ -52,7 +51,10 @@ router.post('/login', function(req, res, next){
             res.sendStatus(500);
             return;
           }
+          console.log(rows);
+          console.log(rows[0].user_id);
           req.session.userID = rows[0].user_id;
+          console.log("Sesion: " + req.session.id + " uID: " + req.session.userID);
           return;
         });
 
