@@ -2,7 +2,8 @@ CREATE DATABASE volunteer_management_system;
 USE volunteer_management_system;
 
 CREATE TABLE users (
-    username VARCHAR(64),
+    user_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
+    username VARCHAR(64) UNIQUE,
     password_hash VARCHAR(100) NOT NULL,
     postcode INT,
     first_name VARCHAR(64),
@@ -10,7 +11,7 @@ CREATE TABLE users (
     phone_num VARCHAR(12),
     system_admin BOOLEAN DEFAULT FALSE,
 
-    PRIMARY KEY (username)
+    PRIMARY KEY (user_id)
 );
 
 CREATE TABLE branches (
@@ -57,20 +58,20 @@ CREATE TABLE news (
 
 CREATE TABLE user_branch_affiliation (
     branch_id INT,
-    username VARCHAR(64),
+    user_id BINARY(16),
     is_manager BOOLEAN NOT NULL DEFAULT FALSE,
 
-    PRIMARY KEY (branch_id, username),
+    PRIMARY KEY (branch_id, user_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
-    FOREIGN KEY (username) REFERENCES users(username)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE user_event_attendance (
-    event_id int,
-    username VARCHAR(64),
+    event_id INT,
+    user_id BINARY(16),
     rsvp BOOLEAN NOT NULL,
 
-    PRIMARY KEY (event_id, username),
+    PRIMARY KEY (event_id, user_id),
     FOREIGN KEY (event_id) REFERENCES events(event_id),
-    FOREIGN KEY (username) REFERENCES users(username)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
