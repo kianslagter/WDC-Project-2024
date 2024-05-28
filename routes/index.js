@@ -12,7 +12,6 @@ router.get('/', function(req, res, next) {
 router.post('/login', function(req, res, next){
   // Need to check validity of inputs (NOT DONE YET)
   if(req.body.username === undefined || req.body.password === undefined){
-    console.log("here");
     res.status(400); // bad request
     res.send();
   }
