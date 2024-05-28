@@ -36,7 +36,7 @@ router.post('/events/rsvp', function(req, res, next){
       res.sendStatus(500);
       return;
     }
-    var query = "INSERT INTO user_event_attendance (event_id, username, rsvp) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rsvp=?;";
+    var query = "INSERT INTO user_event_attendance (event_id, username, rsvp) VALUES (UNHEX(?),?,?) ON DUPLICATE KEY UPDATE rsvp=?;";
     connection.query(query, [event_id, username, response, response], function(err, rows, fields) {
       connection.release(); // release connection
       if (err) {
@@ -44,7 +44,6 @@ router.post('/events/rsvp', function(req, res, next){
         res.sendStatus(500);
         return;
       }
-      console.log(rows);
       res.sendStatus(200);
       return;
     });
