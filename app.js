@@ -2,6 +2,7 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var logger = require('morgan');
 var mysql = require('mysql');
 
@@ -29,6 +30,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.use(session({
+  secret: 'a very secret string',
+  resave: false,
+  saveUninitialized: true,
+  coookie: { secure: false }
+}));
+
+// Check if they are logged in
+app.use(function (req, res, next){
+  if(req.session.isLoggedIn === undefined){
+    // First time, intialise isLoggedIn to false
+    req.session.isLoggedIn = false;
+  }
+  next();
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
