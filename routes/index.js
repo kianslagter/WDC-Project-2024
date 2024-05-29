@@ -32,7 +32,6 @@ router.post('/login', function(req, res, next){
         res.sendStatus(500);
         return;
       }
-      console.log(rows[0].count);
       if(rows[0].count == 0){
         // Wrong uname or pwd
         res.sendStatus(403);
@@ -51,10 +50,8 @@ router.post('/login', function(req, res, next){
             res.sendStatus(500);
             return;
           }
-          console.log(rows);
-          console.log(rows[0].user_id);
           req.session.userID = rows[0].user_id;
-          console.log("Sesion: " + req.session.id + " uID: " + req.session.userID);
+          res.sendStatus(200);
           return;
         });
 
@@ -62,10 +59,7 @@ router.post('/login', function(req, res, next){
         // an array of branches they are a member of
         // an array of branches they manage???
         // are they a system admin?
-
-        res.sendStatus(200);
       }
-
       return;
     });
   });
@@ -125,6 +119,52 @@ router.get('/events/search', function(req, res, next){
     });
   });
 });
+
+router.get('/events/id/:eventID/details.json', function(req, res, next){
+    // WILL NEED TO CAREFULLY AUTHENTICATE USER HERE, if event not public
+
+    let event_id = req.params.eventID;
+
+    // Check if event exists
+    req.pool.getConnection( function(err,connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      var query = "SELECT COUNT(*) AS count FROM events WHERE event_id=?";
+      connection.query(query, [event_id], function(err, rows, fields) {
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        console.log(rows[0].count);
+        if(rows[0].count == 0){
+          // Event doesn't exist
+          res.sendStatus(404);
+          return;
+        } else {
+          // Event exists
+          var query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE event_id=?;";
+          connection.query(query, [event_id], function(err, rows, fields) {
+            connection.release(); // release connection
+            if (err) {
+              console.log(err);
+              res.sendStatus(500);
+              return;
+            }
+            res.type('json');
+            res.send(JSON.stringify(rows[0]));
+            return;
+          });
+        }
+
+        return;
+      });
+    });
+});
+
 
 router.get('/events', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'events.html'));

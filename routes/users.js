@@ -1,12 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-
 router.post('/events/rsvp', function(req, res, next){
   // Get the JSON object from the response
   if(req.body.eventID === undefined || typeof(req.body.eventID) !== "string"){
@@ -29,7 +23,6 @@ router.post('/events/rsvp', function(req, res, next){
   if(req.body.RSVP == 'yes'){
     response = true;
   }
-  console.log("Sesion: " + req.session.id + " uID: " + req.session.userID);
 
   req.pool.getConnection( function(err,connection) {
     if (err) {
@@ -105,5 +98,6 @@ router.get('/events/search', function(req, res, next){
     });
   });
 });
+
 
 module.exports = router;
