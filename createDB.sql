@@ -38,6 +38,7 @@ CREATE TABLE events (
     start_date_time DATETIME NOT NULL,
     end_date_time DATETIME, -- Check after start time?
     event_description VARCHAR(2048) NOT NULL,
+    event_details VARCHAR(4096),
     event_location VARCHAR(64),
     event_image VARCHAR(64),
     is_public BOOLEAN DEFAULT FALSE,

@@ -50,6 +50,50 @@ router.post('/event/responses/:eventID', function(req, res, next){
     });
 });
 
+router.post('/event/create', function(req, res, next){
+  // Get the event content from the request body
+  let title = req.body.title;
+  let description = req.body.description;
+  let details = req.body.details;
+  let date = req.body.date;
+  let start_time = req.body.startTime;
+  let end_time = req.body.endTime;
+  let location = req.body.location;
+  let image_url = req.body.image_url;
+  let public = req.body.public;
 
+  // Validate each field of the event
+
+  // Convert date and start and end time to start and end datetimes
+  let start_date_time = date + ' ' + start_time;
+  let end_date_time = date + ' ' + end_time;
+
+  // Need to get which branch they manage from the DB
+  let branch_id = 1;  // This should definitely not be hardcoded to 1
+
+  // Add to DB
+  // Construct the SQL query
+  let query = "INSERT INTO events (branch_id, event_name, event_description, event_details, start_date_time, end_date_time, event_location, event_image, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+  // Query the SQL database
+  req.pool.getConnection( function(err,connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function(err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      // Added successfully
+      res.sendStatus(200);
+      return;
+    });
+  });
+});
 
 module.exports = router;
