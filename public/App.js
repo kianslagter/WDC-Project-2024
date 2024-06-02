@@ -264,10 +264,11 @@ createApp({
             point_level: [0],
             branch_selected: testBranchSummary[0],
             update_selected: testUpdateDetails,
-            loading: true
+            loading: true,
+            event: null
         };
     },
-    setup() {//CHANGE THIS 
+    setup() {//CHANGE THIS
         // this is a really bad way of doing this, runs on every page not just the events page
         const event_selected = ref(null);
         const loading = ref(true);
@@ -425,17 +426,43 @@ createApp({
             this.events_search();
         },
         RSVP(response) {
-            if (this.access_level == 0) {
+            if (typeof this.access_level === 'undefined' || this.access_level == 0) {
                 // Visitor, redirect to login page
                 window.location.href = '/login';
             } else {
-                if (response == "YES") {
-                    // Some AJAX request to add later
-                    console.log("RSVP Yes");
-                } else {
-                    // Some AJAX request to add later
-                    console.log("RSVP No");
+                const eventID = this.event.id;
+
+                if (!eventID) {
+                    console.error("No event ID found");
+                    return;
                 }
+
+                const data = {
+                    eventID: eventID,
+                    RSVP: response
+                };
+
+                fetch('/users/events/rsvp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("RSVP successful");
+                        } else if (response.status == 400) {
+                            console.error("Invalid request data");
+                        } else if (response.status == 500) {
+                            console.error("Server error");
+                        } else {
+                            console.error("Unexpected error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
             }
         },
         selectBranch(branchId) {
@@ -445,5 +472,5 @@ createApp({
     },
     mounted() {
         this.events_search(); // Call the search function when the component is mounted
-      }
+    }
 }).mount('#app');

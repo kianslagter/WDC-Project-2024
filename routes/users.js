@@ -7,11 +7,13 @@ router.post('/events/rsvp', function(req, res, next){
     // Invalid argument event id
     res.status(400);  // bad request
     res.send();
+    return;
   }
-  if(req.body.RSVP === undefined || typeof(req.body.RSVP) !== "string" || (req.body.RSVP != 'yes' && req.body.RSVP != 'no')){
+  if(req.body.RSVP === undefined || typeof(req.body.RSVP) !== "string" || (req.body.RSVP != 'Yes' && req.body.RSVP != 'No')){
     // Invalid argument RSVP
     res.status(400);  // bad request
     res.send();
+    return;
   }
 
   // Check user belongs to the correct branch???
@@ -20,7 +22,7 @@ router.post('/events/rsvp', function(req, res, next){
   let username = req.session.username;  // Username of user
   let event_id = req.body.eventID;      // Event ID of the event theyre RSVPing to
   let response = false;                 // Their response to the event
-  if(req.body.RSVP == 'yes'){
+  if(req.body.RSVP == 'Yes'){
     response = true;
   }
 
@@ -28,6 +30,7 @@ router.post('/events/rsvp', function(req, res, next){
     if (err) {
       console.log(err);
       res.sendStatus(500);
+      connection.release();
       return;
     }
     var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
@@ -36,6 +39,7 @@ router.post('/events/rsvp', function(req, res, next){
       if (err) {
         console.log(err);
         res.sendStatus(500);
+        connection.release();
         return;
       }
       res.sendStatus(200);
@@ -87,7 +91,7 @@ router.get('/events/search', function(req, res, next){
     }
     connection.query(query, [max_num], function(err, rows, fields) {
       connection.release(); // release connection
-      if (err) { 
+      if (err) {
         console.log(err);
         res.sendStatus(500);
         return;
