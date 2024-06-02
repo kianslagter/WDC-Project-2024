@@ -12,4 +12,3 @@ function getEventDetails(eventID, callback) {
     }
     xhttp.send();
 }
-

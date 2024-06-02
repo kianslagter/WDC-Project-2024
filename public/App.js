@@ -267,11 +267,12 @@ createApp({
             loading: true
         };
     },
-    setup() {
+    setup() {//CHANGE THIS 
+        // this is a really bad way of doing this, runs on every page not just the events page
         const event_selected = ref(null);
         const loading = ref(true);
 
-        // Call getEventDetails
+        // call getEventDetails
         let eventID = window.location.pathname.split('/')[3];
         getEventDetails(eventID, function (data) {
             event_selected.value = data;
@@ -280,7 +281,7 @@ createApp({
 
         return {
             event_selected,
-            loading
+            loading,
         };
     },
     methods: {
@@ -442,4 +443,7 @@ createApp({
             window.location.href = '/branches/id/' + branchId;
         }
     },
+    mounted() {
+        this.events_search(); // Call the search function when the component is mounted
+      }
 }).mount('#app');
