@@ -1,4 +1,4 @@
-const { createApp } = Vue;
+const { createApp, ref } = Vue;
 
 const navitems = [
     { title: 'Home', url: '/' },
@@ -253,7 +253,7 @@ createApp({
             events_results: testEvents,
             show_events_filters: false,
             branches_summary: testBranchSummary,
-            event_selected: testEventDetails, // set to null intially in real thing
+            event_selected: null, // set to null intially in real thing
             event_attendance: 4,
             news_results: testNews,
             show_preview: true,
@@ -263,7 +263,24 @@ createApp({
             num_points: 1,
             point_level: [0],
             branch_selected: testBranchSummary[0],
-            update_selected: testUpdateDetails
+            update_selected: testUpdateDetails,
+            loading: true
+        };
+    },
+    setup() {
+        const event_selected = ref(null);
+        const loading = ref(true);
+
+        // Call getEventDetails
+        let eventID = window.location.pathname.split('/')[3];
+        getEventDetails(eventID, function (data) {
+            event_selected.value = data;
+            loading.value = false;
+        });
+
+        return {
+            event_selected,
+            loading
         };
     },
     methods: {
