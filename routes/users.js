@@ -107,7 +107,7 @@ router.get('/events/search', function (req, res, next) {
     params.push(max_num);
     connection.query(query, params, function (err, rows, fields) {
       connection.release(); // release connection
-      if (err) {
+      if (err) { 
         console.log(err);
         res.sendStatus(500);
         return;

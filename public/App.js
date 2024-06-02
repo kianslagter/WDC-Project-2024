@@ -268,7 +268,8 @@ createApp({
             event: null
         };
     },
-    setup() {
+    setup() {//CHANGE THIS
+        // this is a really bad way of doing this, runs on every page not just the events page
         const event_selected = ref(null);
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
