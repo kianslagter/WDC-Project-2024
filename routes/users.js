@@ -2,15 +2,16 @@ var express = require('express');
 var router = express.Router();
 
 router.post('/events/rsvp', function (req, res, next) {
+  console.log("RSVP from " + req.session.userID);
   // Get the JSON object from the response
   if (req.body.eventID === undefined || typeof (req.body.eventID) !== "string") {
+    console.log("sending 400");
     // Invalid argument event id
     res.status(400);  // bad request
     res.send();
     return;
   }
-  if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP != 'Yes' && req.body.RSVP != 'No')) {
-    // Invalid argument RSVP
+  if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP != 'yes' && req.body.RSVP != 'no')) {
     res.status(400);  // bad request
     res.send();
     return;
