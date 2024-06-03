@@ -338,6 +338,10 @@ router.get('/branches', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branches.html'));
 });
 
+router.get('/private_policy', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'private_policy.html'));
+});
+
 router.get('/admin/branches/create', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
 });
