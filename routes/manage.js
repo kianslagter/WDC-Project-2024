@@ -13,9 +13,9 @@ router.post('/event/responses/:eventID', function (req, res, next) {
       return;
     }
     const yesQuery = `
-    SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, users.username AS id
+    SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
     FROM user_event_attendance AS attendance
-    INNER JOIN users ON users.username = attendance.user_id
+    INNER JOIN users ON users.user_id = attendance.user_id
     WHERE attendance.event_id = ? AND attendance.RSVP = TRUE;
 `;
     connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
@@ -36,9 +36,9 @@ router.post('/event/responses/:eventID', function (req, res, next) {
           return;
         }
         const noQuery = `
-        SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, users.username AS id
+        SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
         FROM user_event_attendance AS attendance
-        INNER JOIN users ON users.username = attendance.user_id
+        INNER JOIN users ON users.user_id = attendance.user_id
         WHERE attendance.event_id = ? AND attendance.RSVP = FALSE;
     `;
         connection.query(noQuery, [req.params.eventID], function (err, noRows) {
@@ -108,6 +108,133 @@ router.post('/event/create', function(req, res, next){
       return;
     });
   });
+});
+
+router.post('/event/edit/:eventID/hello', function(req,res,next){
+  console.log("here");
+  // Check the event exists?
+  /*
+    DO THIS!!!!!!!!!!!!
+  */
+
+  // Check the manager has authority to edit event, i.e. right branch
+  /*
+    DO THIS!!!!!!!!!!!!
+  */
+
+  // Check which fields were present in the request
+  if(req.body.title !== undefined){
+    // Construct the SQL query to update the title
+    let query = "UPDATE events SET event_name=? WHERE event_id=?";
+
+    // Query the SQL database
+    req.pool.getConnection( function(err,connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [req.body.title, req.params.eventID], function(err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        // Added successfully, move on to next one
+      });
+    });
+  }
+
+  if(req.body.description !== undefined){
+    // Construct the SQL query to update the title
+    let query = "UPDATE events SET event_description=? WHERE event_id=?";
+
+    // Query the SQL database
+    req.pool.getConnection( function(err,connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [req.body.description, req.params.eventID], function(err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        // Added successfully, move on to next one
+        return;
+      });
+    });
+  }
+
+  if(req.body.details !== undefined){
+    // Construct the SQL query to update the title
+    let query = "UPDATE events SET event_details=? WHERE event_id=?";
+
+    // Query the SQL database
+    req.pool.getConnection( function(err,connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [req.body.details, req.params.eventID], function(err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        // Added successfully, move on to next one
+        return;
+      });
+    });
+  }
+
+  if(req.body.date !== undefined){
+
+    // Query the SQL database
+    req.pool.getConnection( function(err,connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      // Get the start and end times for the event
+      let query = "SELECT TIME(start_datetime) AS start_time, TIME(end_datetime) AS end_time FROM events WHERE event_id=?";
+      connection.query(query, [req.body.title, req.params.eventID], function(err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        // construct the new start and end datetimes
+        let start_date_time = req.body.date + ' ' + rows[0].start_time;
+        let end_date_time = req.body.date + ' ' + rows[0].end_time;
+
+        // Update the times in the DB
+        query = "UPDATE events SET start_date_time=?, end_date_time=? WHERE event_id=?";
+        connection.query(query, [start_date_time, end_date_time, req.params.eventID], function(err, rows, fields) {
+          connection.release(); // release connection
+          if (err) {
+            console.log(err);
+            res.sendStatus(500);
+            return;
+          }
+          // All done, move on to next thing
+          return;
+        });
+
+        return;
+      });
+    });
+  }
+
+  res.sendStatus(200);
 });
 
 module.exports = router;
