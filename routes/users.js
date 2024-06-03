@@ -2,57 +2,77 @@ var express = require('express');
 var router = express.Router();
 
 router.post('/events/rsvp', function (req, res, next) {
-  console.log("RSVP from " + req.session.userID);
   // Get the JSON object from the response
   if (req.body.eventID === undefined || typeof (req.body.eventID) !== "string") {
-    console.log("sending 400");
-
     // Invalid argument event id
-    res.status(400);  // bad request
-    res.send();
+    res.status(400).send("Invalid eventID (or none specified)");
     return;
   }
 
   if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP.toLowerCase() != 'yes' && req.body.RSVP.toLowerCase() != 'no')) {
-    // Invalid argument RSVP
-
-    res.status(400);  // bad request
-    res.send();
+    res.status(400).send('Invalid RSVP field. Should be "yes" or "no"');
     return;
   }
+
+  if(!req.session.isLoggedIn){
+    res.status(403).send('Must be logged in to RSVP for events');
+  }
+
   if (!req.session.userID) {
-    res.status(400).send('User ID is undefined');
+    res.status(200).send('User ID is undefined');
     return;
   }
 
-
-  // Check user belongs to the correct branch???
+  // Check user belongs to the correct branch
+  let query = `SELECT EXISTS(
+                  SELECT * FROM user_branch_affiliation
+                  WHERE user_id=UUID_TO_BIN(?) AND branch_id=(
+                        SELECT branch_id FROM events WHERE event_id = ?
+                      )
+                  ) AS member_of_branch;`;
+  req.pool.getConnection( function(err,connection) {
+    if (err) {
+      res.status(500).send("Couldn't get Connection to Database");
+      return;
+    }
+    connection.query(query, [req.session.userID, req.body.eventID], function(err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        res.status(500).send("Error with database query");
+        return;
+      }
+      if(rows[0].member_of_branch == 0){
+        // They are not a member of the correct branch
+        res.status(403).send("Not a member of the appropriate branch to RSVP for this event");
+        return;
+      }
+      return;
+    });
+  });
 
   // Update the database
-  let username = req.session.username;  // Username of user
   let event_id = req.body.eventID;      // Event ID of the event theyre RSVPing to
   let response = false;                 // Their response to the event
-  if (req.body.RSVP == 'Yes') {
+  if (req.body.RSVP.toLowerCase() == 'yes') {
     response = true;
   }
 
   req.pool.getConnection(function (err, connection) {
     if (err) {
-      console.log(err);
-      res.sendStatus(500);
       connection.release();
+      res.status(500).send('Error Getting Database Connection');
       return;
     }
     var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
     connection.query(query, [event_id, req.session.userID, response, response], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        console.log(err);
-        res.sendStatus(500);
         connection.release();
+        res.status(500).send("Error with Database Query");
         return;
       }
-      res.sendStatus(200);
+      // Has been inserted successfully
+      res.status(200).send("RSVP succesful");
       return;
     });
   });
