@@ -96,4 +96,25 @@ router.post('/event/create', function(req, res, next){
   });
 });
 
+router.post('/news/create', function(req, res, next) {
+  req.pool.getConnection(function(err, connection) {
+    if (err) {
+      res.sendStatus(500);
+      return;
+    }
+
+    var query = "INSERT INTO news (branch_id, title, content, is_public, date_published, image_url) VALUES (?, ?, ?, ?, ?, ?)";
+
+    connection.query(query, [1, req.body.news_title, req.body.news_content, req.body.is_public, '9999-12-31 23:59:59', "image_here"], function(err, rows, fields) {
+      connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      res.sendStatus(200);
+    });
+  });
+});
+
 module.exports = router;

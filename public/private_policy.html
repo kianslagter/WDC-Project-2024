@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/news.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content content">
+      <h1> Private Policy </h1>
+
+      <p>
+        MealMates is committed to protecting the privacy of our donors, volunteers, and beneficiaries in accordance with the Australian Privacy Principles under the Privacy Act 1988 (Cth). We collect personal information such as names, contact details, and donation history solely for the purpose of facilitating our operations and improving our services. This information is kept confidential and is not shared with any third parties except as required by law. We employ appropriate security measures to ensure that your data is protected against unauthorised access, alteration, or disclosure.
+      </p>
+
+      <p>
+        By engaging with MealMates, you consent to the collection and use of your information in accordance with this policy. If you have any questions or concerns about our privacy practices, or if you wish to update or remove your information from our records, please contact us at realmealmates@outlook.com. We are dedicated to maintaining the trust and confidence of our community and regularly review and update our privacy practices to ensure compliance with current regulations and best practices.
+      </p>
+      <br>
+    </div>
+
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>
