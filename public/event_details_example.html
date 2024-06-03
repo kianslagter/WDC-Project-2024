@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,27 +11,35 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="/App.js" defer></script>
 </head>
+
 <body id="app">
     <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
+        <nav>
+            <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        </nav>
     </header>
 
     <div class="page-content content">
         <a class="back-button" href="/events"> &lt; BACK</a>
         <br>
         <p v-if="access_level == 0"> <a href="/login"> Log in </a> to RSVP for this event </p>
-        <template v-if="event_selected !== null">
+        <template v-if="loading">
+            <p> Loading Event Details...</p>
+        </template>
+        <template v-else-if="event_selected !== null">
             <div class="right event-side-pane">
                 <p><b> Date: </b> {{event_selected.date}} </p>
                 <p><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
                 <p><b> Location: </b> {{event_selected.location}} </p>
                 <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
-                <button class="button primary-button event-details-rsvp-button" type="button" v-on:click="RSVP('YES')">RSVP Yes</button>
-                <button class="button secondary-button event-details-rsvp-button" type="button" v-on:click="RSVP('NO')">RSVP No</button>
-                <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button" type="button"> View Responses </button>
-                <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button" type="button"> Edit Event </button>
+                <button class="button primary-button event-details-rsvp-button" type="button"
+                    v-on:click="RSVP('YES')">RSVP Yes</button>
+                <button class="button secondary-button event-details-rsvp-button" type="button"
+                    v-on:click="RSVP('NO')">RSVP No</button>
+                <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button"
+                    type="button"> View Responses </button>
+                <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button"
+                    type="button"> Edit Event </button>
             </div>
 
             <h1> {{event_selected.title}} </h1>
@@ -56,22 +65,15 @@
                 </ul>
                 <img v-bind:src="event_selected.image_url" alt="Event Image">
             </template>
-
-
-        </template>
-        <template v-else>
-            <p> Loading Event Details...</p>
-            <!--
-                This could be made nicer probably
-            -->
         </template>
     </div>
     <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
+        &copy; 2024 Your Website. All rights reserved.
+        These buttons will be removed, for testing purposes only
+        <button type="button" v-on:click="access_level=0"> Visitor </button>
+        <button type="button" v-on:click="access_level=1"> User </button>
+        <button type="button" v-on:click="access_level=2"> Manager </button>
     </footer>
-  </body>
-  </html>
+</body>
+
+</html>
