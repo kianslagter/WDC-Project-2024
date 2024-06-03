@@ -11,12 +11,30 @@ function getEventDetails(eventID, callback, errorCallback) {
                 callback(data);
             } else if (xhttp.status == 404) {
                 console.error("Event not found");
-                if (errorCallback) errorCallback("Event not found");
             } else {
                 console.error("Error fetching event");
-                if (errorCallback) errorCallback("Error fetching event");
             }
         }
     }
     xhttp.send();
+}
+
+// get rsvp response
+async function fetchRSVPResponses(eventID) {
+    try {
+        const response = await fetch(`/manage/event/responses/${eventID}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching RSVP responses:', error);
+        throw error;
+    }
 }
