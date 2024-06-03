@@ -1,80 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/others.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="/events.js"></script>
-    <script src="App.js" defer></script>
-    <script>
-      function login(){
-        // Get the username and password
-        var uname = document.getElementById("username").value;
-        var pwd = document.getElementById("password").value;
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/events.js"></script>
+  <script src="App.js" defer></script>
+  <script>
+    function login() {
+      // Get the username and password
+      var uname = document.getElementById("username").value;
+      var pwd = document.getElementById("password").value;
 
-        // Should validate here, but who really cares right now
+      // Should validate here, but who really cares right now
 
-        // COnstruct the JSON req body
-        var req_body = {"username":uname, "password":pwd};
+      // COnstruct the JSON req body
+      var req_body = { "username": uname, "password": pwd };
 
-        // Send the AJAX request
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            // log in successful, redirect to home?
-            window.location.href = "/";
-            return;
-          } else if (this.readyState == 4 && this.status == 403) {
-            // wrong uname or password
-
-            // should do something here
-
-          }
-        };
-        xhttp.open('POST', '/login', true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify(req_body));
+      // Send the AJAX request
+      let xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          // log in successful, redirect to home?
+          window.location.href = "/";
+          return;
+        } else if (this.readyState == 4 && this.status == 403) {
+          // wrong uname or password
+          alert("Wrong username or password. Please try again.");
+        } else if (this.readyState == 4) {
+          // error
+          alert("An error occurred. Please try again later.");
+        }
       }
-    </script>
-  </head>
+      xhttp.open('POST', '/login', true);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(JSON.stringify(req_body));
+    }
+  </script>
+</head>
 
-  <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
+<body id="app">
+  <header class="top-pane">
+    <nav>
+      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+    </nav>
+  </header>
 
-    <div class="page-content">
-      <div class="login-column">
-        <div class="login-box content">
-          <div class="login-container">
-            <h1>Log in</h1>
-            <div class="login-form">
-              <div>
-                <p>Username</p>
-                <input id="username" class="input" type="text">
-              </div>
-              <div>
-                <p>Password</p>
-                <input id="password" class="input" type="password">
-              </div>
-              <button type="button" class="login-button" onclick="login()">Log In</button>
-              <p>Alternatively...</p>
-              <!-- Placeholder image - to be updated with proper embed -->
-              <img src="https://scontent.fadl3-1.fna.fbcdn.net/v/t39.2365-6/294967112_614766366879300_4791806768823542705_n.png?_nc_cat=105&ccb=1-7&_nc_sid=e280be&_nc_ohc=6_vZNKiJ2wAQ7kNvgEzEVl8&_nc_ht=scontent.fadl3-1.fna&oh=00_AYDAAphGNcpcaUdRZHo5Lsq0kFEpKFADWA4GzINJk0ShPw&oe=666000E4" style="width: 324px"></a>
-              <p>Not a member? </p><a href="/register">Join now</a>
+  <div class="page-content">
+    <div class="login-column">
+      <div class="login-box content">
+        <div class="login-container">
+          <h1>Log in</h1>
+          <div class="login-form">
+            <div>
+              <p>Username</p>
+              <input id="username" class="input" type="text">
             </div>
+            <div>
+              <p>Password</p>
+              <input id="password" class="input" type="password">
+            </div>
+            <button type="button" class="login-button" onclick="login()">Log In</button>
+            <p>Alternatively...</p>
+            <!-- Placeholder image - to be updated with proper embed -->
+            <img
+              src="https://scontent.fadl3-1.fna.fbcdn.net/v/t39.2365-6/294967112_614766366879300_4791806768823542705_n.png?_nc_cat=105&ccb=1-7&_nc_sid=e280be&_nc_ohc=6_vZNKiJ2wAQ7kNvgEzEVl8&_nc_ht=scontent.fadl3-1.fna&oh=00_AYDAAphGNcpcaUdRZHo5Lsq0kFEpKFADWA4GzINJk0ShPw&oe=666000E4"
+              style="width: 324px"></a>
+            <p>Not a member? </p><a href="/register">Join now</a>
           </div>
         </div>
       </div>
+    </div>
 
-      <footer>
-        &copy; 2024 Your Website. All rights reserved.
-      </footer>
-  </body>
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+</body>
+
 </html>

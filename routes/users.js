@@ -15,6 +15,11 @@ router.post('/events/rsvp', function (req, res, next) {
     res.send();
     return;
   }
+  if (!req.session.userID) {
+    res.status(400).send('User ID is undefined');
+    return;
+  }
+
 
   // Check user belongs to the correct branch???
 

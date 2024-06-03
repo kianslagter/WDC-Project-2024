@@ -430,7 +430,7 @@ createApp({
                 // Visitor, redirect to login page
                 window.location.href = '/login';
             } else {
-                const eventID = this.event.id;
+                let eventID = window.location.pathname.split('/')[3];
 
                 if (!eventID) {
                     console.error("No event ID found");
@@ -470,7 +470,9 @@ createApp({
             window.location.href = '/branches/id/' + branchId;
         }
     },
-    mounted() {
-        this.events_search(); // Call the search function when the component is mounted
+    mounted() { // load events on page initally, probably a better way to do this
+        if (window.location.pathname.split('/')[1]== 'events' && !window.location.pathname.split('/')[2]){
+        this.events_search();
+        }
     }
 }).mount('#app');
