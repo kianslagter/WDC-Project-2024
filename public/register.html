@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
@@ -15,7 +16,7 @@
         <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
       </nav>
     </header>
-  
+
     <div class="page-content">
       <div class="login-column">
         <div class="login-box content">
@@ -41,7 +42,7 @@
       </div>
     </div>
   </div>
-  
+
     <footer>
       &copy; 2024 Your Website. All rights reserved.
     </footer>
