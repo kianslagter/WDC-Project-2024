@@ -110,7 +110,7 @@ router.post('/event/create', function(req, res, next){
   });
 });
 
-router.post('/event/edit/:eventID/hello', function(req,res,next){
+router.post('/event/edit/:eventID', function(req,res,next){
   console.log("here");
   // Check the event exists?
   /*
