@@ -20,32 +20,40 @@
     <div class="page-content content">
         <h1>Create News Update</h1>
         <p> <b> Branch: </b> {Branch name} </p>
-        <h4> Title: <input class="create-news-title" type="text" name="news-title"></h4>
+        <h4> Title: <input id="news-title" class="create-news-title" type="text"></h4>
 
         <h4> Set Update to Public or Private </h4>
         <input id="public" type="radio" name="news_privacy" value="Public">
         <label for="public"> Public </label>
-        <input id="private" type="radio" name="news_privacy" value="Private">
+        <input id="private" type="radio" name="news_privacy" value="Private" checked="checked">
         <label for="private"> Private </label>
         <h4> Enter News Description Below  </h4>
-        <textarea class="create-news-description news-textarea">Enter news description here</textarea>
+        <textarea id="news-description" class="create-news-description news-textarea">Enter news description here</textarea>
         <p><b> Note: </b> News description should be brief, further details can go in the details section below. </p>
         <h4> Enter News Details Below </h4>
         <p> News details are listed as preformatted paragraphs. The text can be previewed below the textbox so you can verify it before posting. </p>
-        <textarea v-model="create_news_preview" placeholder="Enter news article here" class="create-news-description news-textarea">Enter news article here</textarea>
+        <textarea id="news-content" v-model="create_news_preview" placeholder="Enter news article here" class="create-news-description news-textarea">Enter news article here</textarea>
         <br>
         <button v-if="show_preview" v-on:click="show_preview=false" class="button secondary-button" type="button"> Hide Preview </button>
         <button v-else="show_preview" v-on:click="show_preview=true" class="button primary-button" type="button"> Show Preview </button>
-        <h3 v-if="show_preview"> Preview Below: </h3>
+        <h4 v-if="show_preview"> Preview Below: </h4>
         <div v-if="show_preview" class="preview"><pre>{{ create_news_preview }}</pre></div>
         <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
 
         <h4> Add an Image </h4>
         <input  class="create-news-image-upload" type="file" name="news-image" accept="image/*">
         <br>
+
+        <h4> Other Options </h4>
+        <input type="checkbox" id="news-email-notify" name="news-email-notify" value="news-email-notify">
+        <label for="news-email-notify"> Send email notification to relevant members? </label><br>
         <br>
-        <button class="button primary-button create-news-button" type="button"> Create News </button>
+
+        <button onclick="create_news()" class="button primary-button create-news-button center" type="button"> Create News </button>
+        <br>
     </div>
+    <br>
+    <br>
 
     <footer>
       &copy; 2024 Your Website. All rights reserved.
@@ -54,5 +62,40 @@
       <button type="button" v-on:click="access_level=1"> User </button>
       <button type="button" v-on:click="access_level=2"> Manager </button>
     </footer>
+
+    <script>
+        function create_news() {
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+
+          }
+        }
+
+        var news_title = document.getElementById('news-title').value;
+        var is_public = document.getElementById('public').checked;
+        var email_notify = document.getElementById('news-email-notify').checked;
+        var news_description = document.getElementById('news-description').value;
+        var news_content = document.getElementById('news-content').value;
+
+        console.log(news_title);
+        console.log(is_public);
+        console.log(email_notify);
+        console.log(news_description);
+        console.log(news_content);
+
+        xhttp.open("POST", "/news/create", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+
+        xhttp.send(JSON.stringify({
+          news_title: news_title,
+          is_public: news_title,
+          email_notify: news_title,
+          news_description: news_title,
+          news_content: news_title
+        }));
+      }
+    </script>
   </body>
   </html>
