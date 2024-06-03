@@ -268,22 +268,22 @@ createApp({
             event: null
         };
     },
-    setup() {//CHANGE THIS
-        // this is a really bad way of doing this, runs on every page not just the events page
+    setup() {
         const event_selected = ref(null);
         const loading = ref(true);
-
-        // call getEventDetails
+        // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
-        getEventDetails(eventID, function (data) {
-            event_selected.value = data;
-            loading.value = false;
-        });
+        if (eventID && window.location.pathname.split('/')[1]== 'events'){
+            getEventDetails(eventID, function (data) {
+                event_selected.value = data;
+                loading.value = false;
+            });
 
-        return {
-            event_selected,
-            loading,
-        };
+            return {
+                event_selected,
+                loading,
+            };
+        }
     },
     methods: {
         events_search() {
