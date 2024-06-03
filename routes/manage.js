@@ -77,6 +77,9 @@ router.post('/event/create', function(req, res, next){
   let public = req.body.public;
 
   // Validate each field of the event
+  /*
+          REALLY NEED TO DO THIS
+  */
 
   // Convert date and start and end time to start and end datetimes
   let start_date_time = date + ' ' + start_time;
@@ -235,6 +238,30 @@ router.post('/event/edit/:eventID', function(req,res,next){
   }
 
   res.sendStatus(200);
+});
+
+router.post('/event/delete/:eventID', function(req, res, next){
+  // Check they manage the right branch
+  /*
+      DO THIS
+  */
+  let query = "DELETE FROM events WHERE event_id=?;";
+  req.pool.getConnection( function(err,connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, [req.params.eventID], function(err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.sendStatus(200);
+    });
+  });
 });
 
 module.exports = router;
