@@ -111,7 +111,6 @@ router.post('/event/create', function(req, res, next){
 });
 
 router.post('/event/edit/:eventID', function(req,res,next){
-  console.log("here");
   // Check the event exists?
   /*
     DO THIS!!!!!!!!!!!!
@@ -121,6 +120,7 @@ router.post('/event/edit/:eventID', function(req,res,next){
   /*
     DO THIS!!!!!!!!!!!!
   */
+
 
   // Check which fields were present in the request
   if(req.body.title !== undefined){
