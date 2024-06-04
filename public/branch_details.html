@@ -49,10 +49,10 @@
         <hr>
         <div>
             <h2>Upcoming events:</h2>
-            <div class="scrolling-wrapper-events">
-                <div class="inner-scroll-events">
+            <div class="scrolling-wrapper-branch">
+                <div class="inner-scroll-branch-events">
                   <template v-for="event in events_results">
-                    <div class="event-pane" v-if="event.location === branch_selected.name">
+                    <div class="branch-pane" v-if="event.location === branch_selected.name">
                       <div>
                         <img v-bind:src="event.image_url" class="event-card-image" alt="Event image">
                       </div>

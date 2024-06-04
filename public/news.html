@@ -1,88 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
 </head>
+
 <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
+  <header class="top-pane">
+    <nav>
+      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+    </nav>
+  </header>
 
-    <div class="page-content content">
-      <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/manage/news/create'"> Create News </button>
-      <h1>Recent News</h1>
-      <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private news updates </p>
-      <div class="search-div">
-        <input id="news-search" class="search-bar" type="text" placeholder="Search...">
-        <button class="button primary-button search-button" type="button" v-on:click="news_search()">Search</button>
-        <button class="button secondary-button search-button" type="button" v-on:click="show_events_filters = !show_events_filters">Toggle Filters</button>
-      </div>
-      <div id="search-filters" v-show="show_events_filters">
-        <p> Filter by Date Published: </p>
-        <label> From: </label><input id="from-date" type="date">
-        <label> To: </label><input id="to-date" type="date">
-        <p> Filter by Branch: </p>
+  <div class="page-content content">
+    <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
+      onclick="window.location.href='/manage/news/create'"> Create News </button>
+    <h1>Recent News</h1>
+    <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private news updates </p>
+    <div class="search-div">
+      <input id="news-search" class="search-bar" type="text" placeholder="Search...">
+      <button class="button primary-button search-button" type="button" v-on:click="news_search()">Search</button>
+      <button class="button secondary-button search-button" type="button"
+        v-on:click="show_events_filters = !show_events_filters">Toggle Filters</button>
+    </div>
+    <div id="search-filters" v-show="show_events_filters">
+      <p> Filter by Date Published: </p>
+      <label> From: </label><input id="from-date" type="date">
+      <label> To: </label><input id="to-date" type="date">
+      <p> Filter by Branch: </p>
 
-        <!-- Note: need to add an AJAX request on initial page load to update the branches-->
+      <!-- Note: need to add an AJAX request on initial page load to update the branches-->
 
-        <template v-for="branch in branches_summary">
-          <input  type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
-        </template>
+      <template v-for="branch in branches_summary">
+        <input type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
+      </template>
 
-        <br><br><label> Max number of News Updates shown: </label> <input type="number" id="num-news" value=10>
-      </div>
+      <br><br><label> Max number of News Updates shown: </label> <input type="number" id="num-news" value=10>
+    </div>
 
-      <div id="news-results">
-        <h3> Results: </h3>
+    <div id="news-results">
+      <h3> Results: </h3>
 
-        <!--
+      <!--
           ADD A v-if for if no results are found?
         -->
 
-        <!--
+      <!--
           ADD some sort of indication when it is loading?
         -->
 
-        <!--
+      <!--
           ADD day of the week as well as date?
         -->
 
-        <!-- Render the event results -->
-        <div class="event-container" v-for="news in news_results">
-          <img class="event-image" v-bind:src="news.image_url" alt="News Image">
-          <a class="event-title" v-bind:href="'/news/id/' + news.id"> <h2 class="event-title"> {{news.title}} </h2></a>
-          <!-- Link the location to the branch page? -->
-          <span class="event-header"> {{news.date_posted}}&emsp;{{news.time_posted}}&emsp;{{news.posted_by_branch}}</span>
-          <p class="event-description"> {{news.description}} </p>
-          <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Edit News </button>
-          <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Delete News </button>
+      <!-- Render the event results -->
+      <div class="news-container" v-for="news in news_results">
+        <a class="news-title" v-bind:href="'/news/id/' + news.id">
+          <div>
+            <img class="news-image" v-bind:src="news.image_url" alt="News Image">
+            <h2 class="news-title"> {{news.title}} </h2>
+            <!-- Link the location to the branch page? -->
+            <span class="news-header">
+              {{news.date_posted}}&emsp;{{news.time_posted}}&emsp;{{news.posted_by_branch}}</span>
+            <p class="news-description"> {{news.description}} </p>
+            <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
+            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Edit News
+            </button>
+            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Delete News
+            </button>
+          </div>
+        </a>
+      </div>
 
-        </div>
-
-        <!--
+      <!--
           SHOW MORE RESULTS BUTTON, add a V-if, so that if num displayed is less than max this isnt an option, so that if there are no more events
           to show this is not presented as an option
         -->
-        <button class="button secondary-button center" type="button" v-on:click="news_show_more_results()">Show more results</button>
-      </div>
-
+      <button class="button secondary-button center" type="button" v-on:click="news_show_more_results()">Show more
+        results</button>
     </div>
 
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
-    </footer>
-  </body>
-  </html>
+  </div>
+
+  <footer>
+    &copy; 2024 Your Website. All rights reserved.
+    These buttons will be removed, for testing purposes only
+    <button type="button" v-on:click="access_level=0"> Visitor </button>
+    <button type="button" v-on:click="access_level=1"> User </button>
+    <button type="button" v-on:click="access_level=2"> Manager </button>
+  </footer>
+</body>
+
+</html>
