@@ -85,6 +85,11 @@
     width: 60%;
 }
 
+.create-branch-title {
+    font-size: 1.2em;
+    width: 60%;
+}
+
 .branch-pane {
     border-radius: 1em;
     padding: 1em 2em;
