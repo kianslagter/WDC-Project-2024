@@ -101,7 +101,7 @@ router.get('/events/search', function (req, res, next) {
     query += " AND (event_name LIKE ? OR event_description LIKE ?)";
   }
 
-  query += " ORDER BY start_date_time ASC LIMIT ?;"
+  query += " ORDER BY start_date_time ASC LIMIT ?;";
 
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {

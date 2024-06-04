@@ -353,7 +353,7 @@ createApp({
                     console.log(data);
                     self.events_results = data;
                 }
-            }
+            };
             xhttp.send();
         },
 
