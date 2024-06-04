@@ -20,6 +20,7 @@
   </header>
 
   <div class="page-content content">
+    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/admin/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_summary" >
       <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)" style="text-decoration: none; color: inherit;">
@@ -48,6 +49,10 @@
 
   <footer>
     &copy; 2024 Your Website. All rights reserved.
+    These buttons will be removed, for testing purposes only
+    <button type="button" v-on:click="access_level=0"> Visitor </button>
+    <button type="button" v-on:click="access_level=1"> User </button>
+    <button type="button" v-on:click="access_level=2"> Manager </button>
   </footer>
 </body>
 

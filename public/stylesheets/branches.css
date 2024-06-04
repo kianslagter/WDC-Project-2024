@@ -79,3 +79,8 @@
 .join-branch-button :hover {
     background-color: #5a6268;
 }
+
+.create-branch-title {
+    font-size: 1.2em;
+    width: 60%;
+}
