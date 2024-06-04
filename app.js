@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var logger = require('morgan');
 var mysql = require('mysql');
+var fs = require('fs');
 
 var dbConnectionPool = mysql.createPool({
   connectionLimit : 100,
@@ -49,7 +50,7 @@ app.use(function(req, res, next) {
 });
 
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({ limit: '1000kb'}));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 

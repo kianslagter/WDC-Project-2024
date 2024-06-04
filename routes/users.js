@@ -1,11 +1,84 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
 
 function sendError(res, err){
   // Send
   res.status(500).send(err.message);
   return;
 }
+
+router.post('/image/upload', function(req, res, next){
+  /*
+    Expected format:
+      {
+        image: DATAURL encoded image
+        filetype: 'png' or 'jpg' etc
+        public: '0' or '1'
+        branch: id of branch it belongs to
+      }
+
+    Returns:
+      {
+        image_id: the id of the file e.g. 34
+        image_path: path to make get request to get image e.g. /image/34
+      }
+  */
+
+  // Check validity of requests parameters
+  if(req.body.image === undefined){
+    res.status(400).send("Image undefined");
+    return;
+  }
+  // This should really be validated somehow probably
+
+  if(req.body.filetype === undefined || typeof(req.body.filetype) != "string"){
+    res.status(400).send("Bad filetype");
+    return;
+    // should also check it is an accepted filetype here too
+  }
+
+  if(req.body.public === undefined || (req.body.public != '0' && req.body.public != '1')){
+    res.status(400).send("Invalid public parameter. '0' or '1'");
+    return;
+  }
+
+  if(req.body.branch === undefined || !Number.isInteger(req.body.branch)){
+    res.status(400).send("bad branch");
+    return;
+  }
+
+  // Add the entry to the database
+  let query = `INSERT INTO images
+    (filetype, branch_id, public)
+    VALUES (?,?,?);`;
+  req.sqlHelper(query, [req.body.filetype, req.body.branch, req.body.public], req).then(function (results)
+{
+  // Wait for insertion in table
+  // get the id of the inserted image
+  query = `SELECT LAST_INSERT_ID() AS image_id;`;
+  req.sqlHelper(query, [], req).then(function(results) {
+    // Now have the idea, so get the filename
+    let image_id = results[0].image_id;
+    query = `SELECT BIN_TO_UUID(file_name) AS file_name FROM images WHERE image_id = ?;`;
+    req.sqlHelper(query, [image_id], req).then(function(results){
+      // Now have file name, so create the file
+      fs.open('./images/' + results[0].file_name, 'w', function(err) { if (err) throw err;});
+      fs.writeFile('./images/' + results[0].file_name, req.body.image, function (err) {
+        if (err) throw err;
+        // Done now, so can return the file id and path
+        let return_struct = {
+          'image_id' : image_id,
+          'image_path': '/image/' + image_id
+        };
+        res.status(200).json(return_struct);
+        return;
+      });
+
+    }).catch(function(err) {return sendError(res,err);});
+  }).catch(function(err) {return sendError(res,err);});
+}).catch(function(err) {return sendError(res, err);});
+});
 
 router.post('/events/rsvp', function (req, res, next) {
   // Get the JSON object from the response
@@ -75,6 +148,7 @@ router.post('/events/rsvp', function (req, res, next) {
       ).catch(function(err) { return sendError(res, err);});
     }).catch(function(err) { return sendError(res, err);});
   }).catch(function(err) {return sendError(res, err);});
+  return;
 });
 
 
