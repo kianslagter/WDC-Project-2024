@@ -23,7 +23,7 @@ function updateSessionVariables(req, uname){
     req.session.username = uname;
     // Get the users userID from the DB
     var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    let user_id_prom = req.sqlHelper(query, [uname], req).then(function(results)
+    req.sqlHelper(query, [uname], req).then(function(results)
       {
         // user id succesfully got from database
         req.session.userID = results[0].user_id;
@@ -38,43 +38,43 @@ function updateSessionVariables(req, uname){
 
         // Return
         return resolve();
-      }).catch(function(err) {reject(err);});
-  })
-};
+      }).catch(function(err) {return reject(err);});
+  });
+}
 
 router.post('/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
   if (req.body.username === undefined || req.body.password === undefined) {
     res.status(400).send("Undefined username or password"); // bad request
-  } else {
-    var uname = req.body.username;
-    var pwd = req.body.password;
-
-    // Check for matching user in database
-    var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-    var queryPromise = req.sqlHelper(query, [uname, pwd], req);
-
-    // Wait for query to complete
-    queryPromise.then(function(result)
-      {
-        // Query completed successfully
-        if(result[0].count == 0){
-          // Wrong username or password
-          res.status(403).send("Wrong username or password");
-          return;
-        } else {
-          // Log them in by updating the appropriate session variables.
-          updateSessionVariables(req, uname).then(function()
-            {
-              // Session variables updated succesfully
-              res.status(200).send("Log in succesful");
-              return;
-            }
-          ).catch(function(err){ sendError(res, next, err);});
-        }
-      }
-    ).catch( (err) => {sendError(res, next, err);});
+    return;
   }
+  var uname = req.body.username;
+  var pwd = req.body.password;
+
+  // Check for matching user in database
+  var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
+  var queryPromise = req.sqlHelper(query, [uname, pwd], req);
+
+  // Wait for query to complete
+  queryPromise.then(function(result)
+    {
+      // Query completed successfully
+      if(result[0].count == 0){
+        // Wrong username or password
+        res.status(403).send("Wrong username or password");
+        return;
+      } else {
+        // Log them in by updating the appropriate session variables.
+        updateSessionVariables(req, uname).then(function()
+          {
+            // Session variables updated succesfully
+            res.status(200).send("Log in succesful");
+            return;
+          }
+        ).catch(function(err){ sendError(res, next, err);});
+      }
+    }
+  ).catch( (err) => {sendError(res, next, err);});
 });
 
 router.get('/events/search', function (req, res, next) {
