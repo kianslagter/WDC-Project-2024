@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/events.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content content">
+        <h1>Create New Branch</h1>
+        <h4> Branch Name (Set to branch city): <input class="create-branch-title" type="text" name="title"></h4>
+        <br>
+
+        <h3> Branch Contact Details </h3>
+        <h4> Branch Email: <input class="" type="text" name="title"></h4>
+        <h4> Branch Phone: <input class="" type="text" name="title"></h4>
+        <br>
+
+        <!-- Can make these to block-inline to save space later -->
+        <h3> Branch Address  </h3>
+        <h4> Street Number: <input id="street-number" type="text" name="street-number"></h4>
+        <h4> Street Name: <input id="street-name" type="text" name="street-name"></h4>
+        <h4> City: <input id="city" type="text" name="city"></h4>
+        <h4> State: <input id="state" type="text" name="state"></h4>
+        <h4> Postcode: <input id="postcode" type="text" name="postcode"></h4>
+        <br>
+
+        <h4> Set Trading Hours </h4>
+        <p> Opening time: <input type="time" class="create-event-time-inputs"></p>
+        <p> Closing time: <input type="time" class="create-event-time-inputs"></p>
+        <br>
+
+        <h4> Enter Branch Description Below  </h4>
+        <textarea class="create-event-description"> Enter branch description here </textarea>
+        <br>
+
+        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
+
+        <h4> Add an Image </h4>
+        <input class="create-branch-image-upload" type="file" name="branch-image" accept="image/*">
+        <button class="center button primary-button create-branch-button" type="button"> Create Branch </button>
+        <br>
+    </div>
+    <br>
+    <br>
+
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>
