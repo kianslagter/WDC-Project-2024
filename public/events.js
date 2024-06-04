@@ -19,7 +19,7 @@ function getEventDetails(eventID, callback, errorCallback) {
     xhttp.send();
 }
 
-// get rsvp response
+// get rsvp responses
 async function fetchRSVPResponses(eventID) {
     try {
         const response = await fetch(`/manage/event/responses/${eventID}`, {

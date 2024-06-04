@@ -268,13 +268,12 @@ createApp({
             event: null
         };
     },
-    setup() {//CHANGE THIS
-        // this is a really bad way of doing this, runs on every page not just the events page
+    setup() {
         const event_selected = ref(null);
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
-        if (eventID && window.location.pathname.split('/')[1]== 'events'){
+        if (eventID && window.location.pathname.split('/')[1] == 'events') {
             getEventDetails(eventID, function (data) {
                 event_selected.value = data;
                 loading.value = false;
@@ -332,7 +331,7 @@ createApp({
 
             // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
             let query_path = "";
-            if (this.logged_in) {
+            if (this.access_level > 0) {
                 // requires authentication on server
                 query_path = "/users/events/search" + query_parameters;
             } else {
@@ -467,23 +466,24 @@ createApp({
         },
         getEventIDFromPath() {
             try { // try get event id from pathname for event details
-              const pathParts = window.location.pathname.split('/');
-              if (pathParts.length >= 4) {
-                return pathParts[3];
-              }
+                const pathParts = window.location.pathname.split('/');
+                if (pathParts.length >= 4) {
+                    return pathParts[3];
+                }
             } catch (error) {
-              console.error("Error extracting event ID from pathname:", error);
+                console.error("Error extracting event ID from pathname:", error);
             }
             return null;
-          },
+        },
         selectBranch(branchId) {
             this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
             window.location.href = '/branches/id/' + branchId;
-        }
+        },
     },
-    mounted() { // load events on page initally, probably a better way to do this
-        if (window.location.pathname.split('/')[1]== 'events' && !window.location.pathname.split('/')[2]){
-        this.events_search();
+    mounted() {
+        // load events on page initally, probably a better way to do this
+        if (window.location.pathname.split('/')[1] == 'events' && !window.location.pathname.split('/')[2]) {
+            this.events_search();
         }
     }
 }).mount('#app');

@@ -41,6 +41,7 @@ router.post('/login', function (req, res, next) {
         // log user in
         req.session.isLoggedIn = true;
         req.session.username = uname;
+        req.session.access_level = rows[0].access_level;
         // Get the users userID from the DB
         var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
         connection.query(query, [uname], function (err, rows, fields) {
@@ -51,18 +52,29 @@ router.post('/login', function (req, res, next) {
             return;
           }
           req.session.userID = rows[0].user_id;
-          res.sendStatus(200);
-          return;
-        });
 
-        // Will likely need to add:
-        // an array of branches they are a member of
-        // an array of branches they manage???
-        // are they a system admin?
+          // Send user data including access level
+          res.json({
+            userID: rows[0].user_id,
+            username: uname,
+            access_level: req.session.access_level
+          });
+        });
       }
-      return;
     });
   });
+});
+// get user info for access level
+router.get('/user/info', function(req, res, next) {
+  if (req.session.isLoggedIn) {
+    res.json({
+      userID: req.session.userID,
+      username: req.session.username,
+      access_level: req.session.access_level
+    });
+  } else {
+    res.status(401).send('Not authenticated');
+  }
 });
 
 router.get('/events/search', function (req, res, next) {
