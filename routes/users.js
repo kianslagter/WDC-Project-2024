@@ -16,6 +16,7 @@ router.post('/events/rsvp', function (req, res, next) {
 
   if(!req.session.isLoggedIn){
     res.status(403).send('Must be logged in to RSVP for events');
+    return;
   }
 
   if (!req.session.userID) {
@@ -23,32 +24,89 @@ router.post('/events/rsvp', function (req, res, next) {
     return;
   }
 
+  // Check the event exists
+  let db_error = false;
+  let db_error_text = "";
+  let event_exists = true;
+  let query1_done = false;
+  let query = `SELECT EXISTS(SELECT * FROM events WHERE event_id = ?);`;
+  req.pool.getConnection( function(err,connection) {
+    if (err) {
+      db_error = true;
+      console.log("error");
+      db_error_text = "Couldn't get Connection to Database";
+      return;
+    }
+    console.log("making query");
+    connection.query(query, [req.body.eventID], function(err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        db_error = true;
+        console.log("error");
+        db_error_text = "Error with database query";
+        return;
+      }
+      if(rows[0].member_of_branch == 0){
+        // Event doesn't exist
+        event_exists = false;
+      }
+      console.log("query 1 done");
+      query1_done = true;
+      return;
+    });
+  });
+
+
+
   // Check user belongs to the correct branch
-  let query = `SELECT EXISTS(
+  let correct_branch_member = true;
+  let query2_done = false;
+  query = `SELECT EXISTS(
                   SELECT * FROM user_branch_affiliation
                   WHERE user_id=UUID_TO_BIN(?) AND branch_id=(
                         SELECT branch_id FROM events WHERE event_id = ?
                       )
                   ) AS member_of_branch;`;
+  console.log("getting connection");
   req.pool.getConnection( function(err,connection) {
     if (err) {
-      res.status(500).send("Couldn't get Connection to Database");
+      db_error = true;
+      db_error_text = "Couldn't get Connection to Database";
       return;
     }
     connection.query(query, [req.session.userID, req.body.eventID], function(err, rows, fields) {
-      connection.release(); // release connection
       if (err) {
-        res.status(500).send("Error with database query");
-        return;
+        db_error = true;
+        db_error_text = "Error with database query";
       }
       if(rows[0].member_of_branch == 0){
         // They are not a member of the correct branch
-        res.status(403).send("Not a member of the appropriate branch to RSVP for this event");
-        return;
+        correct_branch_member = false;
+        connection.release(); // release connection
       }
+      console.log("query 2 done");
+      query2_done = true;
       return;
     });
   });
+
+  while(!db_error && (!query1_done && !query2_done)){
+    //console.log("Db error: " + db_error + " query1 done: " + query1_done + " query2_done: " + query2_done);
+    // Wait for queries to finish (or an error to occur)
+  }
+  if(db_error){
+    // Error in database
+    res.status(500).send(db_error_text);
+    return;
+  }
+  if(!correct_branch_member){
+    res.status(403).send("Not a member of the appropriate branch to RSVP for this event");
+    return;
+  }
+  if(!event_exists){
+    res.status(404).send("Event not found");
+    return;
+  }
 
   // Update the database
   let event_id = req.body.eventID;      // Event ID of the event theyre RSVPing to
@@ -57,25 +115,41 @@ router.post('/events/rsvp', function (req, res, next) {
     response = true;
   }
 
+  let query3_done = false;
   req.pool.getConnection(function (err, connection) {
     if (err) {
       connection.release();
-      res.status(500).send('Error Getting Database Connection');
+      db_error = true;
+      db_error_text = "Couldn't get Connection to Database";
       return;
     }
     var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
     connection.query(query, [event_id, req.session.userID, response, response], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        connection.release();
-        res.status(500).send("Error with Database Query");
+        db_error = true;
+        db_error_text = "Error with Database Query";
         return;
       }
       // Has been inserted successfully
-      res.status(200).send("RSVP succesful");
+      query3_done = true;
       return;
     });
   });
+
+  // Wait for query to finish
+  while(!db_error && !query3_done){
+    // Wait
+  }
+
+  if(db_error){
+    // Error in database
+    res.status(500).send(db_error_text);
+    return;
+  } else {
+    res.status(200).send("RSVP succesful");
+    return;
+  }
 });
 
 router.get('/events/search', function (req, res, next) {
