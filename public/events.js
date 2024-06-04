@@ -38,19 +38,20 @@ async function fetchRSVPResponses(eventID) {
         throw error;
     }
 }
+
 function createEvent() {
-    // Gather form data
+    // get data
     let title = document.getElementById('title').value;
     let description = document.getElementById('description').value;
     let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value).join('\n');
     let date = document.getElementById('date').value;
     let startTime = document.getElementById('startTime').value;
     let endTime = document.getElementById('endTime').value;
-    let location = "Adelaide"; // Assuming location is Adelaide for now
-    let image_url = document.getElementById('image_url').files[0]; // Handle file upload separately
+    let location = "Adelaide"; // assuming adelaide is location, TODO: add this to the create page soon
+    let image_url = document.getElementById('image_url').files[0]; // file upload
     let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
 
-    // Validate data
+    // validate data
     if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {
         alert('Please fill all required fields.');
         return;
@@ -90,7 +91,6 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
         })
         .then(data => {
             alert('Event created successfully with ID: ' + data.id);
-            // Optionally, redirect or update the UI
         })
         .catch(error => {
             try {
@@ -101,3 +101,36 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
             }
         });
 }
+
+function deleteEvent(eventID) {
+    if (!confirm('Are you sure you want to delete this event?')) {
+      return;
+    }
+
+    fetch(`/manage/event/delete/${eventID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (response.ok) {
+        // deleted successfully
+        const eventContainer = document.getElementById(`event-${eventID}`);
+        if (eventContainer) {
+          eventContainer.remove();
+        }
+        alert('Event deleted successfully');
+      } else if (response.status === 403) {
+        alert('You do not have permission to delete this event');
+      } else {
+        alery('Failed to delete event');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while deleting the event');
+    });
+  }
+
+
