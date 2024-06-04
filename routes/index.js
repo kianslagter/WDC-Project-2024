@@ -350,6 +350,15 @@ router.get('/event/id/:branchId/view_rsvp', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'view_rsvp.html'));
 });
 
+router.get('/manage', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
+});
+
+router.get('/admin', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'admin_dashboard.html'));
+});
+
+
 router.get('/private_policy', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'private_policy.html'));
 });
