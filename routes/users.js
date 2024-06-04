@@ -1,6 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
+function sendError(res, err){
+  // Send
+  res.status(500).send(err.message);
+  return;
+}
+
 router.post('/events/rsvp', function (req, res, next) {
   // Get the JSON object from the response
   if (req.body.eventID === undefined || typeof (req.body.eventID) !== "string") {
@@ -25,132 +31,53 @@ router.post('/events/rsvp', function (req, res, next) {
   }
 
   // Check the event exists
-  let db_error = false;
-  let db_error_text = "";
-  let event_exists = true;
-  let query1_done = false;
-  let query = `SELECT EXISTS(SELECT * FROM events WHERE event_id = ?);`;
-  req.pool.getConnection( function(err,connection) {
-    if (err) {
-      db_error = true;
-      console.log("error");
-      db_error_text = "Couldn't get Connection to Database";
+  let query = `SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;`;
+  req.sqlHelper(query, [req.body.eventID], req).then( function(results){
+    // Check if it exists
+    if(results[0].event_exists == 0){
+      // Event doesn't exist
+      res.status(404).send("Event not found");
       return;
     }
-    console.log("making query");
-    connection.query(query, [req.body.eventID], function(err, rows, fields) {
-      connection.release(); // release connection
-      if (err) {
-        db_error = true;
-        console.log("error");
-        db_error_text = "Error with database query";
+    // Event does exist
+
+    // Check the user is a member of the correct branch
+    query = `SELECT EXISTS(
+            SELECT * FROM user_branch_affiliation
+            WHERE user_id=UUID_TO_BIN(?) AND branch_id=(
+                  SELECT branch_id FROM events WHERE event_id = ?
+                )
+            ) AS member_of_branch;`;
+    /*
+            NOTE: COULD SIMPLIFY THE ABOVE QUERY POTENTIALLY BY STORING THE BRANCHES
+            THAT THE MEMBER BELONGS TO IN SESSION VARIABLE AND COMPARING THE BRANCH
+            ID OF THE EVENT TO THE ELEMENTS IN THIS VARIABLE
+    */
+    req.sqlHelper(query,[req.session.userID, req.body.eventID], req).then(function(results)
+    {
+      if(results[0].member_of_branch == 0){
+        // Not a member of the branch
+        res.status(403).send("Must be member of the branch to RSVP");
         return;
       }
-      if(rows[0].member_of_branch == 0){
-        // Event doesn't exist
-        event_exists = false;
+      // They are a member of the branch, so add (or update) their RSVP in the database
+      let response = false;                 // Their response to the event
+      if (req.body.RSVP.toLowerCase() == 'yes') {
+        response = true;
       }
-      console.log("query 1 done");
-      query1_done = true;
-      return;
-    });
-  });
 
-
-
-  // Check user belongs to the correct branch
-  let correct_branch_member = true;
-  let query2_done = false;
-  query = `SELECT EXISTS(
-                  SELECT * FROM user_branch_affiliation
-                  WHERE user_id=UUID_TO_BIN(?) AND branch_id=(
-                        SELECT branch_id FROM events WHERE event_id = ?
-                      )
-                  ) AS member_of_branch;`;
-  console.log("getting connection");
-  req.pool.getConnection( function(err,connection) {
-    if (err) {
-      db_error = true;
-      db_error_text = "Couldn't get Connection to Database";
-      return;
-    }
-    connection.query(query, [req.session.userID, req.body.eventID], function(err, rows, fields) {
-      if (err) {
-        db_error = true;
-        db_error_text = "Error with database query";
-      }
-      if(rows[0].member_of_branch == 0){
-        // They are not a member of the correct branch
-        correct_branch_member = false;
-        connection.release(); // release connection
-      }
-      console.log("query 2 done");
-      query2_done = true;
-      return;
-    });
-  });
-
-  while(!db_error && (!query1_done && !query2_done)){
-    //console.log("Db error: " + db_error + " query1 done: " + query1_done + " query2_done: " + query2_done);
-    // Wait for queries to finish (or an error to occur)
-  }
-  if(db_error){
-    // Error in database
-    res.status(500).send(db_error_text);
-    return;
-  }
-  if(!correct_branch_member){
-    res.status(403).send("Not a member of the appropriate branch to RSVP for this event");
-    return;
-  }
-  if(!event_exists){
-    res.status(404).send("Event not found");
-    return;
-  }
-
-  // Update the database
-  let event_id = req.body.eventID;      // Event ID of the event theyre RSVPing to
-  let response = false;                 // Their response to the event
-  if (req.body.RSVP.toLowerCase() == 'yes') {
-    response = true;
-  }
-
-  let query3_done = false;
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      connection.release();
-      db_error = true;
-      db_error_text = "Couldn't get Connection to Database";
-      return;
-    }
-    var query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
-    connection.query(query, [event_id, req.session.userID, response, response], function (err, rows, fields) {
-      connection.release(); // release connection
-      if (err) {
-        db_error = true;
-        db_error_text = "Error with Database Query";
-        return;
-      }
-      // Has been inserted successfully
-      query3_done = true;
-      return;
-    });
-  });
-
-  // Wait for query to finish
-  while(!db_error && !query3_done){
-    // Wait
-  }
-
-  if(db_error){
-    // Error in database
-    res.status(500).send(db_error_text);
-    return;
-  } else {
-    res.status(200).send("RSVP succesful");
-    return;
-  }
+      query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
+      req.sqlHelper(query,[req.body.eventID, req.session.userID, response, response], req).then(function(results)
+        {
+          // Inserted succesfully, so return 200 ok
+          res.status(200).send("RSVP recieved successfully");
+        }
+      ).catch(function(err) { return sendError(res, err);});
+    }).catch(function(err) { return sendError(res, err);});
+  }).catch(function(err) {return sendError(res, err);});
 });
+
+
 
 router.get('/events/search', function (req, res, next) {
   // Get search
