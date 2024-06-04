@@ -38,3 +38,44 @@ async function fetchRSVPResponses(eventID) {
         throw error;
     }
 }
+// create event function
+function createEvent() {
+    // get data
+    let title = document.getElementById('title').value;
+    let description = document.getElementById('description').value;
+    let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value).join('\n');
+    let date = document.getElementById('date').value;
+    let startTime = document.getElementById('startTime').value;
+    let endTime = document.getElementById('endTime').value;
+    let location = "Adelaide" // can we make this an option on the event page for simplicity
+    let image_url = document.getElementById('image_url').files[0];
+    let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
+
+    // validate data
+    if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {
+        alert('Please fill all required fields.');
+        return;
+    }
+
+    // POST request
+    fetch('/manage/event/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => { throw new Error(error.message) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Event created successfully with ID: ' + data.id);
+            window.location.href = '/events';
+        })
+        .catch(error => {
+            alert('Failed to create event: ' + error.message);
+        });
+}

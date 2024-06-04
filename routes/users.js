@@ -118,5 +118,17 @@ router.get('/events/search', function (req, res, next) {
   });
 });
 
+// get user info for access level
+router.get('/info', function(req, res, next) {
+  if (req.session.isLoggedIn) {
+    res.json({
+      userID: req.session.userID,
+      username: req.session.username,
+      access_level: req.session.access_level
+    });
+  } else {
+    res.status(401).send('Not authenticated');
+  }
+});
 
 module.exports = router;
