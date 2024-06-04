@@ -95,6 +95,37 @@ const people = [
     },
 ];
 
+const people = [
+    {
+        id: 1,
+        name: 'John Doe',
+        address: '129 Waymouth Street, Adelaide SA 5000',
+        phone: '0412345678',
+        email: 'johndoe@mealmates.com'
+    },
+    {
+        id: 2,
+        name: 'Mike Smith',
+        address: '129 Waymouth Street, Adelaide SA 5000',
+        phone: '0412345678',
+        email: 'mikesmith@mealmates.com'
+    },
+    {
+        id: 3,
+        name: 'Earl Grey',
+        address: '129 Waymouth Street, Adelaide SA 5000',
+        phone: '0412345678',
+        email: 'earl@mealmates.com'
+    },
+    {
+        id: 4,
+        name: 'Adam James',
+        address: '129 Waymouth Street, Adelaide SA 5000',
+        phone: '0412345678',
+        email: 'adamjames@mealmates.com'
+    },
+];
+
 const testUpdateDetails = {
     id: 3,
     title: 'Welcome Adelaide!',
