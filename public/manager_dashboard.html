@@ -20,19 +20,27 @@
   </header>
 
   <div class="page-content content">
-    <h1> 'Adelaide' Branch Members </h1>
-    <div class="view-members-container" v-for="person in people">
-      <h3> {{ person.name }} (ID: {{ person.id }}) </h3>
-      <p> <b> Address: </b> {{ person.address }} </p>
-      <p> <b> Phone: </b> {{ person.phone }} </p>
-      <p> <b> Email: </b> {{ person.email }} </p>
-
-      <button class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
-      <!-- Need to have confirmation before below occurs -->
-      <button class="right button primary-button manage-button" type="button"> Promote To Manager </button>
-      <br>
-      <br>
+    <div class="right text-center manage-side-pane">
+      <h3> Quick Actions </h3>
+      <p> <b> Branch: </b> Adelaide </p>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/view_members"><b>View Branch Members</b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/events/create"><b>Create New Event </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/news/create"><b>Create New Update </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches/id/1"><b>View Branch Details </b></a></div>
     </div>
+
+    <h1> Manager Dashboard</h1>
+    <h4> Hi James </h4>
+
+    <p>At a glance...</p>
+
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+
   </div>
   <br>
   <br>
