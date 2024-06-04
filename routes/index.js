@@ -342,4 +342,12 @@ router.get('/admin/branches/create', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
 });
 
+router.get('/manage/view_members', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
+});
+
+router.get('/event/id/:branchId/view_rsvp', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'view_rsvp.html'));
+});
+
 module.exports = router;

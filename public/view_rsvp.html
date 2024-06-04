@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/others.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
+  <script src="/App.js" defer></script>
+</head>
+
+<body id="app">
+  <header class="top-pane">
+    <nav>
+      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+    </nav>
+  </header>
+
+  <div class="page-content content">
+    <h1> '{{ events_results[0].title }}' Event RSVPs </h1>
+    <!-- Maybe event details here -->
+    <!-- <p> <b> Date: </b> {{ events_results[0].date }} </p> -->
+    <div class="view-members-container" v-for="person in people">
+      <h3> {{ person.name }} (ID: {{ person.id }}) </h3>
+      <p> <b> Address: </b> {{ person.address }} </p>
+      <p> <b> Phone: </b> {{ person.phone }} </p>
+      <p> <b> Email: </b> {{ person.email }} </p>
+      <br>
+    </div>
+  </div>
+  <br>
+  <br>
+
+  <footer>
+    &copy; 2024 Your Website. All rights reserved.
+    These buttons will be removed, for testing purposes only
+    <button type="button" v-on:click="access_level=0"> Visitor </button>
+    <button type="button" v-on:click="access_level=1"> User </button>
+    <button type="button" v-on:click="access_level=2"> Manager </button>
+  </footer>
+</body>
+
+</html>
