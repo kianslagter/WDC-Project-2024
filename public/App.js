@@ -451,8 +451,10 @@ createApp({
                     .then(response => {
                         if (response.ok) {
                             console.log("RSVP successful");
+                            alert('RSVP Successful!');
                         } else if (response.status == 400) {
                             console.error("Invalid request data");
+                            alert('RSVP Unsuccessful');
                         } else if (response.status == 500) {
                             console.error("Server error");
                         } else {
