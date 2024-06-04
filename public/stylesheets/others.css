@@ -71,3 +71,25 @@
 .manage-button {
     display: inline;
 }
+
+.manage-side-pane {
+    padding: 10px;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: darkgrey;
+}
+
+.manage-side-pane-container {
+    padding: 10px;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: crimson;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-white {
+    color: white;
+}
