@@ -11,7 +11,7 @@ router.post('/events/rsvp', function (req, res, next) {
     res.send();
     return;
   }
-  if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP != 'yes' && req.body.RSVP != 'no')) {
+  if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP.toLowerCase() != 'yes' && req.body.RSVP.toLowerCase() != 'no')) {
     res.status(400);  // bad request
     res.send();
     return;

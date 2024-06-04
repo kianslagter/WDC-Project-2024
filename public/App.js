@@ -426,22 +426,21 @@ createApp({
             // Call the events_search function to get the events from the server
             this.events_search();
         },
-        RSVP(response) {
+        RSVP(response, eventID) {
             if (typeof this.access_level === 'undefined' || this.access_level == 0) {
                 // Visitor, redirect to login page
                 window.location.href = '/login';
             } else {
-                let eventID = window.location.pathname.split('/')[3];
-
                 if (!eventID) {
                     console.error("No event ID found");
                     return;
                 }
 
                 const data = {
-                    eventID: eventID,
+                    eventID: eventID.toString(),
                     RSVP: response
                 };
+                console.log("Sending data:", data);
 
                 fetch('/users/events/rsvp', {
                     method: 'POST',
@@ -466,6 +465,17 @@ createApp({
                     });
             }
         },
+        getEventIDFromPath() {
+            try { // try get event id from pathname for event details
+              const pathParts = window.location.pathname.split('/');
+              if (pathParts.length >= 4) {
+                return pathParts[3];
+              }
+            } catch (error) {
+              console.error("Error extracting event ID from pathname:", error);
+            }
+            return null;
+          },
         selectBranch(branchId) {
             this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
             window.location.href = '/branches/id/' + branchId;
