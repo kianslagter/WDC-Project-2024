@@ -38,24 +38,41 @@ async function fetchRSVPResponses(eventID) {
         throw error;
     }
 }
-// create event function
 function createEvent() {
-    // get data
+    // Gather form data
     let title = document.getElementById('title').value;
     let description = document.getElementById('description').value;
     let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value).join('\n');
     let date = document.getElementById('date').value;
     let startTime = document.getElementById('startTime').value;
     let endTime = document.getElementById('endTime').value;
-    let location = "Adelaide" // can we make this an option on the event page for simplicity
-    let image_url = document.getElementById('image_url').files[0];
+    let location = "Adelaide"; // Assuming location is Adelaide for now
+    let image_url = document.getElementById('image_url').files[0]; // Handle file upload separately
     let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
 
-    // validate data
+    // Validate data
     if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {
         alert('Please fill all required fields.');
         return;
     }
+    // TODO: handle image upload
+
+    submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue);
+
+}
+
+function submitEvent(title, description, details, date, startTime, endTime, location, imageUrl, publicValue) {
+    let eventData = {
+        title: title,
+        description: description,
+        details: details,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        location: location,
+        image_url: imageUrl,
+        public: publicValue
+    };
 
     // POST request
     fetch('/manage/event/create', {
@@ -67,15 +84,20 @@ function createEvent() {
     })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(error => { throw new Error(error.message) });
+                return response.text().then(text => { throw new Error(text) });
             }
             return response.json();
         })
         .then(data => {
             alert('Event created successfully with ID: ' + data.id);
-            window.location.href = '/events';
+            // Optionally, redirect or update the UI
         })
         .catch(error => {
-            alert('Failed to create event: ' + error.message);
+            try {
+                let errorMsg = JSON.parse(error.message);
+                alert('Failed to create event: ' + errorMsg.message);
+            } catch (e) {
+                alert('Failed to create event: ' + error.message);
+            }
         });
 }

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="/events.js"></script>
+  <script src="/events.js" defer></script>
   <script src="/App.js" defer></script>
 </head>
 
@@ -57,7 +57,8 @@
 
     <h4> Add an Image </h4>
     <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-    <button id="createEventButton" class="button primary-button create-event-button" type="button"> Create Event
+    <button id="createEventButton" class="button primary-button create-event-button" type="button" @click="createEvent">
+      Create Event
     </button>
   </div>
 

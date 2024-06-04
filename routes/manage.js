@@ -96,18 +96,18 @@ router.post('/event/create', function(req, res, next){
   req.pool.getConnection( function(err,connection) {
     if (err) {
       console.log(err);
-      res.sendStatus(500);
+      res.status(500).json({ message: "Database connection error" });
       return;
     }
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function(err, rows, fields) {
       connection.release(); // release connection
       if (err) {
         console.log(err);
-        res.sendStatus(500);
+        res.status(500).json({ message: "Database query error" });
         return;
       }
       // Added successfully
-      res.sendStatus(200);
+      res.status(200).json({ id: rows.insertId });
       return;
     });
   });
