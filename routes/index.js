@@ -69,7 +69,7 @@ router.get('/events/search', function (req, res, next) {
   // Get search
   let search_term = req.query.search;
   let from_date = req.query.from;
-  let to_date = req.query.from;
+  let to_date = req.query.to;
   let max_num = req.query.n;
   let branches = req.query.branch;
 
@@ -100,6 +100,15 @@ router.get('/events/search', function (req, res, next) {
   if (search_term !== undefined) {
     query += " AND (event_name LIKE ? OR event_description LIKE ?)";
   }
+  if (from_date !== undefined) {
+    query += " AND start_date_time >= ?";
+  }
+  if (to_date !== undefined) {
+    query += " AND start_date_time <= ?";
+  }
+  if (branches !== undefined) {
+    query += " AND branch_id <= ?";
+  }
 
   query += " ORDER BY start_date_time ASC LIMIT ?;";
 
@@ -115,6 +124,15 @@ router.get('/events/search', function (req, res, next) {
       params.push('%' + search_term + '%');
       params.push('%' + search_term + '%');
     }
+    if (from_date !== undefined) {
+      params.push(from_date);
+    }
+    if (to_date !== undefined) {
+      params.push(to_date);
+    }
+    if (branches !== undefined && branches.length > 0) {
+      params = params.concat(branches);
+    }
     params.push(max_num);
     connection.query(query, params, function (err, rows, fields) {
       connection.release(); // release connection
@@ -129,6 +147,32 @@ router.get('/events/search', function (req, res, next) {
     });
   });
 });
+
+router.get('/events/get', function (req, res, next) {
+  // Construct the SQL query
+  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE ORDER BY start_date_time ASC LIMIT 10;`;
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
 
 router.get('/events/id/:eventID/details.json', function (req, res, next) {
   // WILL NEED TO CAREFULLY AUTHENTICATE USER HERE, if event not public

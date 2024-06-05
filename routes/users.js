@@ -118,8 +118,33 @@ router.get('/events/search', function (req, res, next) {
   });
 });
 
+router.get('/events/get', function (req, res, next) {
+  // Construct the SQL query
+  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events ORDER BY start_date_time ASC LIMIT 10;`;
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
 // get user info for access level
-router.get('/info', function(req, res, next) {
+router.get('/info', function (req, res, next) {
   if (req.session.isLoggedIn) {
     res.json({
       userID: req.session.userID,

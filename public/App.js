@@ -178,7 +178,7 @@ const testNews1 = [
 createApp({
     data() {
         return {
-            access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            access_level: 0,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
             navitems: navitems,
             events_results: [],
@@ -196,7 +196,9 @@ createApp({
             branch_selected: testBranchSummary[0],
             update_selected: testUpdateDetails,
             loading: true,
-            event: null
+            event: null,
+            isLoading: false,
+            error: null
         };
     },
     setup() {
@@ -242,21 +244,21 @@ createApp({
             console.log("branches selected: " + branches_selected);
 
             // Construct the query parameters
-            let query_parameters = "";
+            let query_parameters = "?";
             if (search_term !== "") {
-                query_parameters += "?search=" + search_term + '&';
+                query_parameters += "search=" + encodeURIComponent(search_term) + '&';
             }
             if (from_date !== "") {
-                query_parameters += "?from=" + from_date + '&';
+                query_parameters += "from=" + encodeURIComponent(from_date) + '&';
             }
             if (to_date !== "") {
-                query_parameters += "?to=" + to_date + '&';
+                query_parameters += "to=" + encodeURIComponent(to_date) + '&';
             }
             if (num_events !== "") {
-                query_parameters += "?n=" + num_events + '&';
+                query_parameters += "n=" + encodeURIComponent(num_events) + '&';
             }
             for (let i = 0; i < branches_selected.length; i++) {
-                query_parameters += "?branch=" + branches_selected[i] + '&';
+                query_parameters += "branch=" + encodeURIComponent(branches_selected[i]) + '&';
             }
             // remove the last &
             if (query_parameters !== "") {
@@ -273,6 +275,46 @@ createApp({
                 // Only allow public events
                 query_path = "/events/search" + query_parameters;
             }
+            // AJAX
+            fetch(query_path, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched events:", data);
+                    this.events_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                    this.events_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+        events_load() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+
+            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
+            let query_path = "";
+            if (this.access_level > 0) {
+                // requires authentication on server
+                query_path = "/users/events/get";
+            } else {
+                // Only allow public events
+                query_path = "/events/get";
+            }
+
             // AJAX
             fetch(query_path, {
                 method: 'GET',
@@ -432,7 +474,11 @@ createApp({
     mounted() {
         // load events on page initally, probably a better way to do this
         if (window.location.pathname.split('/')[1] == 'events' && !window.location.pathname.split('/')[2]) {
-            this.events_search();
+            this.events_load();
+        }
+        // on branch details page show events also but only for that branch
+        if (window.location.pathname.split('/')[1] == 'branches' && window.location.pathname.split('/')[2] == 'id') {
+            this.events_load();
         }
     }
 }).mount('#app');

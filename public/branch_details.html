@@ -51,13 +51,13 @@
             <h2>Upcoming events:</h2>
             <div class="scrolling-wrapper-branch">
                 <div class="inner-scroll-branch-events">
-                  <template v-for="event in events_results">
-                    <div class="branch-pane" v-if="event.location === branch_selected.name">
+                  <template v-for="event in events_results" :key="event.id">
+                    <div class="branch-pane">
                       <div>
                         <img v-bind:src="event.image_url" class="event-card-image" alt="Event image">
                       </div>
                       <a v-bind:href="'/events/id/' + event.id" class="title-link"> <h3 class="event-card-title"> {{event.title}} </h3> </a>
-                      <p class="event-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}} </p>
+                      <p class="event-card-header"> {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}} </p>
                     </div>
                   </template>
                 </div>
