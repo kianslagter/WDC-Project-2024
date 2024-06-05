@@ -1,0 +1,35 @@
+<!--
+    This code originally from
+    https://stackoverflow.com/questions/51350979/node-js-formidable-with-express-js
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Example for uploading image to server </title>
+        <script type="text/javascript">
+            function updateImage(){
+                var img = document.getElementById("displayed_image");
+                var image_id = document.getElementById("select_image_id").value;
+                img.src = "/image/" + image_id;
+                img.alt = "Image id: " + image_id + " (path /image/" + image_id + ")";
+            }
+        </script>
+    </head>
+
+    <body>
+        <iframe name="dummyframe" id="dummyframe" title="dummyframe" style="display: none;"></iframe>
+        <form action="/users/image/upload" method="POST" enctype="multipart/form-data" target="dummyframe">
+            <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
+            <label for="branch_id"> Branch ID: </label> <input type="number" id="branch_id" name="branch"> <br>
+            <label for="public_image"> Public: </label> <input id="public_image" type="checkbox" name="public"> <br>
+            <button type="submit"> Upload Image </button>
+        </form>
+
+        <div id="show_image_div">
+            <label for="select_image_id"> Select Image ID to display </label> <input type="number" id="select_image_id">
+            <button type="button" id="update_image" onclick="updateImage()"> Update Image </button>
+            <br>
+            <img id="displayed_image" src="/image" alt="No image id selected yet">
+        </div>
+    </body>
+</html>

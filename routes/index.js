@@ -9,7 +9,7 @@ router.get('/image/:id', function(req, res, next){
   // Check id is valid
 
   // Check image exists
-  let query = `SELECT BIN_TO_UUID(file_name) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
+  let query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
   req.sqlHelper(query, [req.params.id], req).then(function(results){
     if(results.length === 0){
       // Image doesn't exists
@@ -18,18 +18,8 @@ router.get('/image/:id', function(req, res, next){
     }
     if(results[0].public == true){
       // It's public, so just send the image back
-      // convert to image format
-      try {
-        let data = fs.readFileSync('./images/' + results[0].file_name, 'utf8');
-        // var img = new Image;
-        // img.src = data;
-        res.status(200).send(`<img src=${data}>`);
-      } catch (err) {
-        console.error(err);
-        return;
-      }
-      // res.contentType('application/dataurl');
-      res.status(200).sendFile(results[0].file_name, { root: path.join(__dirname, '../images') });
+      res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
+      return;
     } else {
       res.status(501).send("private images not done yet");
       return;
@@ -48,8 +38,15 @@ router.get('/', function (req, res, next) {
 
 function sendError(res, next, err){
   // Send
-  console.log(err);
-  res.status(500).send(err.message);
+  if(err === undefined){
+    res.sendStatus(500);
+    return;
+  }
+  if(err.message !== undefined){
+    res.status(500).send(err.message);
+  } else {
+    res.status(500).json(err);
+  }
   return;
 }
 
