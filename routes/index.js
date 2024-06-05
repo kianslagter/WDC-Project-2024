@@ -188,6 +188,14 @@ router.get('/manage/events/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
 });
 
+router.get('/manage/events/edit/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'edit_event.html'));
+});
+
+router.get('/manage/events/responses/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'event_responses.html'));
+});
+
 router.get('/news', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news.html'));
 });

@@ -135,3 +135,18 @@
     flex-wrap: nowrap;
     overflow-x: auto;
 }
+
+.user-list {
+    list-style-type: none;
+    padding: 0;
+}
+.user-list li {
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.response-section {
+    margin-bottom: 20px;
+}

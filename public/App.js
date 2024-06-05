@@ -468,10 +468,9 @@ createApp({
         },
         getEventIDFromPath() {
             try { // try get event id from pathname for event details
-                const pathParts = window.location.pathname.split('/');
-                if (pathParts.length >= 4) {
-                    return pathParts[3];
-                }
+                const path = window.location.pathname;
+                const segments = path.split('/');
+                return segments[segments.length - 1];
             } catch (error) {
                 console.error("Error extracting event ID from pathname:", error);
             }
@@ -480,6 +479,12 @@ createApp({
         selectBranch(branchId) {
             this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
             window.location.href = '/branches/id/' + branchId;
+        },
+        editEvent(eventId) {
+            window.location.href = `/manage/events/edit/${eventId}`;
+        },
+        eventRSVPresponse(eventId) {
+            window.location.href = `/manage/events/responses/${eventId}`;
         },
     },
     mounted() {
