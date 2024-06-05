@@ -73,16 +73,18 @@
             <p class="event-description"> {{event.description}} </p>
           </div>
         </a>
-            <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-            <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
-              Yes</button>
-            <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
-              No</button>
-            <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button" @click="eventRSVPresponse(event.id)"> View
-              Responses
-            </button>
-            <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button" @click="editEvent(event.id)"> Edit Event
-            </button>
+        <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
+        <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
+          Yes</button>
+        <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
+          No</button>
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="eventRSVPresponse(event.id)"> View
+          Responses
+        </button>
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="editEvent(event.id)"> Edit Event
+        </button>
 
       </div>
 

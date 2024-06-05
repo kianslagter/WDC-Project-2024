@@ -8,75 +8,6 @@ const navitems = [
     { title: 'Login', url: '/login' }
 ];
 
-const testEvents = [
-    {
-        id: 1,
-        title: 'Event 1 Title',
-        description: 'Description of event 1',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 2,
-        title: 'Event 2 Title',
-        description: 'Description of event 2, which is a bit longer than event 1 so that it breaks across multiple lines',
-        date: '3/7/24',
-        startTime: '12pm',
-        endTime: '5pm',
-        dayOfWeek: 'Monday',
-        location: 'Sydney',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 3,
-        title: 'Event 3 Title',
-        description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
-        date: '3/8/24',
-        startTime: '12pm',
-        endTime: '5pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 4,
-        title: 'Event 4 Title',
-        description: 'Description of event 4',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 5,
-        title: 'Event 5 Title',
-        description: 'Description of event 5',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 6,
-        title: 'Event 6 Title',
-        description: 'Description of event 6',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-];
-
 const testEventDetails = {
     id: 3,
     title: 'Event 3 Title',
@@ -250,7 +181,7 @@ createApp({
             access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
             navitems: navitems,
-            events_results: testEvents,
+            events_results: [],
             show_events_filters: false,
             branches_summary: testBranchSummary,
             event_selected: null, // set to null intially in real thing
@@ -287,6 +218,10 @@ createApp({
     },
     methods: {
         events_search() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+
             // Get the value of all the relevant filter options and search term
             let search_term = document.getElementById("events-search").value;
             let from_date = document.getElementById("from-date").value;
@@ -338,24 +273,31 @@ createApp({
                 // Only allow public events
                 query_path = "/events/search" + query_parameters;
             }
-
             // AJAX
-            var xhttp = new XMLHttpRequest();
-            xhttp.open('GET', query_path, true);
-            xhttp.setRequestHeader('Content-Type', 'application/json');
-
-            let self = this;
-
-            xhttp.onreadystatechange = function () {
-                if (xhttp.readyState == 4 && xhttp.status == 200) {
-                    var data = JSON.parse(xhttp.responseText);
-                    console.log(data);
-                    self.events_results = data;
+            fetch(query_path, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            };
-            xhttp.send();
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched events:", data);
+                    this.events_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                    this.events_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
-
         news_search() {
             // Get the value of all the relevant filter options and search term
             let search_term = document.getElementById("news-search").value;
