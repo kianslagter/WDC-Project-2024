@@ -92,7 +92,12 @@ router.post('/image/upload', function(req, res, next){
               sendError(res, err);
               return;
             }
-            return res.send("Successfully uploaded");
+            let return_struct = {
+              'image_id' : image_id,
+              'image_path': '/image/' + image_id
+            };
+            res.status(200).json(return_struct);
+            return;
           });
         }).catch(function(err) {return sendError(res,err);});
       }).catch(function(err) {return sendError(res,err);});
