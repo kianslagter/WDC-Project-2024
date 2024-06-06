@@ -2,15 +2,14 @@ var express = require('express');
 const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
+var tools = require('./helpers')
 
 var router = express.Router();
 
 router.get('/image/:id', function(req, res, next){
-  // Check id is valid
-
   // Check image exists
   let query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
-  req.sqlHelper(query, [req.params.id], req).then(function(results){
+  tools.sqlHelper(query, [req.params.id], req).then(function(results){
     if(results.length === 0){
       // Image doesn't exists
       res.status(404).send("No image with that id found");
@@ -22,18 +21,15 @@ router.get('/image/:id', function(req, res, next){
       return;
     } else {
       // Do this
-      /*
-        Authenticate user
-      */
-      if(req.session.isLoggedIn == false){
-        res.status(403).send("Log in to access");
+      if(!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)){
+        res.status(403).send("Not member of correct branch log in to access");
+        return;
       } else {
-        // NEED TO ACTUALLY CHECK THEY BELONG TO THE CORRECT BRANCH
         res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
         return;
       }
     }
-  }).catch(function(err) {return sendError(res, err);});
+  }).catch(function(err) {return tools.sendError(res, err);});
 });
 
 /* GET home page. */
@@ -41,21 +37,8 @@ router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-function sendError(res, next, err){
-  // Send
-  if(err === undefined){
-    res.sendStatus(500);
-    return;
-  }
-  if(err.message !== undefined){
-    res.status(500).send(err.message);
-  } else {
-    res.status(500).json(err);
-  }
-  return;
-}
 
-function updateSessionVariables(req, uname){
+function updateSessionVariables(req, res, uname){
   return new Promise( (resolve, reject) => {
     // Correct username and password
     // log user in
@@ -63,7 +46,7 @@ function updateSessionVariables(req, uname){
     req.session.username = uname;
     // Get the users userID from the DB
     var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    req.sqlHelper(query, [uname], req).then(function(results)
+    tools.sqlHelper(query, [uname], req).then(function(results)
       {
         // user id succesfully got from database
         req.session.userID = results[0].user_id;
@@ -71,13 +54,44 @@ function updateSessionVariables(req, uname){
         // Should now get other information about the user from the databases
         // (can likely be done in parralel with an array of promises)
 
-        // Will likely need to add:
-        // an array of branches they are a member of
+        // Make some SQL queries to check:
+        // branches they are a member of
+        query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
+        var branches_member = tools.sqlHelper(query, [req.session.userID], req);
         // Branch they manage
+        query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
+        var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
         // are they a system admin?
+        query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
+        var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
-        // Return
-        return resolve();
+        // Wait for the queries to finish
+        Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
+          // Check branches they are member of
+          let members_results = values[0];
+          req.session.branches = [];
+          for(let i = 0; i < members_results.length; i++){
+            // Add each branch to the session variable branches
+            req.session.branches.push(members_results[i].branch_id);
+          }
+
+          // Check branch they manage (if any)
+          let manage_results = values[1];
+          if(manage_results[0].branch_managed === null){
+            req.session.branch_managed = null;
+          } else {
+            req.session.branch_managed = manage_results[0].branch_managed;
+          }
+
+          // Check if they are a system admin
+          let admin_results = values[2];
+          if(admin_results[0].system_admin == true){
+            req.session.admin = true;
+          } else {
+            req.session.admin = false;
+          }
+          return resolve();
+        }).catch((err)=> {return reject(err);});
       }).catch(function(err) {return reject(err);});
   });
 }
@@ -93,7 +107,7 @@ router.post('/login', function (req, res, next) {
 
   // Check for matching user in database
   var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = req.sqlHelper(query, [uname, pwd], req);
+  var queryPromise = tools.sqlHelper(query, [uname, pwd], req);
 
   // Wait for query to complete
   queryPromise.then(function(result)
@@ -105,16 +119,16 @@ router.post('/login', function (req, res, next) {
         return;
       } else {
         // Log them in by updating the appropriate session variables.
-        updateSessionVariables(req, uname).then(function()
+        updateSessionVariables(req, res, uname).then(function()
           {
             // Session variables updated succesfully
             res.status(200).send("Log in succesful");
             return;
           }
-        ).catch(function(err){ sendError(res, next, err);});
+        ).catch(function(err){ tools.sendError(res, err);});
       }
     }
-  ).catch( (err) => {sendError(res, next, err);});
+  ).catch( (err) => {tools.sendError(res, err);});
 });
 
 router.get('/events/search', function (req, res, next) {
@@ -236,52 +250,33 @@ router.get('/events/get', function (req, res, next) {
 
 
 router.get('/events/id/:eventID/details.json', function (req, res, next) {
-  // Check if the event exists
-
-
-
-  // Check if the event is private, if so check user is logged in and a member of the appropriate branch
-
   let event_id = req.params.eventID;
-
-  // Check if event exists
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+  // Check if the event exists
+  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
+  tools.sqlHelper(query, [event_id], req).then(function(results){
+    if(results[0].event_exists == 0){
+      // Event does not exist
+      res.status(404).send("Event not found");
       return;
     }
-    var query = "SELECT COUNT(*) AS count FROM events WHERE event_id=?";
-    connection.query(query, [event_id], function (err, rows, fields) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      console.log(rows[0].count);
-      if (rows[0].count == 0) {
-        // Event doesn't exist
-        res.sendStatus(404);
-        return;
-      } else {
-        // Event exists
-        var query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE event_id=?;";
-        connection.query(query, [event_id], function (err, rows, fields) {
-          connection.release(); // release connection
-          if (err) {
-            console.log(err);
-            res.sendStatus(500);
-            return;
-          }
-          res.type('json');
-          res.send(JSON.stringify(rows[0]));
+    // Get the event details
+    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
+            FROM events
+            WHERE event_id=?;`;
+    tools.sqlHelper(query, [event_id], req).then(function(results){
+      if(!results[0].public){
+        // Authenticate user
+        if(!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)){
+          // Not logged in or not correct branch
+          res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
-        });
+        }
       }
-
+      // Send the details
+      res.json(results[0]);
       return;
-    });
-  });
+    }).catch(function (err) {tools.sendError(res, err);});
+  }).catch(function (err) {tools.sendError(res,err);});
 });
 
 
@@ -293,28 +288,12 @@ router.get('/events/id/:eventId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'event_details_example.html'));
 });
 
-router.get('/manage/events/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
-});
-
-router.get('/manage/events/edit/:eventId', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'edit_event.html'));
-});
-
-router.get('/manage/events/responses/:eventId', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'event_responses.html'));
-});
-
 router.get('/news', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news.html'));
 });
 
 router.get('/news/id/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news_details_example.html'));
-});
-
-router.get('/manage/news/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
 router.get('/branches', function (req, res, next) {
@@ -332,7 +311,6 @@ router.get('/register', function (req, res, next) {
 router.get('/branches/id/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branch_details.html'));
 });
-
 
 router.get('/branches', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branches.html'));

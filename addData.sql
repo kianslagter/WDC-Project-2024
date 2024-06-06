@@ -44,41 +44,53 @@ VALUES
     ("ehall", "ehall@gmail.com", "N3wP@ssw0rd", 3003, "Evelyn", "Hall", "0429 012 345", FALSE),
     ("rking", "rking@outlook.com.au", "P@ss1234", 4003, "Rebecca", "King", "0430 123 456", FALSE);
 
+-- Add a few managers
+UPDATE users
+    SET branch_managed = 2
+    WHERE username="hthompson";
+UPDATE users
+    SET branch_managed = 3
+    WHERE username="mmartin";
+UPDATE users
+    SET branch_managed = 1
+    WHERE username="asmith";
+
 -- Add USERS to BRANCHES
 INSERT INTO user_branch_affiliation
-    (user_id, branch_id, is_manager)
+    (user_id, branch_id)
 VALUES
-    ((SELECT user_id FROM users WHERE username="admin"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), TRUE),
-    ((SELECT user_id FROM users WHERE username="hthompson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="mmartin"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="jdoe"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="asmith"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="bjones"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="ljohnson"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="dlee"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="jwilson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="kwhite"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="hmorris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="ajames"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="bking"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="kturner"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="cclark"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="rmitchell"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="plewis"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="staylor"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="jyoung"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="tmorris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="wmoore"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="clong"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="dlee2"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="aharris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="kcollins"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="rthompson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="ephillips"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="lmurphy"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE),
-    ((SELECT user_id FROM users WHERE username="jward"), (SELECT branch_id FROM branches WHERE branch_name="Sydney"), FALSE),
-    ((SELECT user_id FROM users WHERE username="ehall"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne"), FALSE),
-    ((SELECT user_id FROM users WHERE username="rking"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"), FALSE);
+    ((SELECT user_id FROM users WHERE username="admin"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="hthompson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="mmartin"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="jdoe"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="asmith"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="bjones"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="ljohnson"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="dlee"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="jwilson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="kwhite"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="hmorris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="ajames"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="bking"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="kturner"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="cclark"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="rmitchell"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="plewis"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="staylor"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="jyoung"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="tmorris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="wmoore"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="clong"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="dlee2"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="aharris"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="kcollins"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="rthompson"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="ephillips"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="lmurphy"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide")),
+    ((SELECT user_id FROM users WHERE username="jward"), (SELECT branch_id FROM branches WHERE branch_name="Sydney")),
+    ((SELECT user_id FROM users WHERE username="ehall"), (SELECT branch_id FROM branches WHERE branch_name="Melbourne")),
+    ((SELECT user_id FROM users WHERE username="rking"), (SELECT branch_id FROM branches WHERE branch_name="Adelaide"));
+
 
 
 -- EVENTS

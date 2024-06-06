@@ -2,12 +2,24 @@ var express = require('express');
 var router = express.Router();
 const formidable = require('formidable');
 var fs = require('fs');
+var tools = require('./helpers');
+const path = require('path');
 
-function sendError(res, err){
-  // Send
-  res.status(500).send(err.message);
-  return;
-}
+router.get('/events/create', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
+});
+
+router.get('/events/edit/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'edit_event.html'));
+});
+
+router.get('/events/responses/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'event_responses.html'));
+});
+
+router.get('/news/create', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
+});
 
 router.post('/image/upload', function(req, res, next){
   /*
@@ -30,31 +42,26 @@ router.post('/image/upload', function(req, res, next){
   form.parse(req, function (err, fields, files) {
     // Check for error in parsing form
     if(err){
-      sendError(res, err);
+      tools.sendError(res, err);
       return;
     }
-    console.log(files);
-    console.log(fields);
     // Check validity of inputs
     // Check for the file
     if(files.file === undefined){
       res.status(400).send("File undefined");
       return;
     }
-
     // Check file type here
     if(!files.file[0].mimetype.includes("image")){
       // maybe this should be made more specific?
       res.status(400).send("Incorrect file type");
       return;
     }
-
     // Check the public field
     if(fields.public === undefined){
       // Doesn't exist, so public = false
       fields.public = false;
     }
-
     // Change public from on off to true false
     if(fields.public == 'on'){
       fields.public = true;
@@ -72,15 +79,15 @@ router.post('/image/upload', function(req, res, next){
     let query = `INSERT INTO images
       (filetype, file_name_orig, branch_id, public)
       VALUES (?,?,?,?);`;
-    req.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results){
+    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results){
       // Wait for insertion in table
       // get the id of the inserted image
       query = `SELECT LAST_INSERT_ID() AS image_id;`;
-      req.sqlHelper(query, [], req).then(function(results) {
+      tools.sqlHelper(query, [], req).then(function(results) {
         // Now have the id, so get the filename
         let image_id = results[0].image_id;
         query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name FROM images WHERE image_id = ?;`;
-        req.sqlHelper(query, [image_id], req).then(function(results){
+        tools.sqlHelper(query, [image_id], req).then(function(results){
           // Get old and new path to image
           let oldPath = files.file[0].filepath;
           let newPath = 'images/' + results[0].file_name;
@@ -89,7 +96,7 @@ router.post('/image/upload', function(req, res, next){
           // Write the file
           fs.writeFile(newPath, rawData, function (err) {
             if (err){
-              sendError(res, err);
+              tools.sendError(res, err);
               return;
             }
             let return_struct = {
@@ -99,74 +106,85 @@ router.post('/image/upload', function(req, res, next){
             res.status(200).json(return_struct);
             return;
           });
-        }).catch(function(err) {return sendError(res,err);});
-      }).catch(function(err) {return sendError(res,err);});
-    }).catch(function(err) {return sendError(res,err);});
+        }).catch(function(err) {return tools.sendError(res,err);});
+      }).catch(function(err) {return tools.sendError(res,err);});
+    }).catch(function(err) {return tools.sendError(res,err);});
   });
   return;
 });
 
 router.post('/event/responses/:eventID', function (req, res, next) {
-  // Should check manager is manager of the branch the event is owned by
-
-  // Get the yeses
-  var yes_responses;
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+  // Check manager is manager of the branch the event is owned by
+  var query = "SELECT branch_id AS branch FROM events WHERE event_id = ?;";
+  tools.sqlHelper(query, [req.params.eventID], req).then(function(results){
+    if(results.length == 0){
+      // Event doesn't exist
+      res.status(404).send("Event with provided ID not found");
+      return;
+    } else if(results[0].branch != req.session.branch_managed){
+      // Not a manager of correcty branch
+      res.status(403).send("Not a manager of correct branch to view responses for this event");
       return;
     }
-    const yesQuery = `
-    SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
-    FROM user_event_attendance AS attendance
-    INNER JOIN users ON users.user_id = attendance.user_id
-    WHERE attendance.event_id = ? AND attendance.RSVP = TRUE;
-`;
-    connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
-      connection.release(); // release connection
+    // Get the yeses
+    var yes_responses;
+    req.pool.getConnection(function (err, connection) {
       if (err) {
         console.log(err);
         res.sendStatus(500);
         return;
       }
-      const yesResponses = structuredClone(yesRows);
-
-      // Get the nos
-      var no_responses;
-      req.pool.getConnection(function (err, connection) {
+      const yesQuery = `
+      SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
+      FROM user_event_attendance AS attendance
+      INNER JOIN users ON users.user_id = attendance.user_id
+      WHERE attendance.event_id = ? AND attendance.RSVP = TRUE;
+  `;
+      connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
+        connection.release(); // release connection
         if (err) {
           console.log(err);
           res.sendStatus(500);
           return;
         }
-        const noQuery = `
-        SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
-        FROM user_event_attendance AS attendance
-        INNER JOIN users ON users.user_id = attendance.user_id
-        WHERE attendance.event_id = ? AND attendance.RSVP = FALSE;
-    `;
-        connection.query(noQuery, [req.params.eventID], function (err, noRows) {
-          connection.release(); // release connection
+        const yesResponses = structuredClone(yesRows);
+
+        // Get the nos
+        var no_responses;
+        req.pool.getConnection(function (err, connection) {
           if (err) {
             console.log(err);
             res.sendStatus(500);
             return;
           }
-          const noResponses = structuredClone(noRows);
+          const noQuery = `
+          SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
+          FROM user_event_attendance AS attendance
+          INNER JOIN users ON users.user_id = attendance.user_id
+          WHERE attendance.event_id = ? AND attendance.RSVP = FALSE;
+      `;
+          connection.query(noQuery, [req.params.eventID], function (err, noRows) {
+            connection.release(); // release connection
+            if (err) {
+              console.log(err);
+              res.sendStatus(500);
+              return;
+            }
+            const noResponses = structuredClone(noRows);
 
-          const resp_body = {
-            yes: yesResponses,
-            no: noResponses
-          };
-          res.type('json');
-          res.send(JSON.stringify(resp_body));
-          return;
+            const resp_body = {
+              yes: yesResponses,
+              no: noResponses
+            };
+            res.type('json');
+            res.send(JSON.stringify(resp_body));
+            return;
+          });
         });
+        return;
       });
-      return;
     });
-  });
+  }).catch(function(err) {tools.sendError();});
 });
 
 router.post('/event/create', function (req, res, next) {
@@ -182,17 +200,53 @@ router.post('/event/create', function (req, res, next) {
   let public = req.body.public;
 
   // Validate each field of the event
-  /*
-          REALLY NEED TO DO THIS
-  */
+  if(title === undefined || typeof(title) != "string"){
+    res.status(400).send("Title undefined or not string");
+    return;
+  }
+  if(description === undefined || typeof(description) != "string"){
+    res.status(400).send("Description undefined or not string");
+    return;
+  }
+  if(details === undefined || typeof(details) != "string"){
+    res.status(400).send("Details undefined or not string");
+    return;
+  }
+  if(date === undefined || typeof(date) != "string"){
+    res.status(400).send("date undefined or not string");
+    return;
+  }
+  if(start_time === undefined || typeof(start_time) != "string"){
+    res.status(400).send("start time undefined or not string");
+    return;
+  }
+  if(end_time === undefined || typeof(end_time) != "string"){
+    res.status(400).send("end time undefined or not string");
+    return;
+  }
+  if(location === undefined || typeof(location) != "string"){
+    res.status(400).send("Location undefined or not string");
+    return;
+  }
+  if(image_url === undefined || typeof(image_url) != "string"){
+    res.status(400).send("image_url undefined or not string");
+    return;
+  }
+  if(public === undefined || typeof(public) != "string"){
+    res.status(400).send("Public undefined or not string");
+    return;
+  }
 
   // Convert date and start and end time to start and end datetimes
   let start_date_time = date + ' ' + start_time;
   let end_date_time = date + ' ' + end_time;
 
   // Need to get which branch they manage from the DB
-  let branch_id = 1;  // This should definitely not be hardcoded to 1
-
+  let branch_id = req.session.branch_managed;
+  if(branch_id === null){
+    res.status(403).send("Must be manager of branch to create event");
+    return;
+  }
   // Add to DB
   // Construct the SQL query
   let query = "INSERT INTO events (branch_id, event_name, event_description, event_details, start_date_time, end_date_time, event_location, event_image, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -207,7 +261,6 @@ router.post('/event/create', function (req, res, next) {
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
@@ -219,97 +272,112 @@ router.post('/event/create', function (req, res, next) {
 });
 
 router.post('/event/edit/:eventID', function (req, res, next) {
-  // Check the event exists?
-  /*
-    DO THIS!!!!!!!!!!!!
-  */
-
-  // Check the manager has authority to edit event, i.e. right branch
-  /*
-    DO THIS!!!!!!!!!!!!
-  */
-
-  // Check which fields were present in the request
   const eventID = req.params.eventID;
-  const fieldsToUpdate = [];
-  const values = [];
 
-  // update title
-  if (req.body.title !== undefined) {
-    fieldsToUpdate.push("event_name=?");
-    values.push(req.body.title);
-  }
-  // update description
-  if (req.body.description !== undefined) {
-    fieldsToUpdate.push("event_description=?");
-    values.push(req.body.description);
-  }
-  // update details
-  if (typeof req.body.details === 'string' && req.body.details.trim() !== '') {
-    fieldsToUpdate.push("event_details=?");
-    values.push(req.body.details);
-  }
+  // Check the event exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM events WHERE event_id = ?;`;
+  tools.sqlHelper(query, [eventID], req).then(function (results) {
+    if(results.length == 0){
+      // Event not found
+      res.status(400).send("Event not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only edit events of branches you manage");
+    }
 
-  // update date
-  if (req.body.date !== undefined) {
-    const startTime = req.body.startTime || "00:00:00";
-    const endTime = req.body.endTime || "23:59:59";
-    fieldsToUpdate.push("start_date_time=?");
-    fieldsToUpdate.push("end_date_time=?");
-    values.push(`${req.body.date} ${startTime}`, `${req.body.date} ${endTime}`);
-  }
+    // Check which fields were present in the request
+    const fieldsToUpdate = [];
+    const values = [];
 
-  // if no fields then return early
-  if (fieldsToUpdate.length === 0) {
-    res.sendStatus(400); // Bad Request
-    return;
-  }
+    // update title
+    if (req.body.title !== undefined) {
+      fieldsToUpdate.push("event_name=?");
+      values.push(req.body.title);
+    }
+    // update description
+    if (req.body.description !== undefined) {
+      fieldsToUpdate.push("event_description=?");
+      values.push(req.body.description);
+    }
+    // update details
+    if (typeof req.body.details === 'string' && req.body.details.trim() !== '') {
+      fieldsToUpdate.push("event_details=?");
+      values.push(req.body.details);
+    }
 
-  const query = `UPDATE events SET ${fieldsToUpdate.join(", ")} WHERE event_id=?`;
-  values.push(eventID);
+    // update date
+    if (req.body.date !== undefined) {
+      const startTime = req.body.startTime || "00:00:00";
+      const endTime = req.body.endTime || "23:59:59";
+      fieldsToUpdate.push("start_date_time=?");
+      fieldsToUpdate.push("end_date_time=?");
+      values.push(`${req.body.date} ${startTime}`, `${req.body.date} ${endTime}`);
+    }
 
-  // Query the SQL database
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+    // if no fields then return early
+    if (fieldsToUpdate.length === 0) {
+      res.status(400).send("Nothing to update"); // Bad Request
       return;
     }
-    connection.query(query, values, function (err, results) {
-      connection.release(); // release connection
+
+    query = `UPDATE events SET ${fieldsToUpdate.join(", ")} WHERE event_id=?`;
+    values.push(eventID);
+
+    // Query the SQL database
+    req.pool.getConnection(function (err, connection) {
       if (err) {
         console.log(err);
         res.sendStatus(500);
         return;
       }
+      connection.query(query, values, function (err, results) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
 
-      res.sendStatus(200);
+        res.sendStatus(200);
+      });
     });
-  });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 router.post('/event/delete/:eventID', function (req, res, next) {
-  // Check they manage the right branch
-  /*
-      DO THIS
-  */
-  let query = "DELETE FROM events WHERE event_id=?;";
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+  const eventID = req.params.eventID;
+
+  // Check the event exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM events WHERE event_id = ?;`;
+  tools.sqlHelper(query, [eventID], req).then(function (results) {
+    if(results.length == 0){
+      // Event not found
+      res.status(400).send("Event not found");
       return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only delete events of branches you manage");
     }
-    connection.query(query, [req.params.eventID], function (err, rows, fields) {
-      connection.release(); // release connection
+
+    let query = "DELETE FROM events WHERE event_id=?;";
+    req.pool.getConnection(function (err, connection) {
       if (err) {
         console.log(err);
         res.sendStatus(500);
         return;
       }
-      res.sendStatus(200);
+      connection.query(query, [req.params.eventID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+      });
     });
-  });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 module.exports = router;
