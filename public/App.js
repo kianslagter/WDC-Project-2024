@@ -6,6 +6,7 @@ const navitems = [
     { title: 'News', url: '/news' },
     { title: 'Branches', url: '/branches' },
     { title: 'Login', url: '/login' }
+
 ];
 
 const testEventDetails = {
@@ -206,6 +207,7 @@ createApp({
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
+
         if (eventID && window.location.pathname.split('/')[1] == 'events') {
             getEventDetails(eventID, function (data) {
                 event_selected.value = data;
@@ -490,3 +492,4 @@ createApp({
         }
     }
 }).mount('#app');
+

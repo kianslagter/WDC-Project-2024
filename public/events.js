@@ -208,4 +208,5 @@ function updateEvent(eventID) {
       console.error('Error:', error);
       alert('Error updating event');
     });
+
 }

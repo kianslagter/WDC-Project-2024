@@ -41,6 +41,7 @@
                     type="button" @click="eventRSVPresponse(getEventIDFromPath())"> View Responses </button>
                 <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button"
                     type="button" @click="editEvent(getEventIDFromPath())"> Edit Event </button>
+
             </div>
 
             <h1> {{event_selected.title}} </h1>

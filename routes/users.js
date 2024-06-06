@@ -6,12 +6,16 @@ router.post('/events/rsvp', function (req, res, next) {
   // Get the JSON object from the response
   if (req.body.eventID === undefined || typeof (req.body.eventID) !== "string") {
     console.log("sending 400");
+
     // Invalid argument event id
     res.status(400);  // bad request
     res.send();
     return;
   }
+
   if (req.body.RSVP === undefined || typeof (req.body.RSVP) !== "string" || (req.body.RSVP.toLowerCase() != 'yes' && req.body.RSVP.toLowerCase() != 'no')) {
+    // Invalid argument RSVP
+
     res.status(400);  // bad request
     res.send();
     return;

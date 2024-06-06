@@ -123,6 +123,7 @@ router.get('/events/search', function (req, res, next) {
   query += " ORDER BY start_date_time ASC LIMIT ?;";
   params.push(max_num);
 
+
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
