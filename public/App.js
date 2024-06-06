@@ -469,8 +469,8 @@ createApp({
             return null;
         },
         selectBranch(branchId) {
-            this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
-            window.location.href = '/branches/id/' + branchId;
+            this.branch_selected = testBranchSummary.find(branch => branch.id === branchId);
+            window.location.href = `/branches/id/${branchId}`;
         },
         editEvent(eventId) {
             window.location.href = `/manage/events/edit/${eventId}`;
