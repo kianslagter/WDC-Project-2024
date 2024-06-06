@@ -178,7 +178,7 @@ const testNews1 = [
 createApp({
     data() {
         return {
-            access_level: 0,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
             navitems: navitems,
             events_results: [],
@@ -304,15 +304,23 @@ createApp({
             // loading check
             this.isLoading = true;
             this.error = null;
+            let query_parameters = '';
+
+            // for which branch
+            if (window.location.pathname.split('/')[1] == 'branches' && window.location.pathname.split('/')[3] >= 0) {
+                query_parameters += "?";
+                let branchID = window.location.pathname.split('/')[3];
+                query_parameters += "branch=" + encodeURIComponent(branchID);
+            }
 
             // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
             let query_path = "";
             if (this.access_level > 0) {
                 // requires authentication on server
-                query_path = "/users/events/get";
+                query_path = "/users/events/get" + query_parameters;
             } else {
                 // Only allow public events
-                query_path = "/events/get";
+                query_path = "/events/get" + query_parameters;
             }
 
             // AJAX
