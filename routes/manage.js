@@ -2,12 +2,7 @@ var express = require('express');
 var router = express.Router();
 const formidable = require('formidable');
 var fs = require('fs');
-
-function sendError(res, err){
-  // Send
-  res.status(500).send(err.message);
-  return;
-}
+var tools = require('./helpers');
 
 router.post('/image/upload', function(req, res, next){
   /*
@@ -30,7 +25,7 @@ router.post('/image/upload', function(req, res, next){
   form.parse(req, function (err, fields, files) {
     // Check for error in parsing form
     if(err){
-      sendError(res, err);
+      tools.sendError(res, err);
       return;
     }
     console.log(files);
@@ -72,15 +67,15 @@ router.post('/image/upload', function(req, res, next){
     let query = `INSERT INTO images
       (filetype, file_name_orig, branch_id, public)
       VALUES (?,?,?,?);`;
-    req.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results){
+    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results){
       // Wait for insertion in table
       // get the id of the inserted image
       query = `SELECT LAST_INSERT_ID() AS image_id;`;
-      req.sqlHelper(query, [], req).then(function(results) {
+      tools.sqlHelper(query, [], req).then(function(results) {
         // Now have the id, so get the filename
         let image_id = results[0].image_id;
         query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name FROM images WHERE image_id = ?;`;
-        req.sqlHelper(query, [image_id], req).then(function(results){
+        tools.sqlHelper(query, [image_id], req).then(function(results){
           // Get old and new path to image
           let oldPath = files.file[0].filepath;
           let newPath = 'images/' + results[0].file_name;
@@ -89,7 +84,7 @@ router.post('/image/upload', function(req, res, next){
           // Write the file
           fs.writeFile(newPath, rawData, function (err) {
             if (err){
-              sendError(res, err);
+              tools.sendError(res, err);
               return;
             }
             let return_struct = {
@@ -99,9 +94,9 @@ router.post('/image/upload', function(req, res, next){
             res.status(200).json(return_struct);
             return;
           });
-        }).catch(function(err) {return sendError(res,err);});
-      }).catch(function(err) {return sendError(res,err);});
-    }).catch(function(err) {return sendError(res,err);});
+        }).catch(function(err) {return tools.sendError(res,err);});
+      }).catch(function(err) {return tools.sendError(res,err);});
+    }).catch(function(err) {return tools.sendError(res,err);});
   });
   return;
 });
