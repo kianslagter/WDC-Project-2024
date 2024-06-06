@@ -108,7 +108,7 @@ function updateSessionVariables(req, res, uname){
             req.session.admin = false;
           }
 
-        }).catch((err)=> {sendError(res, err);});
+        }).catch((err)=> {return reject(err);});
 
         // Return
         return resolve();
