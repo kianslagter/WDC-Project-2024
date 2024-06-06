@@ -1,6 +1,9 @@
 /* --- News --- */
 /* Contains news styles for the homepage as well */
 .news-pane {
+    background-color: lightgray;
+    border-radius: 1em;
+    padding: 1em 2em;
     width: 200px;
     height: 90%;
     display: inline-block;
@@ -9,17 +12,37 @@
     margin-right: 10px;
 }
 
+.news-pane:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.news-pane:active {
+    background-color: darkgray;
+}
+
+.news-card-title {
+    margin-bottom: 2px;
+    color: black;
+    font-size: 1.2em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .news-branch {
     float: right;
     color: grey;
-    font-size: 0.7em;
-    margin: 5px;
+    font-size: 0.9em;
+    margin: 2px;
 }
 
 .news-date {
     color: grey;
-    font-size: 0.7em;
-    margin: 5px;
+    font-size: 0.9em;
+    margin: 2px;
 }
 
 .news-image-1 {
@@ -40,6 +63,7 @@
 .news-article {
     white-space: normal;
     margin: 3px;
+    color:black;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -50,17 +74,6 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
-}
-
-/* Not used yet */
-.news-container {
-    width: 90%;
-    border-radius: 10px;
-    padding: 5px 10px 10px 10px;
-    margin: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    background-color: #E2A7A7;
 }
 
 .news-textarea {
@@ -77,5 +90,41 @@
 
 .news-image {
     float: right;
-    width: 100px;
+    width: 200px;
+}
+
+.news-container {
+    width: 90%;
+    border-radius: 1em;
+    padding: 1em 2em;
+    margin: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    background-color: lightgray;
+    position: relative;
+}
+
+.news-container:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.news-container:active {
+    background-color: darkgray;
+}
+
+.news-header {
+    color: darkslategrey;
+}
+
+.news-description {
+    margin-top: 5px;
+}
+
+.news-rsvp-button {
+    display: inline;
+}
+
+#news-results {
+    margin-top: 5px;
+    margin-bottom: 20px;
 }

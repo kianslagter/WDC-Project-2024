@@ -79,3 +79,66 @@
 .join-branch-button :hover {
     background-color: #5a6268;
 }
+
+.branch-pane {
+    border-radius: 1em;
+    padding: 1em 2em;
+    background-color: lightgray;
+    position: relative;
+    width: 200px;
+    height: 80%;
+    display: flex;
+    overflow-x: auto;
+    overflow: hidden;
+    margin-right: 10px;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.branch-pane:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.branch-pane:active {
+    background-color: darkgray;
+}
+
+.scrolling-wrapper-branch {
+    width: 100%;
+    height: 350px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.inner-scroll-branch-events {
+    height: 100%;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.event-card-title {
+    margin-bottom: 2px;
+    color: black;
+    font-size: 1.2em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.event-card-image {
+    width: 100%;
+    height: auto;
+}
+
+.event-card-header {
+    color: grey;
+    font-size: 0.9em;
+    margin: 2px;
+}

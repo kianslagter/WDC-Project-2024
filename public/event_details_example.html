@@ -2,14 +2,15 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Website</title>
-  <link rel="stylesheet" href="/stylesheets/styles.css">
-  <link rel="stylesheet" href="/stylesheets/events.css">
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-  <script src="/App.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/events.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="/events.js"></script>
+    <script src="/App.js" defer></script>
 </head>
 
 <body id="app">
@@ -33,13 +34,14 @@
                 <p><b> Location: </b> {{event_selected.location}} </p>
                 <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
                 <button class="button primary-button event-details-rsvp-button" type="button"
-                    v-on:click="RSVP('YES')">RSVP Yes</button>
+                    v-on:click="RSVP('yes', getEventIDFromPath())">RSVP Yes</button>
                 <button class="button secondary-button event-details-rsvp-button" type="button"
-                    v-on:click="RSVP('NO')">RSVP No</button>
+                    v-on:click="RSVP('no', getEventIDFromPath())">RSVP No</button>
                 <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button"
-                    type="button"> View Responses </button>
+                    type="button" @click="eventRSVPresponse(getEventIDFromPath())"> View Responses </button>
                 <button v-if="access_level >= 2" class="button secondary-button event-details-rsvp-button"
-                    type="button"> Edit Event </button>
+                    type="button" @click="editEvent(getEventIDFromPath())"> Edit Event </button>
+
             </div>
 
             <h1> {{event_selected.title}} </h1>

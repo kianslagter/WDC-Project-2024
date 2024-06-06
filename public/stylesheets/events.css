@@ -6,12 +6,21 @@
 
 .event-container {
     width: 90%;
-    border-radius: 10px;
-    padding: 5px 10px 10px 10px;
+    border-radius: 1em;
+    padding: 1em 2em;
     margin: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    background-color: #E2A7A7;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    background-color: lightgray;
+    position: relative;
+}
+
+.event-container:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.event-container:active {
+    background-color: darkgray;
 }
 
 .event-title {
@@ -125,4 +134,25 @@
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
+}
+
+.user-list {
+    list-style-type: none;
+    padding: 0;
+}
+.user-list li {
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.response-section {
+    margin-bottom: 20px;
+}
+
+.create-event-button {
+    margin: auto;
+    display: block;
+    margin-bottom: 30px;
 }

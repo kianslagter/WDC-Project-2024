@@ -38,6 +38,7 @@ CREATE TABLE events (
     start_date_time DATETIME NOT NULL,
     end_date_time DATETIME, -- Check after start time?
     event_description VARCHAR(2048) NOT NULL,
+    event_details VARCHAR(4096),
     event_location VARCHAR(64),
     event_image VARCHAR(64),
     is_public BOOLEAN DEFAULT FALSE,
@@ -75,6 +76,6 @@ CREATE TABLE user_event_attendance (
     rsvp BOOLEAN NOT NULL,
 
     PRIMARY KEY (event_id, user_id),
-    FOREIGN KEY (event_id) REFERENCES events(event_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );

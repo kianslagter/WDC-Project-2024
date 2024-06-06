@@ -43,6 +43,7 @@
         <input type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
       </template>
 
+
       <br><br><label> Max number of Events Shown: </label> <input type="number" id="num-events" value=10>
     </div>
 
@@ -63,20 +64,27 @@
 
       <!-- Render the event results -->
       <div class="event-container" v-for="event in events_results">
-        <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
         <a class="event-title" v-bind:href="'/events/id/' + event.id">
-          <h2 class="event-title"> {{event.title}} </h2>
+          <div>
+            <img class="event-image" v-bind:src="event.image_url" alt="Event Image">
+            <h2 class="event-title"> {{event.title}} </h2>
+            <!-- Link the location to the branch page? -->
+            <span class="event-header">
+              {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
+            <p class="event-description"> {{event.description}} </p>
+          </div>
         </a>
-        <!-- Link the location to the branch page? -->
-        <span class="event-header">
-          {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
-        <p class="event-description"> {{event.description}} </p>
         <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-        <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('Yes')">RSVP Yes</button>
-        <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('No')">RSVP No</button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> View Responses
+        <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
+          Yes</button>
+        <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
+          No</button>
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="eventRSVPresponse(event.id)"> View
+          Responses
         </button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"> Edit Event
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="editEvent(event.id)"> Edit Event
         </button>
 
       </div>
@@ -100,4 +108,5 @@
   </footer>
 
 </body>
+
 </html>

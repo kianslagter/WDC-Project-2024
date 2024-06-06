@@ -22,18 +22,20 @@
       <p> A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion.</p>
       <h1> How You Can Help </h1>
       <p> By volunteering with mealmates, you can have a real impact whilst gaining valuable experience. Some more text here probably. Register now using the button below</p>
-      <button class="button primary-button">Register Now!</button>
+      <button class="button primary-button" onclick="window.location.href='/register'">Register Now!</button>
 
       <h1> News </h1>
       <div class="scrolling-wrapper">
         <div class="inner-scroll">
           <template v-for="news in news_array1">
             <div class="news-pane">
+              <a v-bind:href="'/news/id/' + news.id" class="title-link">
               <img v-bind:src="news.image" class="news-image-1" alt="News image">
               <p class="news-branch"> {{news.branch}} </p>
               <p class="news-date"> {{news.date}} </p>
-              <a v-bind:href="'/news/id/' + news.id" class="title-link"> <h3 class="news-title"> {{news.title}} </h3> </a>
+               <h3 class="news-card-title"> {{news.title}} </h3>
               <p class="news-article"> {{news.article_start}} </p>
+              </a>
             </div>
           </template>
         </div>

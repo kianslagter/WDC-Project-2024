@@ -6,75 +6,7 @@ const navitems = [
     { title: 'News', url: '/news' },
     { title: 'Branches', url: '/branches' },
     { title: 'Login', url: '/login' }
-];
 
-const testEvents = [
-    {
-        id: 1,
-        title: 'Event 1 Title',
-        description: 'Description of event 1',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 2,
-        title: 'Event 2 Title',
-        description: 'Description of event 2, which is a bit longer than event 1 so that it breaks across multiple lines',
-        date: '3/7/24',
-        startTime: '12pm',
-        endTime: '5pm',
-        dayOfWeek: 'Monday',
-        location: 'Sydney',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 3,
-        title: 'Event 3 Title',
-        description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
-        date: '3/8/24',
-        startTime: '12pm',
-        endTime: '5pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 4,
-        title: 'Event 4 Title',
-        description: 'Description of event 4',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 5,
-        title: 'Event 5 Title',
-        description: 'Description of event 5',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
-    {
-        id: 6,
-        title: 'Event 6 Title',
-        description: 'Description of event 6',
-        date: '1/7/24',
-        startTime: '1pm',
-        endTime: '3pm',
-        dayOfWeek: 'Monday',
-        location: 'Adelaide',
-        image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-    },
 ];
 
 const testEventDetails = {
@@ -250,7 +182,7 @@ createApp({
             access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
             navitems: navitems,
-            events_results: testEvents,
+            events_results: [],
             show_events_filters: false,
             branches_summary: testBranchSummary,
             event_selected: null, // set to null intially in real thing
@@ -265,7 +197,9 @@ createApp({
             branch_selected: testBranchSummary[0],
             update_selected: testUpdateDetails,
             loading: true,
-            event: null
+            event: null,
+            isLoading: false,
+            error: null
         };
     },
     setup() {
@@ -273,7 +207,8 @@ createApp({
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
-        if (eventID && window.location.pathname.split('/')[1]== 'events'){
+
+        if (eventID && window.location.pathname.split('/')[1] == 'events') {
             getEventDetails(eventID, function (data) {
                 event_selected.value = data;
                 loading.value = false;
@@ -287,6 +222,10 @@ createApp({
     },
     methods: {
         events_search() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+
             // Get the value of all the relevant filter options and search term
             let search_term = document.getElementById("events-search").value;
             let from_date = document.getElementById("from-date").value;
@@ -307,21 +246,21 @@ createApp({
             console.log("branches selected: " + branches_selected);
 
             // Construct the query parameters
-            let query_parameters = "";
+            let query_parameters = "?";
             if (search_term !== "") {
-                query_parameters += "?search=" + search_term + '&';
+                query_parameters += "search=" + encodeURIComponent(search_term) + '&';
             }
             if (from_date !== "") {
-                query_parameters += "?from=" + from_date + '&';
+                query_parameters += "from=" + encodeURIComponent(from_date) + '&';
             }
             if (to_date !== "") {
-                query_parameters += "?to=" + to_date + '&';
+                query_parameters += "to=" + encodeURIComponent(to_date) + '&';
             }
             if (num_events !== "") {
-                query_parameters += "?n=" + num_events + '&';
+                query_parameters += "n=" + encodeURIComponent(num_events) + '&';
             }
             for (let i = 0; i < branches_selected.length; i++) {
-                query_parameters += "?branch=" + branches_selected[i] + '&';
+                query_parameters += "branch=" + encodeURIComponent(branches_selected[i]) + '&';
             }
             // remove the last &
             if (query_parameters !== "") {
@@ -331,31 +270,86 @@ createApp({
 
             // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
             let query_path = "";
-            if (this.logged_in) {
+            if (this.access_level > 0) {
                 // requires authentication on server
                 query_path = "/users/events/search" + query_parameters;
             } else {
                 // Only allow public events
                 query_path = "/events/search" + query_parameters;
             }
+            // AJAX
+            fetch(query_path, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched events:", data);
+                    this.events_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                    this.events_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+        events_load() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+            let query_parameters = '';
+
+            // for which branch
+            if (window.location.pathname.split('/')[1] == 'branches' && window.location.pathname.split('/')[3] >= 0) {
+                query_parameters += "?";
+                let branchID = window.location.pathname.split('/')[3];
+                query_parameters += "branch=" + encodeURIComponent(branchID);
+            }
+
+            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
+            let query_path = "";
+            if (this.access_level > 0) {
+                // requires authentication on server
+                query_path = "/users/events/get" + query_parameters;
+            } else {
+                // Only allow public events
+                query_path = "/events/get" + query_parameters;
+            }
 
             // AJAX
-            var xhttp = new XMLHttpRequest();
-            xhttp.open('GET', query_path, true);
-            xhttp.setRequestHeader('Content-Type', 'application/json');
-
-            let self = this;
-
-            xhttp.onreadystatechange = function () {
-                if (xhttp.readyState == 4 && xhttp.status == 200) {
-                    var data = JSON.parse(xhttp.responseText);
-                    console.log(data);
-                    self.events_results = data;
+            fetch(query_path, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            }
-            xhttp.send();
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched events:", data);
+                    this.events_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                    this.events_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
-
         news_search() {
             // Get the value of all the relevant filter options and search term
             let search_term = document.getElementById("news-search").value;
@@ -425,22 +419,21 @@ createApp({
             // Call the events_search function to get the events from the server
             this.events_search();
         },
-        RSVP(response) {
+        RSVP(response, eventID) {
             if (typeof this.access_level === 'undefined' || this.access_level == 0) {
                 // Visitor, redirect to login page
                 window.location.href = '/login';
             } else {
-                let eventID = window.location.pathname.split('/')[3];
-
                 if (!eventID) {
                     console.error("No event ID found");
                     return;
                 }
 
                 const data = {
-                    eventID: eventID,
+                    eventID: eventID.toString(),
                     RSVP: response
                 };
+                console.log("Sending data:", data);
 
                 fetch('/users/events/rsvp', {
                     method: 'POST',
@@ -452,8 +445,10 @@ createApp({
                     .then(response => {
                         if (response.ok) {
                             console.log("RSVP successful");
+                            alert('RSVP Successful!');
                         } else if (response.status == 400) {
                             console.error("Invalid request data");
+                            alert('RSVP Unsuccessful');
                         } else if (response.status == 500) {
                             console.error("Server error");
                         } else {
@@ -465,14 +460,36 @@ createApp({
                     });
             }
         },
+        getEventIDFromPath() {
+            try { // try get event id from pathname for event details
+                const path = window.location.pathname;
+                const segments = path.split('/');
+                return segments[segments.length - 1];
+            } catch (error) {
+                console.error("Error extracting event ID from pathname:", error);
+            }
+            return null;
+        },
         selectBranch(branchId) {
-            this.branch_selected = this.branches_summary.find(branch => branch.id === branchId);
-            window.location.href = '/branches/id/' + branchId;
-        }
+            this.branch_selected = testBranchSummary.find(branch => branch.id === branchId);
+            window.location.href = `/branches/id/${branchId}`;
+        },
+        editEvent(eventId) {
+            window.location.href = `/manage/events/edit/${eventId}`;
+        },
+        eventRSVPresponse(eventId) {
+            window.location.href = `/manage/events/responses/${eventId}`;
+        },
     },
-    mounted() { // load events on page initally, probably a better way to do this
-        if (window.location.pathname.split('/')[1]== 'events' && !window.location.pathname.split('/')[2]){
-        this.events_search();
+    mounted() {
+        // load events on page initally, probably a better way to do this
+        if (window.location.pathname.split('/')[1] == 'events' && !window.location.pathname.split('/')[2]) {
+            this.events_load();
+        }
+        // on branch details page show events also but only for that branch
+        if (window.location.pathname.split('/')[1] == 'branches' && window.location.pathname.split('/')[2] == 'id') {
+            this.events_load();
         }
     }
 }).mount('#app');
+

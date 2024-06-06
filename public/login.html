@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
-  <link rel="stylesheet" href="/stylesheets/others.css">
+    <link rel="stylesheet" href="/stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/events.js"></script>
   <script src="App.js" defer></script>
   <script>
     function login() {
@@ -19,6 +20,7 @@
 
       // COnstruct the JSON req body
       var req_body = { "username": uname, "password": pwd };
+
 
       // Send the AJAX request
       let xhttp = new XMLHttpRequest();
