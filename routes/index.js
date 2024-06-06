@@ -66,13 +66,13 @@ function updateSessionVariables(req, res, uname){
         var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
         // Wait for the queries to finish
-        Promise.all([branches_member, branch_managed, system_admin]).then((values) => {
+        Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
           // Check branches they are member of
           let members_results = values[0];
           req.session.branches = [];
-          for(let i = 0; i < members_results.length(); i++){
+          for(let i = 0; i < members_results.length; i++){
             // Add each branch to the session variable branches
-            req.sessions.branches.push(members_results[i].branch_id);
+            req.session.branches.push(members_results[i].branch_id);
           }
 
           // Check branch they manage (if any)
@@ -90,11 +90,8 @@ function updateSessionVariables(req, res, uname){
           } else {
             req.session.admin = false;
           }
-
+          return resolve();
         }).catch((err)=> {return reject(err);});
-
-        // Return
-        return resolve();
       }).catch(function(err) {return reject(err);});
   });
 }
@@ -269,6 +266,7 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     tools.sqlHelper(query, [event_id], req).then(function(results){
       if(!results[0].public){
         // Authenticate user
+        console.log(req.session);
         if(!req.session.isLoggedIn || !req.session.branches.contains(results[0].branch)){
           // Not logged in or not correct branch
           res.status(403).send("Not a member of correct branch (or not logged in)");
