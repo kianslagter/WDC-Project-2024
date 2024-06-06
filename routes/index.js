@@ -291,28 +291,12 @@ router.get('/events/id/:eventId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'event_details_example.html'));
 });
 
-router.get('/manage/events/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
-});
-
-router.get('/manage/events/edit/:eventId', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'edit_event.html'));
-});
-
-router.get('/manage/events/responses/:eventId', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'event_responses.html'));
-});
-
 router.get('/news', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news.html'));
 });
 
 router.get('/news/id/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'news_details_example.html'));
-});
-
-router.get('/manage/news/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
 router.get('/branches', function (req, res, next) {
@@ -330,7 +314,6 @@ router.get('/register', function (req, res, next) {
 router.get('/branches/id/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branch_details.html'));
 });
-
 
 router.get('/branches', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'branches.html'));

@@ -3,6 +3,23 @@ var router = express.Router();
 const formidable = require('formidable');
 var fs = require('fs');
 var tools = require('./helpers');
+const path = require('path');
+
+router.get('/events/create', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
+});
+
+router.get('/events/edit/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'edit_event.html'));
+});
+
+router.get('/events/responses/:eventId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'event_responses.html'));
+});
+
+router.get('/news/create', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
+});
 
 router.post('/image/upload', function(req, res, next){
   /*
