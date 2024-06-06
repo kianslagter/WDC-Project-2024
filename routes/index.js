@@ -21,12 +21,17 @@ router.get('/image/:id', function(req, res, next){
       res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
       return;
     } else {
-      res.status(501).send("private images not done yet");
-      return;
       // Do this
       /*
         Authenticate user
       */
+      if(req.session.isLoggedIn == false){
+        res.status(403).send("Log in to access");
+      } else {
+        // NEED TO ACTUALLY CHECK THEY BELONG TO THE CORRECT BRANCH
+        res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
+        return;
+      }
     }
   }).catch(function(err) {return sendError(res, err);});
 });

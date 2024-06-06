@@ -51,9 +51,10 @@ router.post('/image/upload', function(req, res, next){
 
     // Check the public field
     if(fields.public === undefined){
-      res.status(400).send("Undefined public field");
-      return;
+      // Doesn't exist, so public = false
+      fields.public = false;
     }
+
     // Change public from on off to true false
     if(fields.public == 'on'){
       fields.public = true;
