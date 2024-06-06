@@ -346,10 +346,6 @@ router.post('/event/edit/:eventID', function (req, res, next) {
 });
 
 router.post('/event/delete/:eventID', function (req, res, next) {
-  // Check they manage the right branch
-  /*
-      DO THIS
-  */
   const eventID = req.params.eventID;
 
   // Check the event exists, and it is the correct branch (the manager's branch)
@@ -381,7 +377,7 @@ router.post('/event/delete/:eventID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }.catch(function (err) {tools.sendError(err);});
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 module.exports = router;
