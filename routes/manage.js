@@ -200,16 +200,49 @@ router.post('/event/create', function (req, res, next) {
   let public = req.body.public;
 
   // Validate each field of the event
-  /*
-          REALLY NEED TO DO THIS
-  */
+  if(title === undefined || typeof(title) != "string"){
+    res.status(400).send("Title undefined or not string");
+    return;
+  }
+  if(description === undefined || typeof(description) != "string"){
+    res.status(400).send("Description undefined or not string");
+    return;
+  }
+  if(details === undefined || typeof(details) != "string"){
+    res.status(400).send("Details undefined or not string");
+    return;
+  }
+  if(date === undefined || typeof(date) != "string"){
+    res.status(400).send("date undefined or not string");
+    return;
+  }
+  if(start_time === undefined || typeof(start_time) != "string"){
+    res.status(400).send("start time undefined or not string");
+    return;
+  }
+  if(end_time === undefined || typeof(end_time) != "string"){
+    res.status(400).send("end time undefined or not string");
+    return;
+  }
+  if(location === undefined || typeof(location) != "string"){
+    res.status(400).send("Location undefined or not string");
+    return;
+  }
+  if(image_url === undefined || typeof(image_url) != "string"){
+    res.status(400).send("image_url undefined or not string");
+    return;
+  }
+  if(public === undefined || typeof(public) != "string"){
+    res.status(400).send("Public undefined or not string");
+    return;
+  }
 
   // Convert date and start and end time to start and end datetimes
   let start_date_time = date + ' ' + start_time;
   let end_date_time = date + ' ' + end_time;
 
   // Need to get which branch they manage from the DB
-  let branch_id = 1;  // This should definitely not be hardcoded to 1
+  let branch_id = req.session.branch_managed;
 
   // Add to DB
   // Construct the SQL query
@@ -225,7 +258,6 @@ router.post('/event/create', function (req, res, next) {
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
