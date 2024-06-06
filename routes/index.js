@@ -41,7 +41,7 @@ router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-function sendError(res, next, err){
+function sendError(res, err){
   // Send
   if(err === undefined){
     res.sendStatus(500);
@@ -55,7 +55,7 @@ function sendError(res, next, err){
   return;
 }
 
-function updateSessionVariables(req, uname){
+function updateSessionVariables(req, res, uname){
   return new Promise( (resolve, reject) => {
     // Correct username and password
     // log user in
@@ -71,10 +71,44 @@ function updateSessionVariables(req, uname){
         // Should now get other information about the user from the databases
         // (can likely be done in parralel with an array of promises)
 
-        // Will likely need to add:
-        // an array of branches they are a member of
+        // Make some SQL queries to check:
+        // branches they are a member of
+        query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
+        var branches_member = req.sqlHelper(query, [req.session.userID], req);
         // Branch they manage
+        query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
+        var branch_managed = req.sqlHelper(query, [req.session.userID], req);
         // are they a system admin?
+        query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
+        var system_admin = req.sqlHelper(query, [req.session.userID], req);
+
+        // Wait for the queries to finish
+        Promise.all([branches_member, branch_managed, system_admin]).then((values) => {
+          // Check branches they are member of
+          let members_results = values[0];
+          req.session.branches = [];
+          for(let i = 0; i < members_results.length(); i++){
+            // Add each branch to the session variable branches
+            req.sessions.branches.push(members_results[i].branch_id);
+          }
+
+          // Check branch they manage (if any)
+          let manage_results = values[1];
+          if(manage_results[0].branch_managed === null){
+            req.session.branch_managed = null;
+          } else {
+            req.session.branch_managed = manage_results[0].branch_managed;
+          }
+
+          // Check if they are a system admin
+          let admin_results = values[2];
+          if(admin_results[0].system_admin == true){
+            req.session.admin = true;
+          } else {
+            req.session.admin = false;
+          }
+
+        }).catch((err)=> {sendError(res, err);});
 
         // Return
         return resolve();
@@ -105,16 +139,16 @@ router.post('/login', function (req, res, next) {
         return;
       } else {
         // Log them in by updating the appropriate session variables.
-        updateSessionVariables(req, uname).then(function()
+        updateSessionVariables(req, res, uname).then(function()
           {
             // Session variables updated succesfully
             res.status(200).send("Log in succesful");
             return;
           }
-        ).catch(function(err){ sendError(res, next, err);});
+        ).catch(function(err){ sendError(res, err);});
       }
     }
-  ).catch( (err) => {sendError(res, next, err);});
+  ).catch( (err) => {sendError(res, err);});
 });
 
 router.get('/events/search', function (req, res, next) {
