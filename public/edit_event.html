@@ -2,69 +2,103 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Website</title>
-  <link rel="stylesheet" href="/stylesheets/styles.css">
-  <link rel="stylesheet" href="/stylesheets/events.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="/events.js" defer></script>
-  <script src="/App.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/events.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/events.js" defer></script>
+    <script src="/App.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const eventID = window.location.pathname.split('/')[4];
+            getEventDetails(eventID, function (data) {
+                document.getElementById('title').value = data.title;
+                document.getElementById('description').value = data.description;
+                const date = new Date(data.date);
+                const formattedDate = date.toISOString().split('T')[0];
+                document.getElementById('date').value = formattedDate;
+
+                document.getElementById('startTime').value = data.startTime;
+                document.getElementById('endTime').value = data.endTime;
+                document.getElementById(data.isPublic ? 'public' : 'private').checked = true;
+
+                const detailsContainer = document.querySelector('.details-container');
+                detailsContainer.innerHTML = '';  // Clear existing details
+                if (Array.isArray(data.details)) {
+                    data.details.forEach(detail => {
+                        const detailInput = document.createElement('input');
+                        detailInput.type = 'text';
+                        detailInput.className = 'create-event-details';
+                        detailInput.value = detail;
+                        detailsContainer.appendChild(detailInput);
+                    });
+                }
+
+                document.getElementById('image_url').value = data.image_url;
+            });
+        });
+    </script>
 </head>
 
 <body id="app">
-  <header class="top-pane">
-    <nav>
-      <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-    </nav>
-  </header>
+    <header class="top-pane">
+        <nav>
+            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        </nav>
+    </header>
 
-  <div class="page-content content">
-    <h1>Edit Event</h1>
-    <p> Branch: {Branch name} </p>
-    <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
-    <h4> Set Event Time </h4>
-    <p> Date: <input id="date" type="date" class="create-event-time-inputs"></p>
+    <div class="page-content content">
+        <h1>Edit Event</h1>
+        <p> Branch: { branchName } </p>
+        <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
+        <h4> Set Event Time </h4>
+        <p> Date: <input id="date" type="date" class="create-event-time-inputs"></p>
 
-    <p> Start time: <input id="startTime" type="time" class="create-event-time-inputs"></p>
+        <p> Start time: <input id="startTime" type="time" class="create-event-time-inputs"></p>
 
-    <p> End time: <input id="endTime" type="time" class="create-event-time-inputs"></p>
+        <p> End time: <input id="endTime" type="time" class="create-event-time-inputs"></p>
 
-    <h4> Set Event to Public or Private </h4>
-    <input id="public" type="radio" name="event_privacy" value="1">
-    <label for="public"> Public </label>
-    <input id="private" type="radio" name="event_privacy" value="0">
-    <label for="private"> Private </label>
-    <h4> Enter Event Description Below </h4>
-    <textarea id="description" class="create-event-description"> Enter event description here </textarea>
-    <p> Note: Event description should be brief, further details can go in the details section below </p>
-    <h4> Enter Event Details Below </h4>
-    <p> Event details are listed as dot points, with up to 2 levels of dot points able to be used. Use the button on the
-      right to toggle between the two list levels </p>
-    <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
-    <template v-for="point in num_points">
-      <div>
-        <button v-if="point != 1" class="secondary-button button create-event-point-level" type="button"
-          v-on:click="point_level[point-1] = (point_level[point - 1] + 1)%2"> Change level </button>
-        <p v-if="point_level[point-1] == 0" style="display: inline-block"> - </p>
-        <p v-else style="display: inline-block"> &emsp;- </p>
-        <input type="text" class="create-event-details">
-      </div>
-    </template>
-    <button class="secondary-button button" type="button" v-on:click="num_points++; point_level.push(0)"> Add another
-      point </button>
+        <h4> Set Event to Public or Private </h4>
+        <input id="public" type="radio" name="event_privacy" value="1">
+        <label for="public"> Public </label>
+        <input id="private" type="radio" name="event_privacy" value="0">
+        <label for="private"> Private </label>
+        <h4> Enter Event Description Below </h4>
+        <textarea id="description" class="create-event-description"> Enter event description here </textarea>
+        <p> Note: Event description should be brief, further details can go in the details section below </p>
+        <h4> Enter Event Details Below </h4>
+        <p> Event details are listed as dot points, with up to 2 levels of dot points able to be used. Use the button on
+            the
+            right to toggle between the two list levels </p>
+        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
+        <div class="details-container">
+            <template v-for="point in num_points">
+                <div>
+                    <button v-if="point != 1" class="secondary-button button create-event-point-level" type="button"
+                        v-on:click="point_level[point-1] = (point_level[point - 1] + 1)%2"> Change level </button>
+                    <p v-if="point_level[point-1] == 0" style="display: inline-block"> - </p>
+                    <p v-else style="display: inline-block"> &emsp;- </p>
+                    <input id="details" type="text" class="create-event-details">
+                </div>
+            </template>
+        </div>
+        <button class="secondary-button button" type="button" v-on:click="num_points++; point_level.push(0)"> Add
+            another
+            point </button>
 
-    <h4> Add an Image </h4>
-    <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-    <button id="createEventButton" class="button primary-button create-event-button" type="button" @click="createEvent">
-      Create Event
-    </button>
-  </div>
+        <h4> Add an Image </h4>
+        <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
+        <button id="createEventButton" class="button primary-button create-event-button" type="button">
+            Update Event
+        </button>
+    </div>
 
-  <footer>
-    &copy; 2024 Your Website. All rights reserved.
-  </footer>
+    <footer>
+        &copy; 2024 Your Website. All rights reserved.
+    </footer>
 </body>
 
 </html>
