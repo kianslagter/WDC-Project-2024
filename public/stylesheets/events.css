@@ -150,3 +150,9 @@
 .response-section {
     margin-bottom: 20px;
 }
+
+.create-event-button {
+    margin: auto;
+    display: block;
+    margin-bottom: 30px;
+}

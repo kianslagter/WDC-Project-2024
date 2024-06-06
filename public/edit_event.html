@@ -14,6 +14,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const eventID = window.location.pathname.split('/')[4];
+            // load intial event details
             getEventDetails(eventID, function (data) {
                 document.getElementById('title').value = data.title;
                 document.getElementById('description').value = data.description;
@@ -39,6 +40,32 @@
 
                 document.getElementById('image_url').value = data.image_url;
             });
+            // delete event
+            const deleteEventButton = document.getElementById('deleteEventButton');
+            if (deleteEventButton) {
+                deleteEventButton.addEventListener('click', function () {
+                    const eventID = window.location.pathname.split('/')[4];
+                    deleteEvent(eventID);
+                });
+            }
+            // update event
+            const updateEventButton = document.getElementById('updateEventButton');
+            if (updateEventButton) {
+                updateEventButton.addEventListener('click', function () {
+                    const eventID = window.location.pathname.split('/')[4];
+                    const eventData = {
+                        title: document.getElementById('title').value,
+                        description: document.getElementById('description').value,
+                        date: document.getElementById('date').value,
+                        startTime: document.getElementById('startTime').value,
+                        endTime: document.getElementById('endTime').value,
+                        isPublic: document.getElementById('public').checked,
+                        details: Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value),
+                        image_url: document.getElementById('image_url').value
+                    };
+                    updateEvent(eventID, eventData);
+                });
+            }
         });
     </script>
 </head>
@@ -91,9 +118,11 @@
 
         <h4> Add an Image </h4>
         <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-        <button id="createEventButton" class="button primary-button create-event-button" type="button">
+        <button id="updateEventButton" class="button primary-button create-event-button" type="button">
             Update Event
         </button>
+        <button class="button secondary-button create-event-button" type="button" id="deleteEventButton">Delete
+            event</button>
     </div>
 
     <footer>

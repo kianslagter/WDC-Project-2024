@@ -157,6 +157,7 @@ function deleteEvent(eventID) {
           eventContainer.remove();
         }
         alert('Event deleted successfully');
+        window.location.href = "/events";
       } else if (response.status === 403) {
         alert('You do not have permission to delete this event');
       } else {
@@ -168,67 +169,43 @@ function deleteEvent(eventID) {
       alert('An error occurred while deleting the event');
     });
 }
-function editEvent(eventID) {
-  const eventContainer = document.getElementById(`event-${eventID}`);
-  if (!eventContainer) return;
+function updateEvent(eventID) {
+  const title = document.getElementById('title').value;
+  const description = document.getElementById('description').value;
+  const date = document.getElementById('date').value;
+  const startTime = document.getElementById('startTime').value;
+  const endTime = document.getElementById('endTime').value;
+  const isPublic = document.getElementById('public').checked ? 1 : 0;
+  const details = Array.from(document.querySelectorAll('.create-event-details')).map(input => input.value);
+  const image_url = document.getElementById('image_url').value;
 
-  const titleInput = eventContainer.querySelector('.edit-title');
-  const descriptionInput = eventContainer.querySelector('.edit-description');
-  const detailsInput = eventContainer.querySelector('.edit-details');
-
-  const updatedFields = {};
-  if (titleInput && titleInput.value !== titleInput.defaultValue) {
-    updatedFields.title = titleInput.value;
-  }
-  if (descriptionInput && descriptionInput.value !== descriptionInput.defaultValue) {
-    updatedFields.description = descriptionInput.value;
-  }
-  if (detailsInput && detailsInput.value !== detailsInput.defaultValue) {
-    updatedFields.details = detailsInput.value;
-  }
-
-  if (Object.keys(updatedFields).length === 0) {
-    alert('No changes to save');
-    return;
-  }
+  const eventDetails = {
+    title,
+    description,
+    date,
+    startTime,
+    endTime,
+    isPublic,
+    details,
+    image_url
+  };
 
   fetch(`/manage/event/edit/${eventID}`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify(updatedFields)
+    body: JSON.stringify(eventDetails)
   })
     .then(response => {
       if (response.ok) {
-        // Event updated successfully
-        alert('Event updated successfully');
-        // Update the display values
-        if (updatedFields.title) {
-          eventContainer.querySelector('.display-title').textContent = updatedFields.title;
-        }
-        if (updatedFields.description) {
-          eventContainer.querySelector('.display-description').textContent = updatedFields.description;
-        }
-        if (updatedFields.details) {
-          eventContainer.querySelector('.display-details').textContent = updatedFields.details;
-        }
-        // Reset the input fields
-        if (titleInput) titleInput.value = titleInput.defaultValue;
-        if (descriptionInput) descriptionInput.value = descriptionInput.defaultValue;
-        if (detailsInput) detailsInput.value = detailsInput.defaultValue;
-      } else if (response.status === 403) {
-        alert('You do not have permission to edit this event');
-      } else if (response.status === 404) {
-        alert('Event not found');
-      } else if (response.status === 400) {
-        alert('Invalid data provided', 'error');
+        alert('Event updated successfully!');
       } else {
-        alert('Failed to update event', 'error');
+        throw new Error('Failed to update event');
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('An error occurred while updating the event', 'error');
+      alert('Error updating event');
     });
 }

@@ -11,6 +11,16 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/events.js" defer></script>
   <script src="/App.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const createEventButton = document.getElementById('createEventButton');
+      if (createEventButton) {
+        createEventButton.addEventListener('click', function () {
+          createEvent();
+        });
+      }
+    });
+  </script>
 </head>
 
 <body id="app">
@@ -57,7 +67,7 @@
 
     <h4> Add an Image </h4>
     <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-    <button id="createEventButton" class="button primary-button create-event-button" type="button" @click="createEvent">
+    <button id="createEventButton" class="button primary-button create-event-button" type="button">
       Create Event
     </button>
   </div>

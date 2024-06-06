@@ -64,7 +64,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
   });
 });
 
-router.post('/event/create', function(req, res, next){
+router.post('/event/create', function (req, res, next) {
   // Get the event content from the request body
   let title = req.body.title;
   let description = req.body.description;
@@ -93,13 +93,13 @@ router.post('/event/create', function(req, res, next){
   let query = "INSERT INTO events (branch_id, event_name, event_description, event_details, start_date_time, end_date_time, event_location, event_image, is_public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   // Query the SQL database
-  req.pool.getConnection( function(err,connection) {
+  req.pool.getConnection(function (err, connection) {
     if (err) {
       console.log(err);
       res.status(500).json({ message: "Database connection error" });
       return;
     }
-    connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function(err, rows, fields) {
+    connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
         console.log(err);
@@ -113,7 +113,7 @@ router.post('/event/create', function(req, res, next){
   });
 });
 
-router.post('/event/edit/:eventID', function(req,res,next){
+router.post('/event/edit/:eventID', function (req, res, next) {
   // Check the event exists?
   /*
     DO THIS!!!!!!!!!!!!
@@ -124,135 +124,78 @@ router.post('/event/edit/:eventID', function(req,res,next){
     DO THIS!!!!!!!!!!!!
   */
 
-
   // Check which fields were present in the request
-  if(req.body.title !== undefined){
-    // Construct the SQL query to update the title
-    let query = "UPDATE events SET event_name=? WHERE event_id=?";
+  const eventID = req.params.eventID;
+  const fieldsToUpdate = [];
+  const values = [];
 
-    // Query the SQL database
-    req.pool.getConnection( function(err,connection) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      connection.query(query, [req.body.title, req.params.eventID], function(err, rows, fields) {
-        connection.release(); // release connection
-        if (err) {
-          console.log(err);
-          res.sendStatus(500);
-          return;
-        }
-        // Added successfully, move on to next one
-      });
-    });
+  // update title
+  if (req.body.title !== undefined) {
+    fieldsToUpdate.push("event_name=?");
+    values.push(req.body.title);
+  }
+  // update description
+  if (req.body.description !== undefined) {
+    fieldsToUpdate.push("event_description=?");
+    values.push(req.body.description);
+  }
+  // update details
+  if (typeof req.body.details === 'string' && req.body.details.trim() !== '') {
+    fieldsToUpdate.push("event_details=?");
+    values.push(req.body.details);
   }
 
-  if(req.body.description !== undefined){
-    // Construct the SQL query to update the title
-    let query = "UPDATE events SET event_description=? WHERE event_id=?";
-
-    // Query the SQL database
-    req.pool.getConnection( function(err,connection) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      connection.query(query, [req.body.description, req.params.eventID], function(err, rows, fields) {
-        connection.release(); // release connection
-        if (err) {
-          console.log(err);
-          res.sendStatus(500);
-          return;
-        }
-        // Added successfully, move on to next one
-        return;
-      });
-    });
+  // update date
+  if (req.body.date !== undefined) {
+    const startTime = req.body.startTime || "00:00:00";
+    const endTime = req.body.endTime || "23:59:59";
+    fieldsToUpdate.push("start_date_time=?");
+    fieldsToUpdate.push("end_date_time=?");
+    values.push(`${req.body.date} ${startTime}`, `${req.body.date} ${endTime}`);
   }
 
-  if(req.body.details !== undefined){
-    // Construct the SQL query to update the title
-    let query = "UPDATE events SET event_details=? WHERE event_id=?";
-
-    // Query the SQL database
-    req.pool.getConnection( function(err,connection) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      connection.query(query, [req.body.details, req.params.eventID], function(err, rows, fields) {
-        connection.release(); // release connection
-        if (err) {
-          console.log(err);
-          res.sendStatus(500);
-          return;
-        }
-        // Added successfully, move on to next one
-        return;
-      });
-    });
+  // if no fields then return early
+  if (fieldsToUpdate.length === 0) {
+    res.sendStatus(400); // Bad Request
+    return;
   }
 
-  if(req.body.date !== undefined){
+  const query = `UPDATE events SET ${fieldsToUpdate.join(", ")} WHERE event_id=?`;
+  values.push(eventID);
 
-    // Query the SQL database
-    req.pool.getConnection( function(err,connection) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      // Get the start and end times for the event
-      let query = "SELECT TIME(start_datetime) AS start_time, TIME(end_datetime) AS end_time FROM events WHERE event_id=?";
-      connection.query(query, [req.body.title, req.params.eventID], function(err, rows, fields) {
-        connection.release(); // release connection
-        if (err) {
-          console.log(err);
-          res.sendStatus(500);
-          return;
-        }
-        // construct the new start and end datetimes
-        let start_date_time = req.body.date + ' ' + rows[0].start_time;
-        let end_date_time = req.body.date + ' ' + rows[0].end_time;
-
-        // Update the times in the DB
-        query = "UPDATE events SET start_date_time=?, end_date_time=? WHERE event_id=?";
-        connection.query(query, [start_date_time, end_date_time, req.params.eventID], function(err, rows, fields) {
-          connection.release(); // release connection
-          if (err) {
-            console.log(err);
-            res.sendStatus(500);
-            return;
-          }
-          // All done, move on to next thing
-          return;
-        });
-
-        return;
-      });
-    });
-  }
-
-  res.sendStatus(200);
-});
-
-router.post('/event/delete/:eventID', function(req, res, next){
-  // Check they manage the right branch
-  /*
-      DO THIS
-  */
-  let query = "DELETE FROM events WHERE event_id=?;";
-  req.pool.getConnection( function(err,connection) {
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
     if (err) {
       console.log(err);
       res.sendStatus(500);
       return;
     }
-    connection.query(query, [req.params.eventID], function(err, rows, fields) {
+    connection.query(query, values, function (err, results) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.sendStatus(200);
+    });
+  });
+});
+
+router.post('/event/delete/:eventID', function (req, res, next) {
+  // Check they manage the right branch
+  /*
+      DO THIS
+  */
+  let query = "DELETE FROM events WHERE event_id=?;";
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, [req.params.eventID], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
         console.log(err);
