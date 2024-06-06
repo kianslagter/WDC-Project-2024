@@ -45,28 +45,23 @@ router.post('/image/upload', function(req, res, next){
       tools.sendError(res, err);
       return;
     }
-    console.log(files);
-    console.log(fields);
     // Check validity of inputs
     // Check for the file
     if(files.file === undefined){
       res.status(400).send("File undefined");
       return;
     }
-
     // Check file type here
     if(!files.file[0].mimetype.includes("image")){
       // maybe this should be made more specific?
       res.status(400).send("Incorrect file type");
       return;
     }
-
     // Check the public field
     if(fields.public === undefined){
       // Doesn't exist, so public = false
       fields.public = false;
     }
-
     // Change public from on off to true false
     if(fields.public == 'on'){
       fields.public = true;
@@ -119,66 +114,77 @@ router.post('/image/upload', function(req, res, next){
 });
 
 router.post('/event/responses/:eventID', function (req, res, next) {
-  // Should check manager is manager of the branch the event is owned by
-
-  // Get the yeses
-  var yes_responses;
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+  // Check manager is manager of the branch the event is owned by
+  var query = "SELECT branch_id AS branch FROM events WHERE event_id = ?;";
+  tools.sqlHelper(query, [req.params.eventID], req).then(function(results){
+    if(results.length == 0){
+      // Event doesn't exist
+      res.status(404).send("Event with provided ID not found");
+      return;
+    } else if(results[0].branch != req.session.branch_managed){
+      // Not a manager of correcty branch
+      res.status(403).send("Not a manager of correct branch to view responses for this event");
       return;
     }
-    const yesQuery = `
-    SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
-    FROM user_event_attendance AS attendance
-    INNER JOIN users ON users.user_id = attendance.user_id
-    WHERE attendance.event_id = ? AND attendance.RSVP = TRUE;
-`;
-    connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
-      connection.release(); // release connection
+    // Get the yeses
+    var yes_responses;
+    req.pool.getConnection(function (err, connection) {
       if (err) {
         console.log(err);
         res.sendStatus(500);
         return;
       }
-      const yesResponses = structuredClone(yesRows);
-
-      // Get the nos
-      var no_responses;
-      req.pool.getConnection(function (err, connection) {
+      const yesQuery = `
+      SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
+      FROM user_event_attendance AS attendance
+      INNER JOIN users ON users.user_id = attendance.user_id
+      WHERE attendance.event_id = ? AND attendance.RSVP = TRUE;
+  `;
+      connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
+        connection.release(); // release connection
         if (err) {
           console.log(err);
           res.sendStatus(500);
           return;
         }
-        const noQuery = `
-        SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
-        FROM user_event_attendance AS attendance
-        INNER JOIN users ON users.user_id = attendance.user_id
-        WHERE attendance.event_id = ? AND attendance.RSVP = FALSE;
-    `;
-        connection.query(noQuery, [req.params.eventID], function (err, noRows) {
-          connection.release(); // release connection
+        const yesResponses = structuredClone(yesRows);
+
+        // Get the nos
+        var no_responses;
+        req.pool.getConnection(function (err, connection) {
           if (err) {
             console.log(err);
             res.sendStatus(500);
             return;
           }
-          const noResponses = structuredClone(noRows);
+          const noQuery = `
+          SELECT CONCAT(users.first_name, ' ', users.last_name) AS name, BIN_TO_UUID(users.user_id) AS id
+          FROM user_event_attendance AS attendance
+          INNER JOIN users ON users.user_id = attendance.user_id
+          WHERE attendance.event_id = ? AND attendance.RSVP = FALSE;
+      `;
+          connection.query(noQuery, [req.params.eventID], function (err, noRows) {
+            connection.release(); // release connection
+            if (err) {
+              console.log(err);
+              res.sendStatus(500);
+              return;
+            }
+            const noResponses = structuredClone(noRows);
 
-          const resp_body = {
-            yes: yesResponses,
-            no: noResponses
-          };
-          res.type('json');
-          res.send(JSON.stringify(resp_body));
-          return;
+            const resp_body = {
+              yes: yesResponses,
+              no: noResponses
+            };
+            res.type('json');
+            res.send(JSON.stringify(resp_body));
+            return;
+          });
         });
+        return;
       });
-      return;
     });
-  });
+  }).catch(function(err) {tools.sendError();});
 });
 
 router.post('/event/create', function (req, res, next) {
