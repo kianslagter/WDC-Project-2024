@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var tools = require('./helpers');
 
 router.post('/events/rsvp', function (req, res, next) {
   // Get the JSON object from the response
@@ -26,7 +27,7 @@ router.post('/events/rsvp', function (req, res, next) {
 
   // Check the event exists
   let query = `SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;`;
-  req.sqlHelper(query, [req.body.eventID], req).then( function(results){
+  tools.sqlHelper(query, [req.body.eventID], req).then( function(results){
     // Check if it exists
     if(results[0].event_exists == 0){
       // Event doesn't exist
@@ -47,7 +48,7 @@ router.post('/events/rsvp', function (req, res, next) {
             THAT THE MEMBER BELONGS TO IN SESSION VARIABLE AND COMPARING THE BRANCH
             ID OF THE EVENT TO THE ELEMENTS IN THIS VARIABLE
     */
-    req.sqlHelper(query,[req.session.userID, req.body.eventID], req).then(function(results)
+    tools.sqlHelper(query,[req.session.userID, req.body.eventID], req).then(function(results)
     {
       if(results[0].member_of_branch == 0){
         // Not a member of the branch
@@ -61,14 +62,14 @@ router.post('/events/rsvp', function (req, res, next) {
       }
 
       query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
-      req.sqlHelper(query,[req.body.eventID, req.session.userID, response, response], req).then(function(results)
+      tools.sqlHelper(query,[req.body.eventID, req.session.userID, response, response], req).then(function(results)
         {
           // Inserted succesfully, so return 200 ok
           res.status(200).send("RSVP recieved successfully");
         }
-      ).catch(function(err) { return sendError(res, err);});
-    }).catch(function(err) { return sendError(res, err);});
-  }).catch(function(err) {return sendError(res, err);});
+      ).catch(function(err) { return tools.sendError(res, err);});
+    }).catch(function(err) { return tools.sendError(res, err);});
+  }).catch(function(err) {return tools.sendError(res, err);});
   return;
 });
 

@@ -2,6 +2,7 @@ var express = require('express');
 const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
+var tools = require('./helpers')
 
 var router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/image/:id', function(req, res, next){
 
   // Check image exists
   let query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
-  req.sqlHelper(query, [req.params.id], req).then(function(results){
+  tools.sqlHelper(query, [req.params.id], req).then(function(results){
     if(results.length === 0){
       // Image doesn't exists
       res.status(404).send("No image with that id found");
@@ -33,7 +34,7 @@ router.get('/image/:id', function(req, res, next){
         return;
       }
     }
-  }).catch(function(err) {return sendError(res, err);});
+  }).catch(function(err) {return tools.sendError(res, err);});
 });
 
 /* GET home page. */
@@ -41,19 +42,6 @@ router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-function sendError(res, err){
-  // Send
-  if(err === undefined){
-    res.sendStatus(500);
-    return;
-  }
-  if(err.message !== undefined){
-    res.status(500).send(err.message);
-  } else {
-    res.status(500).json(err);
-  }
-  return;
-}
 
 function updateSessionVariables(req, res, uname){
   return new Promise( (resolve, reject) => {
@@ -63,7 +51,7 @@ function updateSessionVariables(req, res, uname){
     req.session.username = uname;
     // Get the users userID from the DB
     var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    req.sqlHelper(query, [uname], req).then(function(results)
+    tools.sqlHelper(query, [uname], req).then(function(results)
       {
         // user id succesfully got from database
         req.session.userID = results[0].user_id;
@@ -74,13 +62,13 @@ function updateSessionVariables(req, res, uname){
         // Make some SQL queries to check:
         // branches they are a member of
         query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
-        var branches_member = req.sqlHelper(query, [req.session.userID], req);
+        var branches_member = tools.sqlHelper(query, [req.session.userID], req);
         // Branch they manage
         query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
-        var branch_managed = req.sqlHelper(query, [req.session.userID], req);
+        var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
         // are they a system admin?
         query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
-        var system_admin = req.sqlHelper(query, [req.session.userID], req);
+        var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
         // Wait for the queries to finish
         Promise.all([branches_member, branch_managed, system_admin]).then((values) => {
@@ -127,7 +115,7 @@ router.post('/login', function (req, res, next) {
 
   // Check for matching user in database
   var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = req.sqlHelper(query, [uname, pwd], req);
+  var queryPromise = tools.sqlHelper(query, [uname, pwd], req);
 
   // Wait for query to complete
   queryPromise.then(function(result)
@@ -145,10 +133,10 @@ router.post('/login', function (req, res, next) {
             res.status(200).send("Log in succesful");
             return;
           }
-        ).catch(function(err){ sendError(res, err);});
+        ).catch(function(err){ tools.sendError(res, err);});
       }
     }
-  ).catch( (err) => {sendError(res, err);});
+  ).catch( (err) => {tools.sendError(res, err);});
 });
 
 router.get('/events/search', function (req, res, next) {
@@ -271,7 +259,10 @@ router.get('/events/get', function (req, res, next) {
 
 router.get('/events/id/:eventID/details.json', function (req, res, next) {
   // Check if the event exists
+  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?);";
+  tools.sqlHelper(query, req.params.eventID, req).then(function(results){
 
+  }).catch(fuc)
 
 
   // Check if the event is private, if so check user is logged in and a member of the appropriate branch
@@ -285,7 +276,7 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
       res.sendStatus(500);
       return;
     }
-    var query = "SELECT COUNT(*) AS count FROM events WHERE event_id=?";
+    query = "SELECT COUNT(*) AS count FROM events WHERE event_id=?";
     connection.query(query, [event_id], function (err, rows, fields) {
       if (err) {
         console.log(err);
