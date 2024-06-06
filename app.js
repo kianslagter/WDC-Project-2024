@@ -25,27 +25,6 @@ var app = express();
 
 app.use(function(req, res, next) {
   req.pool = dbConnectionPool;
-
-  // Helper function to return a promise for queries, to allow waiting for query completion more easily (and avoiding nesting queries excessively)
-  req.sqlHelper = function (sql, args, req) {
-    return new Promise( (resolve, reject) => {
-      req.pool.getConnection(function (err, connection){
-        if(err){
-          // Error, reject promise
-          return reject(err);
-        }
-        connection.query(sql, args, (err, rows) => {
-          connection.release();
-          if(err) {
-            // Reject the promise, returning the error
-            return reject(err);
-          }
-          // No error, return the result
-          resolve(rows);
-        });
-      });
-    });
-  };
   next();
 });
 
