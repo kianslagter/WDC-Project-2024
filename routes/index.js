@@ -7,8 +7,6 @@ var tools = require('./helpers')
 var router = express.Router();
 
 router.get('/image/:id', function(req, res, next){
-  // Check id is valid
-
   // Check image exists
   let query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
   tools.sqlHelper(query, [req.params.id], req).then(function(results){
@@ -23,13 +21,10 @@ router.get('/image/:id', function(req, res, next){
       return;
     } else {
       // Do this
-      /*
-        Authenticate user
-      */
-      if(req.session.isLoggedIn == false){
-        res.status(403).send("Log in to access");
+      if(!req.session.isLoggedIn || !req.session.branches.contains(results[0].branch)){
+        res.status(403).send("Not member of correct branch log in to access");
+        return;
       } else {
-        // NEED TO ACTUALLY CHECK THEY BELONG TO THE CORRECT BRANCH
         res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
         return;
       }
