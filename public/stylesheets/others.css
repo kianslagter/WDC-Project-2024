@@ -56,3 +56,40 @@
     width: 100%;
     border: 1px solid #D2DBF2;
 }
+
+/* --- Manage --- */
+.view-members-container {
+    width: 90%;
+    border-radius: 10px;
+    padding: 5px 10px 10px 10px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #E2A7A7;
+}
+
+.manage-button {
+    display: inline;
+}
+
+.manage-side-pane {
+    padding: 10px;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: darkgrey;
+}
+
+.manage-side-pane-container {
+    padding: 10px;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: crimson;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-white {
+    color: white;
+}
