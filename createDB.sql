@@ -79,3 +79,15 @@ CREATE TABLE user_event_attendance (
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+CREATE TABLE images (
+    image_id INT AUTO_INCREMENT,
+    branch_id INT,
+    public BOOLEAN DEFAULT FALSE,
+    filetype VARCHAR(64),
+    file_name_rand BINARY(16) UNIQUE DEFAULT (UUID_TO_BIN(UUID())),
+    file_name_orig VARCHAR(256),
+
+    PRIMARY KEY (image_id),
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE
+);

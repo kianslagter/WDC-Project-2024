@@ -1,68 +1,120 @@
 var express = require('express');
 const path = require('path');
+const { send } = require('process');
+var fs = require('fs');
 
 var router = express.Router();
+
+router.get('/image/:id', function(req, res, next){
+  // Check id is valid
+
+  // Check image exists
+  let query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name, public, branch_id FROM images WHERE image_id=?;`;
+  req.sqlHelper(query, [req.params.id], req).then(function(results){
+    if(results.length === 0){
+      // Image doesn't exists
+      res.status(404).send("No image with that id found");
+      return;
+    }
+    if(results[0].public == true){
+      // It's public, so just send the image back
+      res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
+      return;
+    } else {
+      // Do this
+      /*
+        Authenticate user
+      */
+      if(req.session.isLoggedIn == false){
+        res.status(403).send("Log in to access");
+      } else {
+        // NEED TO ACTUALLY CHECK THEY BELONG TO THE CORRECT BRANCH
+        res.sendFile(path.join(__dirname, '..', 'images', results[0].file_name));
+        return;
+      }
+    }
+  }).catch(function(err) {return sendError(res, err);});
+});
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
+function sendError(res, next, err){
+  // Send
+  if(err === undefined){
+    res.sendStatus(500);
+    return;
+  }
+  if(err.message !== undefined){
+    res.status(500).send(err.message);
+  } else {
+    res.status(500).json(err);
+  }
+  return;
+}
+
+function updateSessionVariables(req, uname){
+  return new Promise( (resolve, reject) => {
+    // Correct username and password
+    // log user in
+    req.session.isLoggedIn = true;
+    req.session.username = uname;
+    // Get the users userID from the DB
+    var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
+    req.sqlHelper(query, [uname], req).then(function(results)
+      {
+        // user id succesfully got from database
+        req.session.userID = results[0].user_id;
+
+        // Should now get other information about the user from the databases
+        // (can likely be done in parralel with an array of promises)
+
+        // Will likely need to add:
+        // an array of branches they are a member of
+        // Branch they manage
+        // are they a system admin?
+
+        // Return
+        return resolve();
+      }).catch(function(err) {return reject(err);});
+  });
+}
 
 router.post('/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
   if (req.body.username === undefined || req.body.password === undefined) {
-    res.status(400); // bad request
-    res.send();
+    res.status(400).send("Undefined username or password"); // bad request
+    return;
   }
   var uname = req.body.username;
   var pwd = req.body.password;
 
   // Check for matching user in database
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
-      return;
-    }
-    var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-    connection.query(query, [uname, pwd], function (err, rows, fields) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      if (rows[0].count == 0) {
-        // Wrong uname or pwd
-        res.sendStatus(403);
+  var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
+  var queryPromise = req.sqlHelper(query, [uname, pwd], req);
+
+  // Wait for query to complete
+  queryPromise.then(function(result)
+    {
+      // Query completed successfully
+      if(result[0].count == 0){
+        // Wrong username or password
+        res.status(403).send("Wrong username or password");
         return;
       } else {
-        // Correct username and password
-        // log user in
-        req.session.isLoggedIn = true;
-        req.session.username = uname;
-        // Get the users userID from the DB
-        var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-        connection.query(query, [uname], function (err, rows, fields) {
-          connection.release(); // release connection
-          if (err) {
-            console.log(err);
-            res.sendStatus(500);
+        // Log them in by updating the appropriate session variables.
+        updateSessionVariables(req, uname).then(function()
+          {
+            // Session variables updated succesfully
+            res.status(200).send("Log in succesful");
             return;
           }
-          req.session.userID = rows[0].user_id;
-          res.sendStatus(200);
-          return;
-        });
-
-        // Will likely need to add:
-        // an array of branches they are a member of
-        // an array of branches they manage???
-        // are they a system admin?
+        ).catch(function(err){ sendError(res, next, err);});
       }
-      return;
-    });
-  });
+    }
+  ).catch( (err) => {sendError(res, next, err);});
 });
 
 router.get('/events/search', function (req, res, next) {
@@ -184,7 +236,11 @@ router.get('/events/get', function (req, res, next) {
 
 
 router.get('/events/id/:eventID/details.json', function (req, res, next) {
-  // WILL NEED TO CAREFULLY AUTHENTICATE USER HERE, if event not public
+  // Check if the event exists
+
+
+
+  // Check if the event is private, if so check user is logged in and a member of the appropriate branch
 
   let event_id = req.params.eventID;
 

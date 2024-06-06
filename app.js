@@ -5,8 +5,10 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var logger = require('morgan');
 var mysql = require('mysql');
+var fs = require('fs');
 
 var dbConnectionPool = mysql.createPool({
+  connectionLimit : 100,
   host: 'localhost',
   database: 'volunteer_management_system'
 });
@@ -23,11 +25,32 @@ var app = express();
 
 app.use(function(req, res, next) {
   req.pool = dbConnectionPool;
+
+  // Helper function to return a promise for queries, to allow waiting for query completion more easily (and avoiding nesting queries excessively)
+  req.sqlHelper = function (sql, args, req) {
+    return new Promise( (resolve, reject) => {
+      req.pool.getConnection(function (err, connection){
+        if(err){
+          // Error, reject promise
+          return reject(err);
+        }
+        connection.query(sql, args, (err, rows) => {
+          connection.release();
+          if(err) {
+            // Reject the promise, returning the error
+            return reject(err);
+          }
+          // No error, return the result
+          resolve(rows);
+        });
+      });
+    });
+  };
   next();
 });
 
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({ limit: '1000kb'}));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -72,7 +95,9 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    message: err.message,
+    error: err});
 });
 
 module.exports = app;
