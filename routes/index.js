@@ -97,20 +97,31 @@ router.get('/events/search', function (req, res, next) {
   let query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE";
 
   // MODIFY QUERY BASED ON FILTERS
+  let params = [];
   if (search_term !== undefined) {
     query += " AND (event_name LIKE ? OR event_description LIKE ?)";
+    params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (from_date !== undefined) {
     query += " AND start_date_time >= ?";
+    params.push(from_date);
   }
   if (to_date !== undefined) {
     query += " AND start_date_time <= ?";
+    params.push(to_date);
   }
-  if (branches !== undefined) {
-    query += " AND branch_id <= ?";
+  if (branches !== undefined && branches.length > 0) {
+    if (Array.isArray(branches)) {
+      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      params = params.concat(branches);
+    } else {
+      query += " AND branch_id = ?";
+      params.push(branches);
+    }
   }
 
   query += " ORDER BY start_date_time ASC LIMIT ?;";
+  params.push(max_num);
 
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
@@ -119,21 +130,6 @@ router.get('/events/search', function (req, res, next) {
       res.sendStatus(500);
       return;
     }
-    let params = [];
-    if (search_term !== undefined) {
-      params.push('%' + search_term + '%');
-      params.push('%' + search_term + '%');
-    }
-    if (from_date !== undefined) {
-      params.push(from_date);
-    }
-    if (to_date !== undefined) {
-      params.push(to_date);
-    }
-    if (branches !== undefined && branches.length > 0) {
-      params = params.concat(branches);
-    }
-    params.push(max_num);
     connection.query(query, params, function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
