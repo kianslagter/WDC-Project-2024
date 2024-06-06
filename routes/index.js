@@ -258,55 +258,33 @@ router.get('/events/get', function (req, res, next) {
 
 
 router.get('/events/id/:eventID/details.json', function (req, res, next) {
-  // Check if the event exists
-  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?);";
-  tools.sqlHelper(query, req.params.eventID, req).then(function(results){
-
-  }).catch(fuc)
-
-
-  // Check if the event is private, if so check user is logged in and a member of the appropriate branch
-
   let event_id = req.params.eventID;
-
-  // Check if event exists
-  req.pool.getConnection(function (err, connection) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
+  // Check if the event exists
+  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
+  tools.sqlHelper(query, [event_id], req).then(function(results){
+    if(results[0].event_exists == 0){
+      // Event does not exist
+      res.status(404).send("Event not found");
       return;
     }
-    query = "SELECT COUNT(*) AS count FROM events WHERE event_id=?";
-    connection.query(query, [event_id], function (err, rows, fields) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-      console.log(rows[0].count);
-      if (rows[0].count == 0) {
-        // Event doesn't exist
-        res.sendStatus(404);
-        return;
-      } else {
-        // Event exists
-        var query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE event_id=?;";
-        connection.query(query, [event_id], function (err, rows, fields) {
-          connection.release(); // release connection
-          if (err) {
-            console.log(err);
-            res.sendStatus(500);
-            return;
-          }
-          res.type('json');
-          res.send(JSON.stringify(rows[0]));
+    // Get the event details
+    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
+            FROM events
+            WHERE event_id=?;`;
+    tools.sqlHelper(query, [event_id], req).then(function(results){
+      if(!results[0].public){
+        // Authenticate user
+        if(!req.session.isLoggedIn || !req.session.branches.contains(results[0].branch)){
+          // Not logged in or not correct branch
+          res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
-        });
+        }
       }
-
+      // Send the details
+      res.json(results[0]);
       return;
-    });
-  });
+    }).catch(function (err) {tools.sendError(res, err);});
+  }).catch(function (err) {tools.sendError(res,err);});
 });
 
 
