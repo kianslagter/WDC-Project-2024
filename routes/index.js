@@ -133,7 +133,7 @@ router.post('/login', function (req, res, next) {
 // EVENTS ROUTES
 
 router.get('/events/search', function (req, res, next) {
-  // Get search
+  // Get search terms
   let search_term = req.query.search;
   let from_date = req.query.from;
   let to_date = req.query.to;
@@ -337,6 +337,75 @@ router.get('/news/get', function (req, res, next) {
     }
     connection.query(query, params, function (err, rows, fields) {
       connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
+router.get('/news/search', function (req, res, next) {
+  // Get search terms
+  let search_term = req.query.search;
+  let from_date = req.query.from;
+  let to_date = req.query.to;
+  let max_num = req.query.n;
+  let branches = req.query.branch;
+
+  // Update to default if they weren't set (if there is a sensible default)
+  if (from_date === undefined) {
+    let today = new Date().toISOString().slice(0, 10);
+    from_date = today;
+  }
+  if (max_num === undefined) {
+    max_num = 20;
+  } else {
+    max_num = parseInt(max_num);
+  }
+  // Construct the SQL query
+  let query = "SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE";
+
+  // MODIFY QUERY BASED ON FILTERS
+  let params = [];
+  if (search_term !== undefined) {
+    query += " AND (title LIKE ? OR content LIKE ?)";
+    params.push('%' + search_term + '%', '%' + search_term + '%');
+  }
+  if (from_date !== undefined) {
+    query += " AND date_published >= ?";
+    params.push(from_date);
+  }
+  if (to_date !== undefined) {
+    query += " AND date_published <= ?";
+    params.push(to_date);
+  }
+  if (branches !== undefined && branches.length > 0) {
+    if (Array.isArray(branches)) {
+      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      params = params.concat(branches);
+    } else {
+      query += " AND branch_id = ?";
+      params.push(branches);
+    }
+  }
+
+  query += " ORDER BY date_published DESC LIMIT ?;";
+  params.push(max_num);
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release();
       if (err) {
         console.log(err);
         res.sendStatus(500);

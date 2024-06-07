@@ -246,6 +246,83 @@ router.get('/news/get', function (req, res, next) {
   });
 });
 
+router.get('/news/search', function (req, res, next) {
+  // Get search terms
+  let search_term = req.query.search;
+  let from_date = req.query.from;
+  let to_date = req.query.to;
+  let max_num = req.query.n;
+  let branches = req.query.branch;
+
+  // Update to default if they weren't set (if there is a sensible default)
+  if (from_date === undefined) {
+    let today = new Date().toISOString().slice(0, 10);
+    from_date = today;
+  }
+  if (max_num === undefined) {
+    max_num = 20;
+  } else {
+    max_num = parseInt(max_num);
+  }
+  // Construct the SQL query
+  let query = "SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news";
+
+  // check if where has been added to query
+  let hasWhere = false;
+
+  // MODIFY QUERY BASED ON FILTERS
+  let params = [];
+  if (search_term !== undefined) {
+    query += hasWhere ? "AND (title LIKE ? OR content LIKE ?)" : " WHERE (title LIKE ? OR content LIKE ?)";
+    hasWhere = true;
+    params.push('%' + search_term + '%', '%' + search_term + '%');
+  }
+  if (from_date !== undefined) {
+    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
+    hasWhere = true;
+    params.push(from_date);
+  }
+  if (to_date !== undefined) {
+    query += hasWhere ? " AND date_published <= ?" : " WHERE date_published <= ?";
+    hasWhere = true;
+    params.push(to_date);
+  }
+  if (branches !== undefined && branches.length > 0) {
+    if (Array.isArray(branches)) {
+      query += hasWhere ? " AND branch_id IN (" + branches.map(() => '?').join(',') + ")" : " WHERE branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      hasWhere = true;
+      params = params.concat(branches);
+    } else {
+      query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
+      hasWhere = true;
+      params.push(branches);
+    }
+  }
+
+  query += " ORDER BY date_published DESC LIMIT ?;";
+  params.push(max_num);
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release();
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
 // OTHER
 
 // get user info for access level
