@@ -9,25 +9,6 @@ const navitems = [
 
 ];
 
-const testEventDetails = {
-    id: 3,
-    title: 'Event 3 Title',
-    description: 'Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines Description of event 3, which is a bit longer than event 1 so that it breaks across multiple lines',
-    details: [
-        "The first dot point",
-        "The second dot point",
-        "Could list specific requirements here",
-        "Require first aid certificate",
-        ["you can even do nested lists", "like", "this", "one", "here"],
-        "For more details contact name@organisation.org"
-    ],
-    date: '3/8/24',
-    startTime: '12pm',
-    endTime: '5pm',
-    location: 'Adelaide',
-    image_url: 'https://media.istockphoto.com/id/1362787762/photo/details-of-volunteer-with-box-of-food-for-poor.jpg?s=612x612&w=0&k=20&c=q-eLXPRlCfDV2m8mRJt1GIoExrSQJFW1h8FiE6LoMc0='
-};
-
 const testBranchSummary = [
     {
         id: 1,
@@ -64,117 +45,6 @@ const testBranchSummary = [
     },
 ];
 
-const testUpdateDetails = {
-    id: 3,
-    title: 'Welcome Adelaide!',
-    description: "Meal Mates opens its Adelaide branch at 129 Waymouth Street, inviting all to join in addressing hunger and building community from 9 am to 5 pm. With nutritious meals and empowerment initiatives, they strive for a hunger-free future in Adelaide.",
-    details: [
-        "Adelaide, a new dawn has arrived! We are thrilled to inaugurate Meal Mates' Adelaide branch, located at 129 Waymouth Street, and extend a heartfelt welcome to all. Opening our doors from 9 am to 5 pm, we embark on a journey of compassion, solidarity, and nourishment. With a deep-rooted commitment to serving nutritious meals and fostering community connections, we stand ready to make a meaningful impact.",
-        "From cooking classes to nutrition workshops, our aim is not just to feed, but to empower. Adelaide, let's write a new chapter together—one where hunger becomes a thing of the past and every individual thrives.",
-        "For more details contact adelaide@mealmates.org"
-    ],
-    date_posted: '3/8/24',
-    time_posted: '12.00pm',
-    posted_by_branch: 'Adelaide',
-    image_url: '/not_an_image.jpg',
-};
-
-const testNews = [
-    {
-        id: 10,
-        title: "Thanks Melbourne!",
-        description: "Meal Mates extends sincere thanks to our Melbourne branch volunteers. Your dedication helps nourish our community and create a sense of belonging for all.",
-        date_posted: '1/7/24',
-        time_posted: '1.20pm',
-        posted_by_branch: 'Melbourne',
-        image_url: '/not_an_image.jpg'
-    },
-    {
-        id: 20,
-        title: "Branch Opening In Sydney",
-        description: "Discover Meal Mates' newest venture at its Sydney branch, located at 212 York Street, where we're dedicated to combating hunger and cultivating community from 8 am to 7 pm. With hearty meals and enriching initiatives, we're committed to building a brighter future for Sydney.",
-        date_posted: '3/7/24',
-        time_posted: '12.50pm',
-        posted_by_branch: 'Sydney',
-        image_url: '/not_an_image.jpg'
-    },
-    {
-        id: 30,
-        title: "Welcome Adelaide!",
-        description: "Meal Mates opens its Adelaide branch at 129 Waymouth Street, inviting all to join in addressing hunger and building community from 9 am to 5 pm. With nutritious meals and empowerment initiatives, they strive for a hunger-free future in Adelaide.",
-        date_posted: '3/8/24',
-        time_posted: '12.00pm',
-        posted_by_branch: 'Adelaide',
-        image_url: '/not_an_image.jpg'
-    }
-];
-
-const testNews1 = [
-    {
-        id: 1,
-        title: "A longer title for a news article",
-        branch: "Adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 2,
-        title: "Another successful day for mealmates in Melbourne",
-        branch: "Melbourne",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 3,
-        title: "The third news post",
-        branch: "Adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 4,
-        title: "four",
-        branch: "adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 5,
-        title: "five",
-        branch: "adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 6,
-        title: "six",
-        branch: "adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 7,
-        title: "seven",
-        branch: "adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
-        image: "news_image.png"
-    },
-    {
-        id: 8,
-        title: "eight",
-        branch: "adelaide",
-        date: "14/5/24",
-        article_start: "This is the first few sentences of the article",
-        image: "news_image.png"
-    }
-];
 
 const people = [
     {
@@ -218,11 +88,11 @@ createApp({
             branches_summary: testBranchSummary,
             event_selected: null, // set to null intially in real thing
             event_attendance: 4,
-            news_results: testNews,
+            news_results: [],
             show_preview: true,
             create_news_preview: "",
-            news_array: testNews,
-            news_array1: testNews1,
+            news_array: [],
+            news_array1: [],
             article_selected: null,
             num_points: 1,
             point_level: [0],
@@ -452,6 +322,47 @@ createApp({
 
             console.log("request url: " + query_path);
         },
+        news_load() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+            let query_parameters = '';
+
+            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
+            let query_path = "";
+            if (this.access_level > 0) {
+                // requires authentication on server
+                query_path = "/users/news/get" + query_parameters;
+            } else {
+                // Only allow public events
+                query_path = "/news/get" + query_parameters;
+            }
+
+            // AJAX
+            fetch(query_path, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched news:", data);
+                    this.news_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
+                    this.news_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
         news_show_more_results() {
             // Increase the max number of events shown by 5
             document.getElementById("num-events").value = parseInt(document.getElementById("num-news").value) + 5;
@@ -536,6 +447,14 @@ createApp({
         // on branch details page show events also but only for that branch
         if (window.location.pathname.split('/')[1] == 'branches' && window.location.pathname.split('/')[2] == 'id') {
             this.events_load();
+        }
+        // load news on news page
+        if (window.location.pathname.split('/')[1] == 'news' && !window.location.pathname.split('/')[2]) {
+            this.news_load();
+        }
+        // load news on main page
+        if (!window.location.pathname.split('/')[1]) {
+            this.news_load();
         }
     }
 }).mount('#app');

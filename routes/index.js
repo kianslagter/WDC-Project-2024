@@ -312,6 +312,42 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
   }).catch(function (err) { tools.sendError(res, err); });
 });
 
+router.get('/news/get', function (req, res, next) {
+  let from_date = new Date().toISOString().slice(0, 10);
+  let branches = req.query.branch;
+  // Construct the SQL query
+  let query = `SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE`;
+
+  let params = [];
+  if (from_date !== undefined) {
+    query += " AND date_published >= ?";
+    params.push(from_date);
+  }
+  if (branches !== undefined) {
+    query += " AND branch_id = ?";
+    params.push([branches]);
+  }
+  query += " ORDER BY date_published DESC LIMIT 10;";
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
 
 
 // PAGE ROUTES

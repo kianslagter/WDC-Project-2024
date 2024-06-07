@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var tools = require('./helpers');
 
+// EVENTS
+
 router.post('/events/rsvp', function (req, res, next) {
   // Get the JSON object from the response
   if (req.body.eventID === undefined || typeof (req.body.eventID) !== "string") {
@@ -15,7 +17,7 @@ router.post('/events/rsvp', function (req, res, next) {
     return;
   }
 
-  if(!req.session.isLoggedIn){
+  if (!req.session.isLoggedIn) {
     res.status(403).send('Must be logged in to RSVP for events');
     return;
   }
@@ -27,9 +29,9 @@ router.post('/events/rsvp', function (req, res, next) {
 
   // Check the event exists
   let query = `SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;`;
-  tools.sqlHelper(query, [req.body.eventID], req).then( function(results){
+  tools.sqlHelper(query, [req.body.eventID], req).then(function (results) {
     // Check if it exists
-    if(results[0].event_exists == 0){
+    if (results[0].event_exists == 0) {
       // Event doesn't exist
       res.status(404).send("Event not found");
       return;
@@ -48,9 +50,8 @@ router.post('/events/rsvp', function (req, res, next) {
             THAT THE MEMBER BELONGS TO IN SESSION VARIABLE AND COMPARING THE BRANCH
             ID OF THE EVENT TO THE ELEMENTS IN THIS VARIABLE
     */
-    tools.sqlHelper(query,[req.session.userID, req.body.eventID], req).then(function(results)
-    {
-      if(results[0].member_of_branch == 0){
+    tools.sqlHelper(query, [req.session.userID, req.body.eventID], req).then(function (results) {
+      if (results[0].member_of_branch == 0) {
         // Not a member of the branch
         res.status(403).send("Must be member of the branch to RSVP");
         return;
@@ -62,14 +63,13 @@ router.post('/events/rsvp', function (req, res, next) {
       }
 
       query = "INSERT INTO user_event_attendance (event_id, user_id, rsvp) VALUES (?,UUID_TO_BIN(?),?) ON DUPLICATE KEY UPDATE rsvp=?;";
-      tools.sqlHelper(query,[req.body.eventID, req.session.userID, response, response], req).then(function(results)
-        {
-          // Inserted succesfully, so return 200 ok
-          res.status(200).send("RSVP recieved successfully");
-        }
-      ).catch(function(err) { return tools.sendError(res, err);});
-    }).catch(function(err) { return tools.sendError(res, err);});
-  }).catch(function(err) {return tools.sendError(res, err);});
+      tools.sqlHelper(query, [req.body.eventID, req.session.userID, response, response], req).then(function (results) {
+        // Inserted succesfully, so return 200 ok
+        res.status(200).send("RSVP recieved successfully");
+      }
+      ).catch(function (err) { return tools.sendError(res, err); });
+    }).catch(function (err) { return tools.sendError(res, err); });
+  }).catch(function (err) { return tools.sendError(res, err); });
   return;
 });
 
@@ -202,6 +202,51 @@ router.get('/events/get', function (req, res, next) {
     });
   });
 });
+
+// NEWS
+
+router.get('/news/get', function (req, res, next) {
+  let from_date = new Date().toISOString().slice(0, 10);
+  let branches = req.query.branch;
+  // Construct the SQL query
+  let query = `SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news`;
+
+  // check if where has been added to query
+  let hasWhere = false;
+
+  let params = [];
+  if (from_date !== undefined) {
+    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
+    params.push(from_date);
+  }
+  if (branches !== undefined) {
+    query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
+    hasWhere = true;
+    params.push([branches]);
+  }
+  query += " ORDER BY date_published DESC LIMIT 10;";
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
+// OTHER
 
 // get user info for access level
 router.get('/info', function (req, res, next) {
