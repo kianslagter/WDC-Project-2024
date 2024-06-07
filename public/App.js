@@ -223,10 +223,10 @@ createApp({
             create_news_preview: "",
             news_array: testNews,
             news_array1: testNews1,
+            article_selected: null,
             num_points: 1,
             point_level: [0],
             branch_selected: testBranchSummary[0],
-            update_selected: testUpdateDetails,
             people: people,
             loading: true,
             event: null,
@@ -236,6 +236,7 @@ createApp({
     },
     setup() {
         const event_selected = ref(null);
+        const article_selected = ref(null);
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
@@ -248,6 +249,20 @@ createApp({
 
             return {
                 event_selected,
+                loading,
+            };
+        }
+        // call getNewsDetails if the page is on an events details page
+        let articleID = window.location.pathname.split('/')[3];
+
+        if (articleID && window.location.pathname.split('/')[1] == 'news') {
+            getNewsDetails(articleID, function (data) {
+                article_selected.value = data;
+                loading.value = false;
+            });
+
+            return {
+                article_selected,
                 loading,
             };
         }
