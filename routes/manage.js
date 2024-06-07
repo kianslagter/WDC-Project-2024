@@ -21,7 +21,7 @@ router.get('/news/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
-router.post('/image/upload', function(req, res, next){
+router.post('/image/upload', function (req, res, next) {
   /*
     Expected format:
       {
@@ -41,36 +41,36 @@ router.post('/image/upload', function(req, res, next){
   const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
     // Check for error in parsing form
-    if(err){
+    if (err) {
       tools.sendError(res, err);
       return;
     }
     // Check validity of inputs
     // Check for the file
-    if(files.file === undefined){
+    if (files.file === undefined) {
       res.status(400).send("File undefined");
       return;
     }
     // Check file type here
-    if(!files.file[0].mimetype.includes("image")){
+    if (!files.file[0].mimetype.includes("image")) {
       // maybe this should be made more specific?
       res.status(400).send("Incorrect file type");
       return;
     }
     // Check the public field
-    if(fields.public === undefined){
+    if (fields.public === undefined) {
       // Doesn't exist, so public = false
       fields.public = false;
     }
     // Change public from on off to true false
-    if(fields.public == 'on'){
+    if (fields.public == 'on') {
       fields.public = true;
     } else {
       fields.public = false;
     }
 
     // Check supplied branch
-    if(fields.branch === undefined || !Number.isInteger(parseInt(fields.branch))){
+    if (fields.branch === undefined || !Number.isInteger(parseInt(fields.branch))) {
       res.status(400).send("bad branch");
       return;
     }
@@ -79,15 +79,15 @@ router.post('/image/upload', function(req, res, next){
     let query = `INSERT INTO images
       (filetype, file_name_orig, branch_id, public)
       VALUES (?,?,?,?);`;
-    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results){
+    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results) {
       // Wait for insertion in table
       // get the id of the inserted image
       query = `SELECT LAST_INSERT_ID() AS image_id;`;
-      tools.sqlHelper(query, [], req).then(function(results) {
+      tools.sqlHelper(query, [], req).then(function (results) {
         // Now have the id, so get the filename
         let image_id = results[0].image_id;
         query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name FROM images WHERE image_id = ?;`;
-        tools.sqlHelper(query, [image_id], req).then(function(results){
+        tools.sqlHelper(query, [image_id], req).then(function (results) {
           // Get old and new path to image
           let oldPath = files.file[0].filepath;
           let newPath = 'images/' + results[0].file_name;
@@ -95,20 +95,20 @@ router.post('/image/upload', function(req, res, next){
           let rawData = fs.readFileSync(oldPath);
           // Write the file
           fs.writeFile(newPath, rawData, function (err) {
-            if (err){
+            if (err) {
               tools.sendError(res, err);
               return;
             }
             let return_struct = {
-              'image_id' : image_id,
+              'image_id': image_id,
               'image_path': '/image/' + image_id
             };
             res.status(200).json(return_struct);
             return;
           });
-        }).catch(function(err) {return tools.sendError(res,err);});
-      }).catch(function(err) {return tools.sendError(res,err);});
-    }).catch(function(err) {return tools.sendError(res,err);});
+        }).catch(function (err) { return tools.sendError(res, err); });
+      }).catch(function (err) { return tools.sendError(res, err); });
+    }).catch(function (err) { return tools.sendError(res, err); });
   });
   return;
 });
@@ -116,12 +116,12 @@ router.post('/image/upload', function(req, res, next){
 router.post('/event/responses/:eventID', function (req, res, next) {
   // Check manager is manager of the branch the event is owned by
   var query = "SELECT branch_id AS branch FROM events WHERE event_id = ?;";
-  tools.sqlHelper(query, [req.params.eventID], req).then(function(results){
-    if(results.length == 0){
+  tools.sqlHelper(query, [req.params.eventID], req).then(function (results) {
+    if (results.length == 0) {
       // Event doesn't exist
       res.status(404).send("Event with provided ID not found");
       return;
-    } else if(results[0].branch != req.session.branch_managed){
+    } else if (results[0].branch != req.session.branch_managed) {
       // Not a manager of correcty branch
       res.status(403).send("Not a manager of correct branch to view responses for this event");
       return;
@@ -184,7 +184,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
         return;
       });
     });
-  }).catch(function(err) {tools.sendError();});
+  }).catch(function (err) { tools.sendError(); });
 });
 
 router.post('/event/create', function (req, res, next) {
@@ -200,39 +200,39 @@ router.post('/event/create', function (req, res, next) {
   let public = req.body.public;
 
   // Validate each field of the event
-  if(title === undefined || typeof(title) != "string"){
+  if (title === undefined || typeof (title) != "string") {
     res.status(400).send("Title undefined or not string");
     return;
   }
-  if(description === undefined || typeof(description) != "string"){
+  if (description === undefined || typeof (description) != "string") {
     res.status(400).send("Description undefined or not string");
     return;
   }
-  if(details === undefined || typeof(details) != "string"){
+  if (details === undefined || typeof (details) != "string") {
     res.status(400).send("Details undefined or not string");
     return;
   }
-  if(date === undefined || typeof(date) != "string"){
+  if (date === undefined || typeof (date) != "string") {
     res.status(400).send("date undefined or not string");
     return;
   }
-  if(start_time === undefined || typeof(start_time) != "string"){
+  if (start_time === undefined || typeof (start_time) != "string") {
     res.status(400).send("start time undefined or not string");
     return;
   }
-  if(end_time === undefined || typeof(end_time) != "string"){
+  if (end_time === undefined || typeof (end_time) != "string") {
     res.status(400).send("end time undefined or not string");
     return;
   }
-  if(location === undefined || typeof(location) != "string"){
+  if (location === undefined || typeof (location) != "string") {
     res.status(400).send("Location undefined or not string");
     return;
   }
-  if(image_url === undefined || typeof(image_url) != "string"){
+  if (image_url === undefined || typeof (image_url) != "string") {
     res.status(400).send("image_url undefined or not string");
     return;
   }
-  if(public === undefined || typeof(public) != "string"){
+  if (public === undefined || typeof (public) != "string") {
     res.status(400).send("Public undefined or not string");
     return;
   }
@@ -243,7 +243,7 @@ router.post('/event/create', function (req, res, next) {
 
   // Need to get which branch they manage from the DB
   let branch_id = req.session.branch_managed;
-  if(branch_id === null){
+  if (branch_id === null) {
     res.status(403).send("Must be manager of branch to create event");
     return;
   }
@@ -277,11 +277,11 @@ router.post('/event/edit/:eventID', function (req, res, next) {
   // Check the event exists, and it is the correct branch (the manager's branch)
   var query = `SELECT branch_id AS branch FROM events WHERE event_id = ?;`;
   tools.sqlHelper(query, [eventID], req).then(function (results) {
-    if(results.length == 0){
+    if (results.length == 0) {
       // Event not found
       res.status(400).send("Event not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed){
+    } else if (results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only edit events of branches you manage");
     }
@@ -342,7 +342,7 @@ router.post('/event/edit/:eventID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) {tools.sendError(err);});
+  }).catch(function (err) { tools.sendError(err); });
 });
 
 router.post('/event/delete/:eventID', function (req, res, next) {
@@ -351,11 +351,11 @@ router.post('/event/delete/:eventID', function (req, res, next) {
   // Check the event exists, and it is the correct branch (the manager's branch)
   var query = `SELECT branch_id AS branch FROM events WHERE event_id = ?;`;
   tools.sqlHelper(query, [eventID], req).then(function (results) {
-    if(results.length == 0){
+    if (results.length == 0) {
       // Event not found
       res.status(400).send("Event not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed){
+    } else if (results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only delete events of branches you manage");
     }
@@ -377,7 +377,69 @@ router.post('/event/delete/:eventID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) {tools.sendError(err);});
+  }).catch(function (err) { tools.sendError(err); });
+});
+
+// NEWS
+
+router.post('/news/create', function (req, res, next) {
+  // Get the news content from the request body
+  let title = req.body.title;
+  let content = req.body.content;
+  let date_published = req.body.datePublished;
+  let image_url = req.body.image_url;
+  let public = req.body.public;
+
+  // Validate each field
+  if (title === undefined || typeof (title) != "string") {
+    res.status(400).send("Title undefined or not string");
+    return;
+  }
+  if (content === undefined || typeof (content) != "string") {
+    res.status(400).send("Content undefined or not string");
+    return;
+  }
+  if (date_published === undefined || typeof (date_published) != "string") {
+    res.status(400).send("Date published undefined or not string");
+    return;
+  }
+  if (image_url === undefined || typeof (image_url) != "string") {
+    res.status(400).send("Image URL undefined or not string");
+    return;
+  }
+  if (public === undefined || typeof (public) != "string") {
+    res.status(400).send("Public undefined or not string");
+    return;
+  }
+
+  // Need to get which branch they manage from the DB
+  let branch_id = req.session.branch_managed;
+  if (branch_id === null) {
+    res.status(403).send("Must be manager of branch to create news article");
+    return;
+  }
+
+  // Add to DB
+  // Construct the SQL query
+  let query = "INSERT INTO news (branch_id, title, content, date_published, image_url, is_public) VALUES (?, ?, ?, ?, ?, ?);";
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ message: "Database connection error" });
+      return;
+    }
+    connection.query(query, [branch_id, title, content, date_published, image_url, public], function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        res.status(500).json({ message: "Database query error" });
+        return;
+      }
+      // Added successfully
+      res.status(200).json({ id: rows.insertId });
+      return;
+    });
+  });
 });
 
 module.exports = router;

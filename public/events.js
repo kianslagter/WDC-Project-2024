@@ -39,6 +39,7 @@ async function fetchRSVPResponses(eventID) {
   }
 }
 
+// show rsvp in the html file
 function displayRSVPResponses(eventID) {
   fetchRSVPResponses(eventID)
     .then(data => {
@@ -74,6 +75,7 @@ function displayRSVPResponses(eventID) {
       noList.innerHTML = '<li>Error fetching RSVP responses</li>';
     });
 }
+
 
 function createEvent() {
   // get data

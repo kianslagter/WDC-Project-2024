@@ -4,16 +4,73 @@ function getNewsDetails(articleID, callback, errorCallback) {
     xhttp.open('GET', '/news/id/' + articleID + '/details.json', true);
     xhttp.setRequestHeader('Content-Type', 'application/json');
     xhttp.onreadystatechange = function () {
-      if (xhttp.readyState == 4) {
-        if (xhttp.status == 200) {
-          var data = JSON.parse(xhttp.responseText);
-          callback(data);
-        } else if (xhttp.status == 404) {
-          console.error("Article not found");
-        } else {
-          console.error("Error fetching article");
+        if (xhttp.readyState == 4) {
+            if (xhttp.status == 200) {
+                var data = JSON.parse(xhttp.responseText);
+                callback(data);
+            } else if (xhttp.status == 404) {
+                console.error("Article not found");
+            } else {
+                console.error("Error fetching article");
+            }
         }
-      }
     };
     xhttp.send();
-  }
+}
+
+// create news post
+function createNews() {
+    // get data
+    let title = document.getElementById('news-title').value;
+    let content = document.getElementById('news-description').value;
+    let today = new Date();
+    let datePublished = today.toISOString().split('T')[0];
+    let image_url = document.getElementById('image_url').files[0]; // file upload
+    let publicValue = document.querySelector('input[name="news_privacy"]:checked').value;
+
+    // validate data
+    if (!title || !content || !datePublished || publicValue === undefined) {
+        alert('Please fill all required fields.');
+        return;
+    }
+
+    // TODO: handle image upload
+
+    submitNews(title, content, datePublished, '', publicValue);
+}
+
+function submitNews(title, content, datePublished, imageUrl, publicValue) {
+    let newsData = {
+        title: title,
+        content: content,
+        datePublished: datePublished,
+        image_url: imageUrl,
+        public: publicValue
+    };
+
+    // POST request
+    fetch('/manage/news/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newsData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('News article created successfully with ID: ' + data.id);
+        })
+        .catch(error => {
+            try {
+                let errorMsg = JSON.parse(error.message);
+                alert('Failed to create news article: ' + errorMsg.message);
+            } catch (e) {
+                alert('Failed to create news article: ' + error.message);
+            }
+        });
+}
