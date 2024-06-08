@@ -33,8 +33,8 @@
           var note_manager = '';
           // Checks if member is manager.
           if (responseJSON.members[i].branch_managed !== null) {
-            // Maybe this should be changed to just "Manager".
-            note_manager = `(Manages Branch: ${responseJSON.members[i].branch_managed})`;
+            // Can make more specific using: `(Manages Branch: ${responseJSON.members[i].branch_managed})`;
+            note_manager = `(Manager)`;
           }
 
           container.innerHTML += `
@@ -66,7 +66,27 @@
     var res = confirm(`Are you sure you want to promote ${name} (${userID}) to a branch manager?`);
 
     if (res) {
-
+      fetch(`/manage/user/promote/${userID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          // promoted successfully
+          location.reload();
+          alert('Member promoted successfully!');
+        } else if (response.status === 403) {
+          alert('You do not have permission to promote this member.');
+        } else {
+          alert('Failed to promote member.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while promoting the member');
+      });
     }
     else {
       return;

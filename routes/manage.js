@@ -571,4 +571,50 @@ router.post('/user/remove/:userID', function (req, res, next) {
   }).catch(function (err) {tools.sendError(err);});
 });
 
+router.post('/user/promote/:userID', function (req, res, next) {
+  const userID = req.params.userID;
+  // console.log(userID);
+
+  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
+  req.session.branch_managed = 1;
+
+  // Check the member exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+
+  tools.sqlHelper(query, [userID], req).then(function (results) {
+    // console.log(results);
+    if (results.length == 0){
+      // Member not found
+      res.status(400).send("Member not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only promote non-manager members of branches you manage");
+      return;
+    }
+
+    const branchID = req.session.branch_managed;
+
+    let query = `UPDATE users SET branch_managed = ${branchID} WHERE username = ?;`;
+
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        // console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [userID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          // console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+        return;
+      });
+    });
+  }).catch(function (err) {tools.sendError(err);});
+});
+
 module.exports = router;
