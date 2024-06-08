@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/news.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/news.js"></script>
+  <script src="/App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content content">
+        <a href="/news"> &lt; BACK</a>
+        <br>
+        <template v-if="article_selected !== null">
+          <h1> {{article_selected.title}} </h1>
+
+          <div class="news-details-container">
+                <div><b> Date Posted: </b> {{article_selected.date}} </div>
+                <div><b> Posted By Branch: </b> {{article_selected.branch}} </div>
+          </div>
+
+            <p><b> {{article_selected.content}} </b></p>
+            <template v-if="article_selected.details !== null">
+                <hr>
+                  <template v-for="detail in article_selected.details">
+                    <p>{{ detail }}</p>
+                  </template>
+                  <img v-bind:src="article_selected.image_url" alt="Update Image" class="center">
+              </template>
+
+            </template>
+
+        <template v-else>
+            <p> Loading Update Details...</p>
+            <!--
+                This could be made nicer probably
+            -->
+        </template>
+
+      </div>
+      <footer>
+        &copy; 2024 Your Website. All rights reserved.
+        These buttons will be removed, for testing purposes only
+        <button type="button" v-on:click="access_level=0"> Visitor </button>
+        <button type="button" v-on:click="access_level=1"> User </button>
+        <button type="button" v-on:click="access_level=2"> Manager </button>
+      </footer>
+  </body>
+  </html>

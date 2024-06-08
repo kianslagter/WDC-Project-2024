@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/others.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content">
+      <div class="login-column">
+        <div class="login-box content">
+          <div class="login-container">
+            <h1>Register</h1>
+            <div class="login-form">
+            <div>
+              <p>Username</p>
+              <input class="input" type="text">
+            </div>
+            <div>
+              <p>Email</p>
+              <input class="input" type="email">
+            </div>
+            <div>
+              <p>Password</p>
+              <input class="input" type="password">
+            </div>
+            <button class="login-button">Register</button>
+            <p>Already have an account? </p><a href="/login">Log in</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>

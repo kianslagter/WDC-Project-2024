@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/events.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/events.js" defer></script>
+    <script src="/App.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const eventID = window.location.pathname.split('/')[4];
+            displayRSVPResponses(eventID);
+            getEventDetails(eventID, function (data) {
+                document.getElementById('eventTitle').textContent = data.title;
+            });
+        });
+    </script>
+</head>
+
+<body id="app">
+    <header class="top-pane">
+        <nav>
+            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        </nav>
+    </header>
+
+    <div class="page-content content">
+        <h1>RSVP Responses for event: </h1>
+        <h1 id="eventTitle"> Loading</h1>
+        <div class="response-section">
+            <h2>Yes</h2>
+            <ul id="yesList" class="user-list">
+                <!-- users who rsvp yes-->
+            </ul>
+            <h3 id="yesCount">Yes:</h3>
+        </div>
+        <div class="response-section">
+            <h2>No</h2>
+            <ul id="noList" class="user-list">
+                <!-- users who rsvp no -->
+            </ul>
+            <h3 id="noCount">No:</h3>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Your Website. All rights reserved.
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+/* --- Branch --- */
+.branch-container {
+    width: 90%;
+    border-radius: 1em;
+    padding: 1em 2em;
+    margin: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    background-color: lightgray;
+    position: relative;
+}
+
+.branch-container:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.branch-container:active {
+    background-color: darkgray;
+}
+
+.branch-name {
+    margin-bottom: 0.2em;
+}
+
+.branch-details {
+    justify-content: space-between;
+}
+
+.branch-hours,
+.branch-location {
+    margin: 0.5em;
+}
+
+.branch-image {
+    width: 20em;
+}
+
+.branch-buttons {
+    padding-top: 1em;
+    margin: 1em;
+}
+
+.branch-description {
+    text-align: left;
+    padding: 0.2em 0.2em;
+    margin: 0.5em;
+    font-size: 1em;
+}
+
+.branch-content {
+    display: flex;
+}
+
+.branch-image-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.branch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+}
+
+.branch-header h1 {
+    margin: 0;
+}
+
+.join-branch-button {
+    margin-top: 10px;
+    background-color: #6c757d;
+    color: #fff;
+    margin-left: 10px;
+}
+
+.join-branch-button :hover {
+    background-color: #5a6268;
+}
+
+.create-branch-title {
+    font-size: 1.2em;
+    width: 60%;
+}
+
+.create-branch-title {
+    font-size: 1.2em;
+    width: 60%;
+}
+
+.branch-pane {
+    border-radius: 1em;
+    padding: 1em 2em;
+    background-color: lightgray;
+    position: relative;
+    width: 200px;
+    height: 80%;
+    display: flex;
+    overflow-x: auto;
+    overflow: hidden;
+    margin-right: 10px;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.branch-pane:hover {
+    background-color: rgb(198, 198, 198);
+}
+
+.branch-pane:active {
+    background-color: darkgray;
+}
+
+.scrolling-wrapper-branch {
+    width: 100%;
+    height: 350px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.inner-scroll-branch-events {
+    height: 100%;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.event-card-title {
+    margin-bottom: 2px;
+    color: black;
+    font-size: 1.2em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.event-card-image {
+    width: 100%;
+    height: auto;
+}
+
+.event-card-header {
+    color: grey;
+    font-size: 0.9em;
+    margin: 2px;
+}

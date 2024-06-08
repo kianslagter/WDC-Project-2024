@@ -18,12 +18,11 @@
 		"vscode": {
 			"extensions": [
 				"html-validate.vscode-html-validate",
-				"dbaeumer.vscode-eslint",
-				"vsls-contrib.gitdoc",
-				"ms-vsliveshare.vsliveshare-pack",
-				"tonybaloney.vscode-pets",
-				"unjinjang.rest-api-client"
-			]
+				"dbaeumer.vscode-eslint"
+			],
+			"settings": {
+                "extensions.verifySignature": false
+            	}
 		}
 	},
 

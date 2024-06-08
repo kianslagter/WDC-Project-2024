@@ -110,3 +110,4 @@ dist
 
 # VSCode configs
 .vscode/
+.devcontainer.json
