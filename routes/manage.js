@@ -384,7 +384,7 @@ router.post('/event/delete/:eventID', function (req, res, next) {
   }).catch(function (err) {tools.sendError(err);});
 });
 
-router.get('/branch_statistics', function(req, res, next) {
+router.get('/branch_information', function(req, res, next) {
   var branchID = req.query.id;
 
   // Need to add branch id validation

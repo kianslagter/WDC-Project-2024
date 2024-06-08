@@ -10,9 +10,56 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
+  <script>
+    function get_site_information() {
+      let xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var responseJSON = JSON.parse(this.responseText);
+
+          console.log(this.responseText);
+          console.log(responseJSON);
+
+          var statistic_element;
+
+          statistic_element = document.getElementById('num-site-users');
+          statistic_element.innerText = responseJSON.num_site_users;
+
+          statistic_element = document.getElementById('num-upcoming-events');
+          statistic_element.innerText = responseJSON.num_upcoming_events;
+
+          statistic_element = document.getElementById('num-total-events');
+          statistic_element.innerText = responseJSON.num_total_events;
+
+          statistic_element = document.getElementById('num-total-news');
+          statistic_element.innerText = responseJSON.num_total_news;
+
+
+          statistic_element = document.getElementById('other-admins');
+          statistic_element.innerHTML = "";
+          for (let i = 0; i < responseJSON.other_admins.length; i++) {
+            statistic_element.innerHTML += `
+              <div class="dashboard-container">
+                  <p>
+                    <b> ${responseJSON.other_admins[i].first_name} ${responseJSON.other_admins[i].last_name} </b>
+                    &emsp;
+                    (<u>Email:</u> ${responseJSON.other_admins[i].email})
+                    &emsp;
+                    (<u>Phone:</u> ${responseJSON.other_admins[i].phone_num})
+                  </p>
+              </div>`;
+          }
+        }
+      }
+
+      xhttp.open("GET", "/admin/site_information", true);
+      xhttp.send();
+    }
+  </script>
 </head>
 
-<body id="app">
+<body id="app" onload="get_site_information()">
   <header class="top-pane">
     <nav>
       <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
@@ -22,7 +69,6 @@
   <div class="page-content content">
     <div class="right text-center manage-side-pane">
       <h3> Quick Admin Actions </h3>
-      <p> <b> Branch: </b> Adelaide </p>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/view_members"><b>Manage/View Users </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/branches/create"><b>Create New Branch </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches"><b>Manage/View Branches </b></a></div>
@@ -31,22 +77,37 @@
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Sign Out </b></a></div>
     </div>
 
-    <h1> Admin Dashboard</h1>
-    <h4> Hi James </h4>
+    <h1> System Admin Dashboard</h1>
 
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
+    <h2> Site Statistics </h2>
 
+    <div class="statistics-container">
+      <div class="statistics-item">
+        <b> Total Site Users: </b>
+        <br>
+        <p id="num-site-users"></p>
+      </div>
+      <div class="statistics-item">
+        <b> Total Upcoming Events: </b>
+        <br>
+        <p id="num-upcoming-events"></p>
+      </div>
+      <div class="statistics-item">
+        <b> Total Events: </b>
+        <br>
+        <p id="num-total-events"></p>
+      </div>
+      <div class="statistics-item">
+        <b> Total News: </b>
+        <br>
+        <p id="num-total-news"></p>
+      </div>
+    </div>
+
+    <h2> Other System Admins </h2>
+    <div id="other-admins">
+      <p> Loading... </p>
+    </div>
   </div>
   <br>
   <br>

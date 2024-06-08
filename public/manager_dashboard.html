@@ -11,7 +11,7 @@
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
   <script>
-    function get_branch_statistics() {
+    function get_branch_information() {
     let xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function () {
@@ -66,13 +66,13 @@
     }
 
     var branchID = window.location.pathname.split('/')[4];
-    xhttp.open("GET", "/manage/branch_statistics?id=" + branchID, true);
+    xhttp.open("GET", "/manage/branch_information?id=" + branchID, true);
     xhttp.send();
   }
   </script>
 </head>
 
-<body id="app" onload="get_branch_statistics()">
+<body id="app" onload="get_branch_information()">
   <header class="top-pane">
     <nav>
       <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
