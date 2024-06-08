@@ -74,3 +74,37 @@ function submitNews(title, content, datePublished, imageUrl, publicValue) {
             }
         });
 }
+
+// delete news post
+function deleteNews(articleID) {
+    // confirmation to delete
+    if (!confirm('Are you sure you want to delete this news article?')) {
+      return;
+    }
+
+    fetch(`/manage/news/delete/${articleID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+            // deleted successfully
+          const articleContainer = document.getElementById(`article-${articleID}`);
+          if (articleContainer) {
+            articleContainer.remove();
+          }
+          alert('News article deleted successfully');
+          window.location.href = "/news";
+        } else if (response.status === 403) {
+          alert('You do not have permission to delete this news article');
+        } else {
+          alert('Failed to delete news article');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the news article');
+      });
+  }

@@ -141,6 +141,7 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
 }
 
 function deleteEvent(eventID) {
+  // confirmation to delete
   if (!confirm('Are you sure you want to delete this event?')) {
     return;
   }

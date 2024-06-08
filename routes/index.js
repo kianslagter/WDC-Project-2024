@@ -2,7 +2,7 @@ var express = require('express');
 const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
-var tools = require('./helpers')
+var tools = require('./helpers');
 
 var router = express.Router();
 

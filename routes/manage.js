@@ -442,4 +442,39 @@ router.post('/news/create', function (req, res, next) {
   });
 });
 
+router.post('/news/delete/:articleID', function (req, res, next) {
+  const articleID = req.params.articleID;
+
+  // Check the news exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM news WHERE article_id = ?;`;
+  tools.sqlHelper(query, [articleID], req).then(function (results) {
+    if (results.length == 0) {
+      // article not found
+      res.status(400).send("News article not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed) {
+      // wrong branch
+      res.status(403).send("Can only delete news articles of branches you manage");
+    }
+
+    let query = "DELETE FROM news WHERE article_id=?;";
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [req.params.articleID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+      });
+    });
+  }).catch(function (err) { tools.sendError(err); });
+});
+
 module.exports = router;
