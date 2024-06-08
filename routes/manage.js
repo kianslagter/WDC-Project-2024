@@ -25,6 +25,10 @@ router.get('/branches/id/:branchId', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
 });
 
+router.get('/branches/id/:branchId/view_members', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
+});
+
 router.post('/image/upload', function(req, res, next){
   /*
     Expected format:
@@ -472,6 +476,99 @@ router.get('/branch_information', function(req, res, next) {
       res.status(200).send(statistics);
     });
   });
+});
+
+router.get('/get_members', function(req, res, next) {
+  var branchID = req.query.id;
+
+  // Need to add branch id validation
+
+  var response = {
+    "branch_name": null,
+    "members": null
+  };
+
+  req.pool.getConnection(function(err, connection) {
+    if (err) {
+      res.sendStatus(500);
+      return;
+    }
+
+      // Query 1
+      var query = `SELECT branch_name FROM branches WHERE branch_id = ?;`;
+
+      connection.query(query, [branchID], function(err, rows, fields) {
+        // connection.release();
+        if (err) {
+          res.sendStatus(500);
+          return;
+        }
+
+        response.branch_name = rows[0]['branch_name'];
+      });
+
+    // Query 2
+    // Should systems admins be shown?
+    query = `SELECT users.username, first_name, last_name, email, phone_num, postcode, branch_managed FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.system_admin = FALSE;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      response.members = rows;
+
+      console.log(response.members);
+
+      res.status(200).send(response);
+    });
+  });
+});
+
+router.post('/user/remove/:userID', function (req, res, next) {
+  const userID = req.params.userID;
+  console.log(userID);
+
+  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
+  req.session.branch_managed = 1;
+
+  // Check the member exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+
+  tools.sqlHelper(query, [userID], req).then(function (results) {
+    console.log(results);
+    if (results.length == 0){
+      // Member not found
+      res.status(400).send("Member not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only remove non-manager members of branches you manage");
+      return;
+    }
+
+    let query = "DELETE FROM user_branch_affiliation WHERE user_id IN (SELECT user_id FROM users WHERE username = ?);";
+
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [userID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+        return;
+      });
+    });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 module.exports = router;

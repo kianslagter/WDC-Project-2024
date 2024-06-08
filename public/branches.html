@@ -21,7 +21,6 @@
 
   <div class="page-content content">
     <button class="button primary-button right new-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/admin/branches/create'"> New Branch </button>
-    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/admin/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_summary" >
       <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)" style="text-decoration: none; color: inherit;">

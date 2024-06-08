@@ -11,14 +11,104 @@
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const branchID = window.location.pathname.split('/')[4];
-        displayMembers(branchID);
-    });
+    function get_members() {
+    let xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var responseJSON = JSON.parse(this.responseText);
+
+        console.log(this.responseText);
+        console.log(responseJSON);
+
+        var container;
+
+        container = document.getElementById('branch-name');
+        container.innerText = responseJSON.branch_name;
+
+        container = document.getElementById('members-container');
+        container.innerHTML = "";
+        for (let i = 0; i < responseJSON.members.length; i++) {
+          // Reset manager information.
+          var note_manager = '';
+          // Checks if member is manager.
+          if (responseJSON.members[i].branch_managed !== null) {
+            note_manager = `(Manages Branch: ${responseJSON.members[i].branch_managed})`;
+          }
+
+          container.innerHTML += `
+            <div id="member-${responseJSON.members[i].username}" class="view-members-container">
+                <p>
+                  <b> ${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name} ${note_manager} </b>
+                  &emsp;
+                  (<u>Email:</u> ${responseJSON.members[i].email})
+                  &emsp;
+                  (<u>Phone:</u> ${responseJSON.members[i].phone_num})
+                  <br>
+                  <u>Address:</u> ${responseJSON.members[i].postcode}
+                  <br>
+                  <button onclick="alert_remove_member('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].username}')" class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
+                  <button onclick="alert_promote_manager('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].username}')" class="right button primary-button manage-button" type="button"> Promote To Manager </button>
+                  <br>
+                </p>
+            </div>`;
+        }
+      }
+    }
+
+    var branchID = window.location.pathname.split('/')[4];
+    xhttp.open("GET", "/manage/get_members?id=" + branchID, true);
+    xhttp.send();
+  }
+
+  function alert_promote_manager(name, userID) {
+    var res = confirm(`Are you sure you want to promote ${name} (${userID}) to a branch manager?`);
+
+    if (res) {
+
+    }
+    else {
+      return;
+    }
+  }
+
+  function alert_remove_member(name, userID) {
+    var res = confirm(`Are you sure you want to remove ${name} (${userID}) from this branch?`);
+
+    if (res) {
+      fetch(`/manage/user/remove/${userID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          // deleted successfully
+          const eventContainer = document.getElementById(`member-${userID}`);
+          if (eventContainer) {
+            eventContainer.remove();
+          }
+          alert('Member removed successfully!');
+        } else if (response.status === 403) {
+          alert('You do not have permission to remove this member.');
+        } else {
+          alert('Failed to remove member. This member may be a manager.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing the member');
+      });
+    }
+    else {
+      return;
+    }
+  }
   </script>
 </head>
 
-<body id="app">
+<body id="app" onload="get_members()">
   <header class="top-pane">
     <nav>
       <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
@@ -26,21 +116,10 @@
   </header>
 
   <div class="page-content content">
-    <h1> Branch Members - Adelaide </h1>
-    <div class="view-members-container" v-for="person in people">
-      <h3> {{ person.name }} (ID: {{ person.id }}) </h3>
-      <p> <b> Address: </b> {{ person.address }} </p>
-      <div class="left"><p> <b> Email: </b> {{ person.email }} </p></div>
-      <div class="right"><p> <b> Phone: </b> {{ person.phone }} </p></div>
-      <br>
-      <br>
-      <br>
+    <h1> Branch Members - <span id="branch-name"> Loading... </span> </h1>
 
-        <button class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
-        <!-- Need to have confirmation before below occurs -->
-        <button class="right button primary-button manage-button" type="button"> Promote To Manager </button>
-      <br>
-      <br>
+    <div id="members-container">
+      Loading...
     </div>
   </div>
   <br>
