@@ -2,7 +2,7 @@ var express = require('express');
 const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
-var tools = require('./helpers')
+var tools = require('./helpers');
 
 var router = express.Router();
 
@@ -320,46 +320,20 @@ router.get('/admin/branches/create', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
 });
 
-router.get('/manage/view_members', function(req, res, next) {
+router.get('/manage/branches/id/:branchId/view_members', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
-});
-
-router.get('/event/id/:branchId/view_rsvp', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'view_rsvp.html'));
-});
-
-router.get('/manage', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
 });
 
 router.get('/admin', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin_dashboard.html'));
 });
-
 
 router.get('/private_policy', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'private_policy.html'));
 });
 
-router.get('/admin/branches/create', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
-});
-
-router.get('/manage/view_members', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
-});
-
-router.get('/event/id/:branchId/view_rsvp', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'view_rsvp.html'));
-});
-
-router.get('/manage', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
-});
-
 router.get('/admin', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin_dashboard.html'));
 });
-
 
 module.exports = router;

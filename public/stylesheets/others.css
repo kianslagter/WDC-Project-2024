@@ -65,7 +65,7 @@
     margin: auto;
     margin-top: 10px;
     margin-bottom: 10px;
-    background-color: #E2A7A7;
+    background-color: lightgrey;
 }
 
 .manage-button {
@@ -76,7 +76,7 @@
     padding: 10px;
     border-radius: 20px;
     margin: 10px;
-    background-color: darkgrey;
+    background-color: lightgrey;
 }
 
 .manage-side-pane-container {
@@ -90,6 +90,44 @@
     text-align: center;
 }
 
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
 .text-white {
     color: white;
+}
+
+.inline-text {
+    display: inline;
+}
+
+.statistics-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    padding: 5px;
+    border-radius: 10px;
+    background-color: darkgrey;
+}
+
+.statistics-item {
+    padding: 5px;
+    margin: 10px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: white;
+}
+
+.dashboard-container {
+    background-color: lightgrey;
+    width: 95%;
+    border-radius: 10px;
+    padding: 5px 5px 5px 10px;
+    margin: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
