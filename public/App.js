@@ -85,7 +85,7 @@ createApp({
             navitems: navitems,
             events_results: [],
             show_events_filters: false,
-            branches_summary: testBranchSummary,
+            branches_results: null,
             event_selected: null, // set to null intially in real thing
             event_attendance: 4,
             news_results: [],
@@ -405,6 +405,37 @@ createApp({
                     this.isLoading = false;
                 });
         },
+        branches_load() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+
+            // AJAX
+            fetch('/branches/get', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched branches:", data);
+                    this.branches_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching branches:", error);
+                    this.branches_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
         news_show_more_results() {
             // Increase the max number of news shown by 5
             document.getElementById("num-news").value = parseInt(document.getElementById("num-news").value) + 5;
@@ -500,6 +531,10 @@ createApp({
         // load news on main page
         if (!window.location.pathname.split('/')[1]) {
             this.news_load();
+        }
+        // load branches on branches page
+        if (window.location.pathname.split('/')[1] == 'branches' && !window.location.pathname.split('/')[2]) {
+            this.branches_load();
         }
     }
 }).mount('#app');

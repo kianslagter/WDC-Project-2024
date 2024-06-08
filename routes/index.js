@@ -442,6 +442,40 @@ router.get('/branch/id/:branchID/details.json', function (req, res, next) {
   }).catch(function (err) { tools.sendError(res, err); });
 });
 
+router.get('/branches/get', function (req, res, next) {
+  // Construct the SQL query
+  let query = `SELECT branch_id AS id, branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description FROM branches`;
+
+  let params = [];
+  // Add any additional filters if needed
+  if (req.query.city) {
+    query += " WHERE city = ?";
+    params.push(req.query.city);
+  }
+
+  query += " ORDER BY branch_name ASC LIMIT 10;";
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
 
 // PAGE ROUTES
 
