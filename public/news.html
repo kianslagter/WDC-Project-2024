@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/news.js"></script>
   <script src="App.js" defer></script>
 </head>
 
@@ -68,15 +69,14 @@
             <h2 class="news-title"> {{news.title}} </h2>
             <!-- Link the location to the branch page? -->
             <span class="news-header">
-              {{news.date_posted}}&emsp;{{news.time_posted}}&emsp;{{news.posted_by_branch}}</span>
-            <p class="news-description"> {{news.description}} </p>
-            <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Edit News
-            </button>
-            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Delete News
-            </button>
+              {{news.date}}{{news.branch}}</span>
+            <p class="news-description"> {{news.content}} </p>
           </div>
         </a>
+        <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
+        <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"
+          @click="editNews(news.id)"> Edit News
+        </button>
       </div>
 
       <!--
@@ -89,12 +89,13 @@
 
   </div>
 
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
-    </footer>
-  </body>
-  </html>
+  <footer>
+    &copy; 2024 Your Website. All rights reserved.
+    These buttons will be removed, for testing purposes only
+    <button type="button" v-on:click="access_level=0"> Visitor </button>
+    <button type="button" v-on:click="access_level=1"> User </button>
+    <button type="button" v-on:click="access_level=2"> Manager </button>
+  </footer>
+</body>
+
+</html>

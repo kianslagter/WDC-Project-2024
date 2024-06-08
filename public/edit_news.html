@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/news.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/news.js" defer></script>
+    <script src="/App.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const articleID = window.location.pathname.split('/')[4];
+            // Load initial news details
+            getNewsDetails(articleID, function (data) {
+                document.getElementById('title').value = data.title;
+                document.getElementById('content').value = data.content;
+                const date = new Date(data.date);
+                const formattedDate = date.toISOString().split('T')[0];
+                document.getElementById('datePublished').value = formattedDate;
+                document.getElementById(data.isPublic ? 'public' : 'private').checked = true;
+                document.getElementById('image_url').value = data.image_url;
+            });
+            // Delete news
+            const deleteNewsButton = document.getElementById('deleteNewsButton');
+            if (deleteNewsButton) {
+                deleteNewsButton.addEventListener('click', function () {
+                    const articleID = window.location.pathname.split('/')[4];
+                    deleteNews(articleID);
+                });
+            }
+            // Update news
+            const updateNewsButton = document.getElementById('updateNewsButton');
+            if (updateNewsButton) {
+                updateNewsButton.addEventListener('click', function () {
+                    const articleID = window.location.pathname.split('/')[4];
+                    const newsData = {
+                        title: document.getElementById('title').value,
+                        content: document.getElementById('content').value,
+                        datePublished: document.getElementById('datePublished').value,
+                        isPublic: document.getElementById('public').checked,
+                        image_url: document.getElementById('image_url').value
+                    };
+                    updateNews(articleID, newsData);
+                });
+            }
+        });
+    </script>
+</head>
+
+<body id="app">
+    <header class="top-pane">
+        <nav>
+            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        </nav>
+    </header>
+
+    <div class="page-content content">
+        <h1>Edit News Article</h1>
+        <p> Branch: { branchName } </p>
+        <h4> Title: <input id="title" class="create-news-title" type="text" name="title"></h4>
+        <h4> Publish Date </h4>
+        <p> Date: <input id="datePublished" type="date" class="create-news-date-input"></p>
+
+        <h4> Set News Article to Public or Private </h4>
+        <input id="public" type="radio" name="news_privacy" value="1">
+        <label for="public"> Public </label>
+        <input id="private" type="radio" name="news_privacy" value="0">
+        <label for="private"> Private </label>
+        <h4> Enter News Content Below </h4>
+        <textarea id="content" class="create-news-content">Enter news content here</textarea>
+
+        <h4> Add an Image </h4>
+        <input id="image_url" class="create-news-image-upload" type="file" name="news-image" accept="image/*">
+        <div>
+            <button id="updateNewsButton" class="button primary-button create-news-button" type="button">
+                Update News
+            </button>
+            <button class="button secondary-button create-news-button" type="button" id="deleteNewsButton">Delete
+                News</button>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2024 Your Website. All rights reserved.
+    </footer>
+</body>
+
+</html>
