@@ -39,6 +39,7 @@ async function fetchRSVPResponses(eventID) {
   }
 }
 
+// show rsvp in the html file
 function displayRSVPResponses(eventID) {
   fetchRSVPResponses(eventID)
     .then(data => {
@@ -74,6 +75,7 @@ function displayRSVPResponses(eventID) {
       noList.innerHTML = '<li>Error fetching RSVP responses</li>';
     });
 }
+
 
 function createEvent() {
   // get data
@@ -139,6 +141,7 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
 }
 
 function deleteEvent(eventID) {
+  // confirmation to delete
   if (!confirm('Are you sure you want to delete this event?')) {
     return;
   }
@@ -170,6 +173,7 @@ function deleteEvent(eventID) {
     });
 }
 function updateEvent(eventID) {
+  // get details of event
   const title = document.getElementById('title').value;
   const description = document.getElementById('description').value;
   const date = document.getElementById('date').value;

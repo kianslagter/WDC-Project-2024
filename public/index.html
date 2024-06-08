@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/news.js"></script>
   <script src="App.js" defer></script>
 </head>
 <body id="app">
@@ -27,14 +28,14 @@
       <h1> News </h1>
       <div class="scrolling-wrapper">
         <div class="inner-scroll">
-          <template v-for="news in news_array1">
+          <template v-for="news in news_results" :key="news.id">
             <div class="news-pane">
               <a v-bind:href="'/news/id/' + news.id" class="title-link">
               <img v-bind:src="news.image" class="news-image-1" alt="News image">
               <p class="news-branch"> {{news.branch}} </p>
               <p class="news-date"> {{news.date}} </p>
                <h3 class="news-card-title"> {{news.title}} </h3>
-              <p class="news-article"> {{news.article_start}} </p>
+              <p class="news-article"> {{news.content}} </p>
               </a>
             </div>
           </template>
