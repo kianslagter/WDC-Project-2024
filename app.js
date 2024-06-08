@@ -16,6 +16,7 @@ var dbConnectionPool = mysql.createPool({
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const manageRouter = require('./routes/manage');
+const adminRouter = require('./routes/admin');
 
 var app = express();
 
@@ -60,6 +61,10 @@ app.use('/users', usersRouter);
 // Authentication (branch managers only)
 
 app.use('/manage', manageRouter);
+
+// Authentication (system admins only)
+
+app.use('/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
