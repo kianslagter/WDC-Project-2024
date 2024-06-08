@@ -96,7 +96,7 @@ createApp({
             article_selected: null,
             num_points: 1,
             point_level: [0],
-            branch_selected: testBranchSummary[0],
+            branch_selected: null,
             people: people,
             loading: true,
             event: null,
@@ -107,6 +107,7 @@ createApp({
     setup() {
         const event_selected = ref(null);
         const article_selected = ref(null);
+        const branch_selected = ref(null);
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
@@ -122,7 +123,7 @@ createApp({
                 loading,
             };
         }
-        // call getNewsDetails if the page is on an events details page
+        // call getNewsDetails if the page is on an news details page
         let articleID = window.location.pathname.split('/')[3];
 
         if (articleID && window.location.pathname.split('/')[1] == 'news') {
@@ -133,6 +134,20 @@ createApp({
 
             return {
                 article_selected,
+                loading,
+            };
+        }
+        // call getBranchDetails if the page is on an branch details page
+        let branchID = window.location.pathname.split('/')[3];
+
+        if (branchID && window.location.pathname.split('/')[1] == 'branches') {
+            getBranchDetails(branchID, function (data) {
+                branch_selected.value = data;
+                loading.value = false;
+            });
+
+            return {
+                branch_selected,
                 loading,
             };
         }

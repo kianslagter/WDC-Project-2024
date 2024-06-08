@@ -418,6 +418,30 @@ router.get('/news/search', function (req, res, next) {
   });
 });
 
+// BRANCH ROUTES
+
+router.get('/branch/id/:branchID/details.json', function (req, res, next) {
+  let branch_id = req.params.branchID;
+  // Check if the branch exists
+  let query = "SELECT EXISTS(SELECT * FROM branches WHERE branch_id = ?) AS branch_exists;";
+  tools.sqlHelper(query, [branch_id], req).then(function (results) {
+    if (results[0].branch_exists == 0) {
+      // Branch does not exist
+      res.status(404).send("Branch not found");
+      return;
+    }
+    // Get the branch details
+    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description
+               FROM branches
+               WHERE branch_id=?;`;
+    tools.sqlHelper(query, [branch_id], req).then(function (results) {
+      // Send the details
+      res.json(results[0]);
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
 
 // PAGE ROUTES
 
