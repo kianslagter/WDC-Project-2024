@@ -76,7 +76,7 @@
     padding: 10px;
     border-radius: 20px;
     margin: 10px;
-    background-color: lightgrey;
+    background-color: darkgrey;
 }
 
 .manage-side-pane-container {
@@ -123,8 +123,9 @@
 }
 
 .dashboard-container {
+    display: grid;
     background-color: lightgrey;
-    width: 95%;
+    width: auto;
     border-radius: 10px;
     padding: 5px 5px 5px 10px;
     margin: auto;

@@ -394,6 +394,7 @@ router.get('/branch_statistics', function(req, res, next) {
     "num_branch_members": 0,
     "num_upcoming_events": 0,
     "num_total_events": 0,
+    "upcoming_events": null,
     "other_branch_managers": null
   };
 
@@ -403,12 +404,12 @@ router.get('/branch_statistics', function(req, res, next) {
       return;
     }
 
+    // Query 1
     var query = `SELECT
       (SELECT branch_name FROM branches WHERE branch_id = ?) AS branch_name,
       (SELECT COUNT(*) FROM user_branch_affiliation WHERE branch_id = ?) AS num_branch_members,
       (SELECT COUNT(*) FROM events WHERE branch_id = ? AND start_date_time > NOW()) AS num_upcoming_events,
       (SELECT COUNT(*) FROM events WHERE branch_id = ?) AS num_total_events;
-      SELECT first_name, last_name, phone_num, email FROM users WHERE branch_managed = ?;
     `;
 
     var prepared_array = [];
@@ -419,23 +420,52 @@ router.get('/branch_statistics', function(req, res, next) {
       }
     }
 
-    // console.log(prepared_array);
-
     connection.query(query, prepared_array, function(err, rows, fields) {
-      connection.release();
+      // connection.release();
       if (err) {
         res.sendStatus(500);
         return;
       }
-      console.log(rows);
 
       statistics.branch_name = rows[0]['branch_name'];
 
       statistics.num_branch_members = rows[0]['num_branch_members'];
       statistics.num_upcoming_events = rows[0]['num_upcoming_events'];
       statistics.num_total_events = rows[0]['num_total_events'];
+    });
 
-      // statistics.other_branch_managers = rows[0]['other_branch_managers'];
+
+    // Query 2
+    query = `SELECT event_id, event_name, start_date_time FROM events WHERE branch_id = ? AND start_date_time > NOW() ORDER BY start_date_time ASC LIMIT 5;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.upcoming_events = rows;
+
+      for (let i = 0; i < statistics.upcoming_events.length; i++) {
+        var dateTime = statistics.upcoming_events[i].start_date_time.toString();
+        var dT_array = dateTime.split(' ');
+
+        statistics.upcoming_events[i].start_date_time = `${dT_array[2]} ${dT_array[1]} ${dT_array[3]}`;
+      }
+    });
+
+
+    // Query 3
+    query = `SELECT first_name, last_name, phone_num, email FROM users WHERE branch_managed = ?;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.other_branch_managers = rows;
 
       console.log(statistics);
 

@@ -18,6 +18,9 @@
       if (this.readyState == 4 && this.status == 200) {
         var responseJSON = JSON.parse(this.responseText);
 
+        console.log(this.responseText);
+        console.log(responseJSON);
+
         var statistic_element;
 
         statistic_element = document.getElementById('branch-name');
@@ -31,6 +34,34 @@
 
         statistic_element = document.getElementById('num-total-events');
         statistic_element.innerText = responseJSON.num_total_events;
+
+        statistic_element = document.getElementById('upcoming-events');
+        statistic_element.innerHTML = "";
+        for (let i = 0; i < responseJSON.upcoming_events.length; i++) {
+          statistic_element.innerHTML += `
+            <div class="dashboard-container">
+                <p>
+                  <a href=/events/id/${responseJSON.upcoming_events[i].event_id}> <b> ${responseJSON.upcoming_events[i].event_name} </b> </a>
+                  &emsp;
+                  (<u>Date:</u> ${responseJSON.upcoming_events[i].start_date_time})
+                </p>
+            </div>`;
+        }
+
+        statistic_element = document.getElementById('other-managers');
+        statistic_element.innerHTML = "";
+        for (let i = 0; i < responseJSON.other_branch_managers.length; i++) {
+          statistic_element.innerHTML += `
+            <div class="dashboard-container">
+                <p>
+                  <b> ${responseJSON.other_branch_managers[i].first_name} ${responseJSON.other_branch_managers[i].last_name} </b>
+                  &emsp;
+                  (<u>Email:</u> ${responseJSON.other_branch_managers[i].email})
+                  &emsp;
+                  (<u>Phone:</u> ${responseJSON.other_branch_managers[i].phone_num})
+                </p>
+            </div>`;
+        }
       }
     }
 
@@ -55,7 +86,7 @@
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/branches/id/1/view_members"><b>Manage/View Branch Members</b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/events/create"><b>Create New Event </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/news/create"><b>Create New Update </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches/id/1"><b>Manage/View Events </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/events"><b>Manage/View Events </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches/id/1"><b>Manage/View Branch Details </b></a></div>
       <h3> Account </h3>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Update Profile </b></a></div>
@@ -84,30 +115,15 @@
       </div>
     </div>
 
-    <h2> Upcoming Events </h2>
-
-    <h2> New Members </h2>
-
-    <h2> Other Branch Managers </h2>
-    <div class="dashboard-container" v-for="person in people">
-      <p> <b> {{ person.name }} </b> (Email: {{ person.email }}) </p>
+    <h2> Upcoming Branch Events </h2>
+    <div id="upcoming-events">
+      <p> Loading... </p>
     </div>
 
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-    <p>text</p>
-
+    <h2> Other Branch Managers </h2>
+    <div id="other-managers">
+      <p> Loading... </p>
+    </div>
   </div>
   <br>
   <br>
