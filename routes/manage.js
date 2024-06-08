@@ -471,7 +471,7 @@ router.get('/branch_information', function(req, res, next) {
 
       statistics.other_branch_managers = rows;
 
-      console.log(statistics);
+      // console.log(statistics);
 
       res.status(200).send(statistics);
     });
@@ -520,7 +520,7 @@ router.get('/get_members', function(req, res, next) {
 
       response.members = rows;
 
-      console.log(response.members);
+      // console.log(response.members);
 
       res.status(200).send(response);
     });
@@ -529,7 +529,7 @@ router.get('/get_members', function(req, res, next) {
 
 router.post('/user/remove/:userID', function (req, res, next) {
   const userID = req.params.userID;
-  console.log(userID);
+  // console.log(userID);
 
   // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
   req.session.branch_managed = 1;
@@ -538,7 +538,7 @@ router.post('/user/remove/:userID', function (req, res, next) {
   var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
-    console.log(results);
+    // console.log(results);
     if (results.length == 0){
       // Member not found
       res.status(400).send("Member not found");
@@ -553,14 +553,14 @@ router.post('/user/remove/:userID', function (req, res, next) {
 
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, [userID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }

@@ -33,6 +33,7 @@
           var note_manager = '';
           // Checks if member is manager.
           if (responseJSON.members[i].branch_managed !== null) {
+            // Maybe this should be changed to just "Manager".
             note_manager = `(Manages Branch: ${responseJSON.members[i].branch_managed})`;
           }
 
