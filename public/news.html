@@ -71,13 +71,12 @@
             <span class="news-header">
               {{news.date}}{{news.branch}}</span>
             <p class="news-description"> {{news.content}} </p>
-            <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Edit News
-            </button>
-            <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"> Delete News
-            </button>
           </div>
         </a>
+        <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
+        <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"
+          @click="editNews(news.id)"> Edit News
+        </button>
       </div>
 
       <!--
@@ -90,12 +89,13 @@
 
   </div>
 
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
-    </footer>
-  </body>
-  </html>
+  <footer>
+    &copy; 2024 Your Website. All rights reserved.
+    These buttons will be removed, for testing purposes only
+    <button type="button" v-on:click="access_level=0"> Visitor </button>
+    <button type="button" v-on:click="access_level=1"> User </button>
+    <button type="button" v-on:click="access_level=2"> Manager </button>
+  </footer>
+</body>
+
+</html>

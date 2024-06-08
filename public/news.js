@@ -79,32 +79,68 @@ function submitNews(title, content, datePublished, imageUrl, publicValue) {
 function deleteNews(articleID) {
     // confirmation to delete
     if (!confirm('Are you sure you want to delete this news article?')) {
-      return;
+        return;
     }
 
     fetch(`/manage/news/delete/${articleID}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
     })
-      .then(response => {
-        if (response.ok) {
-            // deleted successfully
-          const articleContainer = document.getElementById(`article-${articleID}`);
-          if (articleContainer) {
-            articleContainer.remove();
-          }
-          alert('News article deleted successfully');
-          window.location.href = "/news";
-        } else if (response.status === 403) {
-          alert('You do not have permission to delete this news article');
-        } else {
-          alert('Failed to delete news article');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while deleting the news article');
-      });
-  }
+        .then(response => {
+            if (response.ok) {
+                // deleted successfully
+                const articleContainer = document.getElementById(`article-${articleID}`);
+                if (articleContainer) {
+                    articleContainer.remove();
+                }
+                alert('News article deleted successfully');
+                window.location.href = "/news";
+            } else if (response.status === 403) {
+                alert('You do not have permission to delete this news article');
+            } else {
+                alert('Failed to delete news article');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the news article');
+        });
+}
+
+function updateNews(articleID) {
+    // get details of article
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    const datePublished = document.getElementById('datePublished').value;
+    const isPublic = document.getElementById('public').checked ? 1 : 0;
+    const image_url = document.getElementById('image_url').value;
+
+    const newsDetails = {
+        title,
+        content,
+        datePublished,
+        isPublic,
+        image_url
+    };
+
+    fetch(`/manage/news/edit/${articleID}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newsDetails)
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('News article updated successfully!');
+            } else {
+                throw new Error('Failed to update news article');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating news article');
+        });
+}

@@ -465,6 +465,9 @@ createApp({
         eventRSVPresponse(eventId) {
             window.location.href = `/manage/events/responses/${eventId}`;
         },
+        editNews(newsId) {
+            window.location.href = `/manage/news/edit/${newsId}`;
+        },
     },
     mounted() {
         // load events on page initally, probably a better way to do this

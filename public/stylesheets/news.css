@@ -128,3 +128,18 @@
     margin-top: 5px;
     margin-bottom: 20px;
 }
+
+.create-news-content {
+    width: 90%;
+    height: 3.4em;
+}
+
+.create-news-title {
+    font-size: 1.2em;
+    width: 60%;
+}
+
+.create-news-image-upload {
+    display: block;
+    margin: 10px;
+}

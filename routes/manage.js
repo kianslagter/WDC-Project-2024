@@ -21,6 +21,10 @@ router.get('/news/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
+router.get('/news/edit/:newsId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'edit_news.html'));
+});
+
 router.post('/image/upload', function (req, res, next) {
   /*
     Expected format:
@@ -440,6 +444,79 @@ router.post('/news/create', function (req, res, next) {
       return;
     });
   });
+});
+
+router.post('/news/edit/:articleID', function (req, res, next) {
+  const articleID = req.params.articleID;
+
+  // Check the article exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM news WHERE article_id = ?;`;
+  tools.sqlHelper(query, [articleID], req).then(function (results) {
+    if (results.length == 0) {
+      // article not found
+      res.status(400).send("News article not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed) {
+      // Wrong branch
+      res.status(403).send("Can only edit news articles of branches you manage");
+      return;
+    }
+    // Check which fields were present in the request
+    const fieldsToUpdate = [];
+    const values = [];
+
+    // update title
+    if (req.body.title !== undefined) {
+      fieldsToUpdate.push("title=?");
+      values.push(req.body.title);
+    }
+    // update content
+    if (req.body.content !== undefined) {
+      fieldsToUpdate.push("content=?");
+      values.push(req.body.content);
+    }
+    // update published date
+    if (req.body.datePublished !== undefined) {
+      fieldsToUpdate.push("date_published=?");
+      values.push(req.body.datePublished);
+    }
+    // update image
+    if (req.body.image_url !== undefined) {
+      fieldsToUpdate.push("image_url=?");
+      values.push(req.body.image_url);
+    }
+    // update public
+    if (req.body.isPublic !== undefined) {
+      fieldsToUpdate.push("is_public=?");
+      values.push(req.body.isPublic);
+    }
+    // if no fields then return early
+    if (fieldsToUpdate.length === 0) {
+      res.status(400).send("Nothing to update");
+      return;
+    }
+
+    query = `UPDATE news SET ${fieldsToUpdate.join(", ")} WHERE article_id=?`;
+    values.push(articleID);
+
+    // Query the SQL database
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, values, function (err, results) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+      });
+    });
+  }).catch(function (err) { tools.sendError(err); });
 });
 
 router.post('/news/delete/:articleID', function (req, res, next) {

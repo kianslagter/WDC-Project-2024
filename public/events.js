@@ -173,6 +173,7 @@ function deleteEvent(eventID) {
     });
 }
 function updateEvent(eventID) {
+  // get details of event
   const title = document.getElementById('title').value;
   const description = document.getElementById('description').value;
   const date = document.getElementById('date').value;
