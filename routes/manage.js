@@ -573,6 +573,7 @@ router.get('/branch_information', function(req, res, next) {
     "num_upcoming_events": 0,
     "num_total_events": 0,
     "upcoming_events": null,
+    "recent_news": null,
     "other_branch_managers": null
   };
 
@@ -612,8 +613,27 @@ router.get('/branch_information', function(req, res, next) {
       statistics.num_total_events = rows[0]['num_total_events'];
     });
 
-
     // Query 2
+    query = `SELECT article_id, title, date_published FROM news WHERE branch_id = ? ORDER BY date_published DESC LIMIT 5;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.recent_news = rows;
+
+      for (let i = 0; i < statistics.recent_news.length; i++) {
+        var dateTime = statistics.recent_news[i].date_published.toString();
+        var dT_array = dateTime.split(' ');
+
+        statistics.recent_news[i].date_published = `${dT_array[2]} ${dT_array[1]} ${dT_array[3]}`;
+      }
+    });
+
+
+    // Query 3
     query = `SELECT event_id, event_name, start_date_time FROM events WHERE branch_id = ? AND start_date_time > NOW() ORDER BY start_date_time ASC LIMIT 5;`;
 
     connection.query(query, [branchID], function(err, rows, fields) {
@@ -633,7 +653,7 @@ router.get('/branch_information', function(req, res, next) {
     });
 
 
-    // Query 3
+    // Query 4
     query = `SELECT first_name, last_name, phone_num, email FROM users WHERE branch_managed = ?;`;
 
     connection.query(query, [branchID], function(err, rows, fields) {

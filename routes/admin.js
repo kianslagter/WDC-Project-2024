@@ -10,6 +10,10 @@ router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin_dashboard.html'));
 });
 
+router.get('/view_users', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'view_users.html'));
+});
+
 router.get('/branches/create', function(req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
 });

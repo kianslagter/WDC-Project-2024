@@ -10,66 +10,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
-  <script>
-    function get_branch_information() {
-    let xhttp = new XMLHttpRequest();
-
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        var responseJSON = JSON.parse(this.responseText);
-
-        console.log(this.responseText);
-        console.log(responseJSON);
-
-        var statistic_element;
-
-        statistic_element = document.getElementById('branch-name');
-        statistic_element.innerText = responseJSON.branch_name;
-
-        statistic_element = document.getElementById('num-branch-members');
-        statistic_element.innerText = responseJSON.num_branch_members;
-
-        statistic_element = document.getElementById('num-upcoming-events');
-        statistic_element.innerText = responseJSON.num_upcoming_events;
-
-        statistic_element = document.getElementById('num-total-events');
-        statistic_element.innerText = responseJSON.num_total_events;
-
-        statistic_element = document.getElementById('upcoming-events');
-        statistic_element.innerHTML = "";
-        for (let i = 0; i < responseJSON.upcoming_events.length; i++) {
-          statistic_element.innerHTML += `
-            <div class="dashboard-container">
-                <p>
-                  <a href=/events/id/${responseJSON.upcoming_events[i].event_id}> <b> ${responseJSON.upcoming_events[i].event_name} </b> </a>
-                  &emsp;
-                  (<u>Date:</u> ${responseJSON.upcoming_events[i].start_date_time})
-                </p>
-            </div>`;
-        }
-
-        statistic_element = document.getElementById('other-managers');
-        statistic_element.innerHTML = "";
-        for (let i = 0; i < responseJSON.other_branch_managers.length; i++) {
-          statistic_element.innerHTML += `
-            <div class="dashboard-container">
-                <p>
-                  <b> ${responseJSON.other_branch_managers[i].first_name} ${responseJSON.other_branch_managers[i].last_name} </b>
-                  &emsp;
-                  (<u>Email:</u> ${responseJSON.other_branch_managers[i].email})
-                  &emsp;
-                  (<u>Phone:</u> ${responseJSON.other_branch_managers[i].phone_num})
-                </p>
-            </div>`;
-        }
-      }
-    }
-
-    var branchID = window.location.pathname.split('/')[4];
-    xhttp.open("GET", "/manage/branch_information?id=" + branchID, true);
-    xhttp.send();
-  }
-  </script>
+  <script src="/manage.js"></script>
 </head>
 
 <body id="app" onload="get_branch_information()">
@@ -117,6 +58,11 @@
 
     <h2> Upcoming Branch Events </h2>
     <div id="upcoming-events">
+      <p> Loading... </p>
+    </div>
+
+    <h2> Recent News Updates </h2>
+    <div id="recent-news">
       <p> Loading... </p>
     </div>
 
