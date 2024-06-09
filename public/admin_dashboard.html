@@ -10,53 +10,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
-  <script>
-    function get_site_information() {
-      let xhttp = new XMLHttpRequest();
-
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          var responseJSON = JSON.parse(this.responseText);
-
-          console.log(this.responseText);
-          console.log(responseJSON);
-
-          var statistic_element;
-
-          statistic_element = document.getElementById('num-site-users');
-          statistic_element.innerText = responseJSON.num_site_users;
-
-          statistic_element = document.getElementById('num-upcoming-events');
-          statistic_element.innerText = responseJSON.num_upcoming_events;
-
-          statistic_element = document.getElementById('num-total-events');
-          statistic_element.innerText = responseJSON.num_total_events;
-
-          statistic_element = document.getElementById('num-total-news');
-          statistic_element.innerText = responseJSON.num_total_news;
-
-
-          statistic_element = document.getElementById('other-admins');
-          statistic_element.innerHTML = "";
-          for (let i = 0; i < responseJSON.other_admins.length; i++) {
-            statistic_element.innerHTML += `
-              <div class="dashboard-container">
-                  <p>
-                    <b> ${responseJSON.other_admins[i].first_name} ${responseJSON.other_admins[i].last_name} </b>
-                    &emsp;
-                    (<u>Email:</u> ${responseJSON.other_admins[i].email})
-                    &emsp;
-                    (<u>Phone:</u> ${responseJSON.other_admins[i].phone_num})
-                  </p>
-              </div>`;
-          }
-        }
-      }
-
-      xhttp.open("GET", "/admin/site_information", true);
-      xhttp.send();
-    }
-  </script>
+  <script src="admin"></script>
 </head>
 
 <body id="app" onload="get_site_information()">
