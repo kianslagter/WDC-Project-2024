@@ -10,10 +10,10 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
-  <script src="admin.js"></script>
+  <script src="/admin.js"></script>
 </head>
 
-<body id="app" onload="get_members()">
+<body id="app" onload="get_users()">
   <header class="top-pane">
     <nav>
       <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
@@ -21,7 +21,7 @@
   </header>
 
   <div class="page-content content">
-    <h1> Branch Members - <span id="branch-name"> Loading... </span> </h1>
+    <h1> Site Users </h1>
 
     <div id="members-container">
       Loading...
