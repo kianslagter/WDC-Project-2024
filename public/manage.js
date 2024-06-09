@@ -33,6 +33,19 @@ function get_branch_information() {
           </div>`;
       }
 
+      statistic_element = document.getElementById('recent-news');
+      statistic_element.innerHTML = "";
+      for (let i = 0; i < responseJSON.recent_news.length; i++) {
+        statistic_element.innerHTML += `
+          <div class="dashboard-container">
+              <p>
+                <a href=/events/id/${responseJSON.recent_news[i].event_id}> <b> ${responseJSON.recent_news[i].title} </b> </a>
+                &emsp;
+                (<u>Date:</u> ${responseJSON.recent_news[i].date_published})
+              </p>
+          </div>`;
+      }
+
       statistic_element = document.getElementById('other-managers');
       statistic_element.innerHTML = "";
       for (let i = 0; i < responseJSON.other_branch_managers.length; i++) {
