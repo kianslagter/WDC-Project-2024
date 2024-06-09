@@ -21,6 +21,14 @@ router.get('/news/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
+router.get('/branches/id/:branchId', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
+});
+
+router.get('/branches/id/:branchId/view_members', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
+});
+
 router.get('/news/edit/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_news.html'));
 });
@@ -552,6 +560,255 @@ router.post('/news/delete/:articleID', function (req, res, next) {
       });
     });
   }).catch(function (err) { tools.sendError(err); });
+});
+
+router.get('/branch_information', function(req, res, next) {
+  var branchID = req.query.id;
+
+  // Need to add branch id validation
+
+  var statistics = {
+    "branch_name": null,
+    "num_branch_members": 0,
+    "num_upcoming_events": 0,
+    "num_total_events": 0,
+    "upcoming_events": null,
+    "recent_news": null,
+    "other_branch_managers": null
+  };
+
+  req.pool.getConnection(function(err, connection) {
+    if (err) {
+      res.sendStatus(500);
+      return;
+    }
+
+    // Query 1
+    var query = `SELECT
+      (SELECT branch_name FROM branches WHERE branch_id = ?) AS branch_name,
+      (SELECT COUNT(*) FROM user_branch_affiliation WHERE branch_id = ?) AS num_branch_members,
+      (SELECT COUNT(*) FROM events WHERE branch_id = ? AND start_date_time > NOW()) AS num_upcoming_events,
+      (SELECT COUNT(*) FROM events WHERE branch_id = ?) AS num_total_events;
+    `;
+
+    var prepared_array = [];
+
+    for (let i = 0; i < query.length; i++) {
+      if (query[i] === '?') {
+        prepared_array.push(branchID);
+      }
+    }
+
+    connection.query(query, prepared_array, function(err, rows, fields) {
+      // connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.branch_name = rows[0]['branch_name'];
+
+      statistics.num_branch_members = rows[0]['num_branch_members'];
+      statistics.num_upcoming_events = rows[0]['num_upcoming_events'];
+      statistics.num_total_events = rows[0]['num_total_events'];
+    });
+
+    // Query 2
+    query = `SELECT article_id, title, date_published FROM news WHERE branch_id = ? ORDER BY date_published DESC LIMIT 5;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.recent_news = rows;
+
+      for (let i = 0; i < statistics.recent_news.length; i++) {
+        var dateTime = statistics.recent_news[i].date_published.toString();
+        var dT_array = dateTime.split(' ');
+
+        statistics.recent_news[i].date_published = `${dT_array[2]} ${dT_array[1]} ${dT_array[3]}`;
+      }
+    });
+
+
+    // Query 3
+    query = `SELECT event_id, event_name, start_date_time FROM events WHERE branch_id = ? AND start_date_time > NOW() ORDER BY start_date_time ASC LIMIT 5;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.upcoming_events = rows;
+
+      for (let i = 0; i < statistics.upcoming_events.length; i++) {
+        var dateTime = statistics.upcoming_events[i].start_date_time.toString();
+        var dT_array = dateTime.split(' ');
+
+        statistics.upcoming_events[i].start_date_time = `${dT_array[2]} ${dT_array[1]} ${dT_array[3]}`;
+      }
+    });
+
+
+    // Query 4
+    query = `SELECT first_name, last_name, phone_num, email FROM users WHERE branch_managed = ?;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      statistics.other_branch_managers = rows;
+
+      // console.log(statistics);
+
+      res.status(200).send(statistics);
+    });
+  });
+});
+
+router.get('/get_members', function(req, res, next) {
+  var branchID = req.query.id;
+
+  // Need to add branch id validation
+
+  var response = {
+    "branch_name": null,
+    "members": null
+  };
+
+  req.pool.getConnection(function(err, connection) {
+    if (err) {
+      res.sendStatus(500);
+      return;
+    }
+
+      // Query 1
+      var query = `SELECT branch_name FROM branches WHERE branch_id = ?;`;
+
+      connection.query(query, [branchID], function(err, rows, fields) {
+        // connection.release();
+        if (err) {
+          res.sendStatus(500);
+          return;
+        }
+
+        response.branch_name = rows[0]['branch_name'];
+      });
+
+    // Query 2
+    // Should systems admins be shown?
+    query = `SELECT users.username, first_name, last_name, email, phone_num, postcode, branch_managed FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.system_admin = FALSE;`;
+
+    connection.query(query, [branchID], function(err, rows, fields) {
+      connection.release();
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      response.members = rows;
+
+      // console.log(response.members);
+
+      res.status(200).send(response);
+    });
+  });
+});
+
+router.post('/user/remove/:userID', function (req, res, next) {
+  const userID = req.params.userID;
+  // console.log(userID);
+
+  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
+  req.session.branch_managed = 1;
+
+  // Check the member exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+
+  tools.sqlHelper(query, [userID], req).then(function (results) {
+    // console.log(results);
+    if (results.length == 0){
+      // Member not found
+      res.status(400).send("Member not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only remove non-manager members of branches you manage");
+      return;
+    }
+
+    let query = "DELETE FROM user_branch_affiliation WHERE user_id IN (SELECT user_id FROM users WHERE username = ?);";
+
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        // console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [userID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          // console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+        return;
+      });
+    });
+  }).catch(function (err) {tools.sendError(err);});
+});
+
+router.post('/user/promote/:userID', function (req, res, next) {
+  const userID = req.params.userID;
+  // console.log(userID);
+
+  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
+  req.session.branch_managed = 1;
+
+  // Check the member exists, and it is the correct branch (the manager's branch)
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+
+  tools.sqlHelper(query, [userID], req).then(function (results) {
+    // console.log(results);
+    if (results.length == 0){
+      // Member not found
+      res.status(400).send("Member not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed){
+      // Wrong branch
+      res.status(403).send("Can only promote non-manager members of branches you manage");
+      return;
+    }
+
+    const branchID = req.session.branch_managed;
+
+    let query = `UPDATE users SET branch_managed = ${branchID} WHERE username = ?;`;
+
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        // console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [userID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          // console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+        return;
+      });
+    });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 module.exports = router;
