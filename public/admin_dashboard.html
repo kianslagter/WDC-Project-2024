@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
-  <script src="admin.js"></script>
+  <script src="/admin.js"></script>
 </head>
 
 <body id="app" onload="get_site_information()">
@@ -23,7 +23,7 @@
   <div class="page-content content">
     <div class="right text-center manage-side-pane">
       <h3> Quick Admin Actions </h3>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/view_members"><b>Manage/View Users </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/view_users"><b>Manage/View Users </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/branches/create"><b>Create New Branch </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches"><b>Manage/View Branches </b></a></div>
       <h3> Account </h3>
@@ -50,6 +50,11 @@
         <b> Total Events: </b>
         <br>
         <p id="num-total-events"></p>
+      </div>
+      <div class="statistics-item">
+        <b> Total News (Today): </b>
+        <br>
+        <p id="num-today-news"></p>
       </div>
       <div class="statistics-item">
         <b> Total News: </b>
