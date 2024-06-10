@@ -26,9 +26,9 @@
       onclick="window.location.href='/manage/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_results">
-      <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)"
-        style="text-decoration: none; color: inherit;">
-        <div class="branch-content">
+      <div class="branch-content">
+        <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)"
+          style="text-decoration: none; color: inherit;">
           <div class="branch-details-container" style="flex: 2;">
             <h2 class="branch-name"> {{branch.name}} </h2>
             <div class="branch-details">
@@ -39,21 +39,22 @@
             <div>
               <p class="branch-description">{{branch.description}}</p>
             </div>
-            <div class="branch-buttons">
-              <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
-              <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
-            </div>
           </div>
-          <div class="branch-image-container"
-            style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-            <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
-            <a href="/register" class="button join-branch-button">Join Branch</a>
-          </div>
+        </a>
+        <div class="branch-image-container"
+          style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+          <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
         </div>
-      </a>
-      <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
-        @click="editBranch(branch.id)"> Edit Branch
-      </button>
+      </div>
+
+      <div class="branch-buttons">
+        <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
+        <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="editBranch(branch.id)"> Edit Branch
+        </button>
+      </div>
     </div>
   </div>
 

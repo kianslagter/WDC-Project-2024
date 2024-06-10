@@ -480,6 +480,28 @@ createApp({
         editBranch(branchId) {
             window.location.href = `/manage/branches/edit/${branchId}`;
         },
+        joinBranch(branchID) {
+            // Send a POST request to join the branch
+            fetch(`/branches/join/${branchID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Successfully joined the branch!');
+                    } else {
+                        alert('Failed to join the branch: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while joining the branch.');
+                });
+        }
     },
     mounted() {
         // load events on page initally, probably a better way to do this
