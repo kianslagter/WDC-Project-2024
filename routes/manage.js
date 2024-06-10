@@ -141,7 +141,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
       // Event doesn't exist
       res.status(404).send("Event with provided ID not found");
       return;
-    } else if (results[0].branch != req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch != req.session.branch_managed) {
       // Not a manager of correcty branch
       res.status(403).send("Not a manager of correct branch to view responses for this event");
       return;
@@ -301,7 +301,7 @@ router.post('/event/edit/:eventID', function (req, res, next) {
       // Event not found
       res.status(400).send("Event not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only edit events of branches you manage");
     }
@@ -375,7 +375,7 @@ router.post('/event/delete/:eventID', function (req, res, next) {
       // Event not found
       res.status(400).send("Event not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only delete events of branches you manage");
     }
@@ -472,7 +472,7 @@ router.post('/news/edit/:articleID', function (req, res, next) {
       // article not found
       res.status(400).send("News article not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only edit news articles of branches you manage");
       return;
@@ -545,7 +545,7 @@ router.post('/news/delete/:articleID', function (req, res, next) {
       // article not found
       res.status(400).send("News article not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // wrong branch
       res.status(403).send("Can only delete news articles of branches you manage");
     }
@@ -662,7 +662,7 @@ router.post('/branch/delete/:branchID', function (req, res, next) {
       // Branch not found
       res.status(400).send("Branch not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only delete branches you manage");
       return;
@@ -698,7 +698,7 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
       // Branch not found
       res.status(400).send("Branch not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed) {
+    } else if (!req.sesssion.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only edit branches you manage");
       return;
@@ -996,7 +996,7 @@ router.post('/user/promote/:userID', function (req, res, next) {
       // Member not found
       res.status(400).send("Member not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed){
+    } else if (!req.sesssion.admin && results[0].branch !== req.session.branch_managed){
       // Wrong branch
       res.status(403).send("Can only promote non-manager members of branches you manage");
       return;
