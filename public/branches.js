@@ -117,3 +117,49 @@ function deleteBranch(branchID) {
             alert('An error occurred while deleting the branch');
         });
 }
+
+function updateBranch(branchID) {
+    // Get details of branch
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const streetNumber = document.getElementById('streetNumber').value;
+    const streetName = document.getElementById('streetName').value;
+    const city = document.getElementById('city').value;
+    const state = document.getElementById('state').value;
+    const postcode = document.getElementById('postcode').value;
+    const description = document.getElementById('description').value;
+    const image_url = document.getElementById('image_url').value;
+
+    const branchDetails = {
+        name,
+        email,
+        phone,
+        streetNumber,
+        streetName,
+        city,
+        state,
+        postcode,
+        description,
+        image_url
+    };
+
+    fetch(`/manage/branch/edit/${branchID}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(branchDetails)
+    })
+        .then(response => {
+            if (response.ok) {
+                alert('Branch updated successfully!');
+            } else {
+                throw new Error('Failed to update branch');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating branch');
+        });
+}

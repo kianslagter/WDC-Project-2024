@@ -477,6 +477,9 @@ createApp({
         editNews(newsId) {
             window.location.href = `/manage/news/edit/${newsId}`;
         },
+        editBranch(branchId) {
+            window.location.href = `/manage/branches/edit/${branchId}`;
+        },
     },
     mounted() {
         // load events on page initally, probably a better way to do this
