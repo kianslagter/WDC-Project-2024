@@ -10,9 +10,10 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
+  <script src="/manage.js"></script>
 </head>
 
-<body id="app">
+<body id="app" onload="get_members()">
   <header class="top-pane">
     <nav>
       <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
@@ -20,18 +21,10 @@
   </header>
 
   <div class="page-content content">
-    <h1> Branch Members - Adelaide </h1>
-    <div class="view-members-container" v-for="person in people">
-      <h3> {{ person.name }} (ID: {{ person.id }}) </h3>
-      <p> <b> Address: </b> {{ person.address }} </p>
-      <p> <b> Phone: </b> {{ person.phone }} </p>
-      <p> <b> Email: </b> {{ person.email }} </p>
+    <h1> Branch Members - <span id="branch-name"> Loading... </span> </h1>
 
-      <button class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
-      <!-- Need to have confirmation before below occurs -->
-      <button class="right button primary-button manage-button" type="button"> Promote To Manager </button>
-      <br>
-      <br>
+    <div id="members-container">
+      Loading...
     </div>
   </div>
   <br>

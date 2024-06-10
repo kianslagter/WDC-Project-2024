@@ -164,7 +164,7 @@ function deleteEvent(eventID) {
       } else if (response.status === 403) {
         alert('You do not have permission to delete this event');
       } else {
-        alery('Failed to delete event');
+        alert('Failed to delete event');
       }
     })
     .catch(error => {
