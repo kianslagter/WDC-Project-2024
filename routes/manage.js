@@ -33,6 +33,14 @@ router.get('/news/edit/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_news.html'));
 });
 
+router.get('/branches/create', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
+});
+
+router.get('/branches/edit/:branchId', function (req, res, next) {
+  res.sendFile(path.join(__dirname, '..', 'public', 'edit_branches.html'));
+});
+
 router.post('/image/upload', function (req, res, next) {
   /*
     Expected format:
@@ -562,6 +570,213 @@ router.post('/news/delete/:articleID', function (req, res, next) {
   }).catch(function (err) { tools.sendError(err); });
 });
 
+
+// BRANCHES
+
+router.post('/branch/create', function (req, res, next) {
+  // Get the branch content from the request body
+  let name = req.body.name;
+  let email = req.body.email;
+  let phone = req.body.phone;
+  let streetNumber = req.body.streetNumber;
+  let streetName = req.body.streetName;
+  let city = req.body.city;
+  let state = req.body.state;
+  let postcode = req.body.postcode;
+  let description = req.body.description;
+  let image_url = req.body.image_url;
+
+  // Validate each field of the branch
+  if (!name || typeof (name) !== "string") {
+    res.status(400).send("Branch name undefined or not string");
+    return;
+  }
+  if (!email || typeof (email) !== "string") {
+    res.status(400).send("Email undefined or not string");
+    return;
+  }
+  if (phone && typeof (phone) !== "string") {
+    res.status(400).send("Phone not string");
+    return;
+  }
+  if (streetNumber && typeof (streetNumber) !== "string") {
+    res.status(400).send("Street number not string");
+    return;
+  }
+  if (streetName && typeof (streetName) !== "string") {
+    res.status(400).send("Street name not string");
+    return;
+  }
+  if (!city || typeof (city) !== "string") {
+    res.status(400).send("City undefined or not string");
+    return;
+  }
+  if (!state || typeof (state) !== "string") {
+    res.status(400).send("State undefined or not string");
+    return;
+  }
+  if (!postcode || typeof (postcode) !== "string") {
+    res.status(400).send("Postcode undefined or not string");
+    return;
+  }
+  if (!description || typeof (description) !== "string") {
+    res.status(400).send("Description undefined or not string");
+    return;
+  }
+  if (image_url && typeof (image_url) !== "string") {
+    res.status(400).send("Image URL not string");
+    return;
+  }
+
+  // Add to DB
+  // Construct the SQL query
+  let query = "INSERT INTO branches (branch_name, email, phone, street_number, street_name, city, branch_state, postcode, branch_description, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ message: "Database connection error" });
+      return;
+    }
+    connection.query(query, [name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url], function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        res.status(500).json({ message: "Database query error" });
+        return;
+      }
+      // Added successfully
+      res.status(200).json({ id: rows.insertId });
+      return;
+    });
+  });
+});
+
+router.post('/branch/delete/:branchID', function (req, res, next) {
+  const branchID = req.params.branchID;
+
+  // Check if the branch exists and the user is authorized to delete it
+  let query = `SELECT branch_id AS branch FROM branches WHERE branch_id = ?;`;
+  tools.sqlHelper(query, [branchID], req).then(function (results) {
+    if (results.length == 0) {
+      // Branch not found
+      res.status(400).send("Branch not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed) {
+      // Wrong branch
+      res.status(403).send("Can only delete branches you manage");
+      return;
+    }
+
+    query = "DELETE FROM branches WHERE branch_id=?;";
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, [req.params.branchID], function (err, rows, fields) {
+        connection.release(); // release connection
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+      });
+    });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
+router.post('/branch/edit/:branchID', function (req, res, next) {
+  const branchID = req.params.branchID;
+
+  // Check if the branch exists and the user is authorized to edit it
+  let query = `SELECT branch_id AS branch FROM branches WHERE branch_id = ?;`;
+  tools.sqlHelper(query, [branchID], req).then(function (results) {
+    if (results.length == 0) {
+      // Branch not found
+      res.status(400).send("Branch not found");
+      return;
+    } else if (results[0].branch !== req.session.branch_managed) {
+      // Wrong branch
+      res.status(403).send("Can only edit branches you manage");
+      return;
+    }
+
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (req.body.name !== undefined) {
+      fieldsToUpdate.push("branch_name=?");
+      values.push(req.body.name);
+    }
+    if (req.body.email !== undefined) {
+      fieldsToUpdate.push("email=?");
+      values.push(req.body.email);
+    }
+    if (req.body.phone !== undefined) {
+      fieldsToUpdate.push("phone=?");
+      values.push(req.body.phone);
+    }
+    if (req.body.streetNumber !== undefined) {
+      fieldsToUpdate.push("street_number=?");
+      values.push(req.body.streetNumber);
+    }
+    if (req.body.streetName !== undefined) {
+      fieldsToUpdate.push("street_name=?");
+      values.push(req.body.streetName);
+    }
+    if (req.body.city !== undefined) {
+      fieldsToUpdate.push("city=?");
+      values.push(req.body.city);
+    }
+    if (req.body.state !== undefined) {
+      fieldsToUpdate.push("branch_state=?");
+      values.push(req.body.state);
+    }
+    if (req.body.postcode !== undefined) {
+      fieldsToUpdate.push("postcode=?");
+      values.push(req.body.postcode);
+    }
+    if (req.body.description !== undefined) {
+      fieldsToUpdate.push("branch_description=?");
+      values.push(req.body.description);
+    }
+    if (req.body.image_url !== undefined) {
+      fieldsToUpdate.push("image_url=?");
+      values.push(req.body.image_url);
+    }
+
+    if (fieldsToUpdate.length === 0) {
+      res.status(400).send("Nothing to update");
+      return;
+    }
+
+    query = `UPDATE branches SET ${fieldsToUpdate.join(", ")} WHERE branch_id=?`;
+    values.push(branchID);
+
+    req.pool.getConnection(function (err, connection) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      connection.query(query, values, function (err, results) {
+        connection.release();
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.sendStatus(200);
+      });
+    });
+  }).catch(function (err) { tools.sendError(err); });
+});
+
+
+
 router.get('/branch_information', function(req, res, next) {
   var branchID = req.query.id;
 
@@ -810,5 +1025,7 @@ router.post('/user/promote/:userID', function (req, res, next) {
     });
   }).catch(function (err) {tools.sendError(err);});
 });
+
+
 
 module.exports = router;

@@ -418,6 +418,114 @@ router.get('/news/search', function (req, res, next) {
   });
 });
 
+// BRANCH ROUTES
+
+router.get('/branch/id/:branchID/details.json', function (req, res, next) {
+  let branch_id = req.params.branchID;
+  // Check if the branch exists
+  let query = "SELECT EXISTS(SELECT * FROM branches WHERE branch_id = ?) AS branch_exists;";
+  tools.sqlHelper(query, [branch_id], req).then(function (results) {
+    if (results[0].branch_exists == 0) {
+      // Branch does not exist
+      res.status(404).send("Branch not found");
+      return;
+    }
+    // Get the branch details
+    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description
+               FROM branches
+               WHERE branch_id=?;`;
+    tools.sqlHelper(query, [branch_id], req).then(function (results) {
+      // Send the details
+      res.json(results[0]);
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
+router.get('/branches/get', function (req, res, next) {
+  // Construct the SQL query
+  let query = `SELECT branch_id AS id, branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description FROM branches`;
+
+  let params = [];
+  // Add any additional filters if needed
+  if (req.query.city) {
+    query += " WHERE city = ?";
+    params.push(req.query.city);
+  }
+
+  query += " ORDER BY branch_name ASC LIMIT 10;";
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
+router.post('/branches/join/:branchID', function (req, res, next) {
+  const branchID = req.params.branchID;
+  // user id from session
+  const userID = req.session.username;
+
+  if (!req.session.isLoggedIn || !userID) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+  // Convert username to user ID
+  let query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
+  req.pool.query(query, [userID], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving user ID from database' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'User not found in the database' });
+      return;
+    }
+    const userID = results[0].user_id;
+
+    // Check if user is already a member of branch
+    let query = `SELECT COUNT(*) AS count FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?) AND branch_id = ?;`;
+    req.pool.query(query, [userID, branchID], function (err, affiliationResults) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: 'Error checking user affiliation' });
+        return;
+      }
+      if (affiliationResults[0].count > 0) {
+        res.status(400).json({ success: false, message: 'User is already a member of the branch' });
+        return;
+      }
+      // Add user to branch
+      query = `INSERT INTO user_branch_affiliation (user_id, branch_id) VALUES (UUID_TO_BIN(?), ?);`;
+      req.pool.query(query, [userID, branchID], function (err, results) {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ success: false, message: 'Error adding user to branch' });
+          return;
+        }
+        res.status(200).json({ success: true, message: 'User successfully joined the branch' });
+      });
+    });
+  });
+});
+
+
 
 // PAGE ROUTES
 

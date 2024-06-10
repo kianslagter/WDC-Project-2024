@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
+  <script src="/branches.js" defer></script>
   <script src="/App.js" defer></script>
 </head>
 
@@ -20,31 +22,39 @@
   </header>
 
   <div class="page-content content">
-    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2" onclick="window.location.href='/admin/branches/create'"> New Branch </button>
+    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2"
+      onclick="window.location.href='/manage/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
-    <div class="branch-container" v-for="branch in branches_summary" >
-      <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)" style="text-decoration: none; color: inherit;">
+    <div class="branch-container" v-for="branch in branches_results">
       <div class="branch-content">
-        <div class="branch-details-container" style="flex: 2;">
-          <h2 class="branch-name"> {{branch.name}} </h2>
-          <div class="branch-details">
-            <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
-            <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.location}} </p>
+        <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)"
+          style="text-decoration: none; color: inherit;">
+          <div class="branch-details-container" style="flex: 2;">
+            <h2 class="branch-name"> {{branch.name}} </h2>
+            <div class="branch-details">
+              <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
+              <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.street_number}}
+                {{branch.street_name}}, {{branch.city}}, {{branch.branch_state}} {{branch.postcode}}</p>
+            </div>
+            <div>
+              <p class="branch-description">{{branch.description}}</p>
+            </div>
           </div>
-          <div>
-            <p class="branch-description">{{branch.description}}</p>
-          </div>
-          <div class="branch-buttons">
-            <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
-            <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
-          </div>
-        </div>
-          <div class="branch-image-container" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-            <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
-            <a href="/register" class="button join-branch-button">Join Branch</a>
+        </a>
+        <div class="branch-image-container"
+          style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+          <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+          <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
         </div>
       </div>
-      </a>
+
+      <div class="branch-buttons">
+        <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
+        <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
+        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+          @click="editBranch(branch.id)"> Edit Branch
+        </button>
+      </div>
     </div>
   </div>
 
