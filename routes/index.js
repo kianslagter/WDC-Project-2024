@@ -23,7 +23,7 @@ router.get('/image/:id', function (req, res, next) {
       return;
     } else {
       // Do this
-      if (!req.session.sytem_admin && (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch))) {
+      if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
         res.status(403).send("Not member of correct branch log in to access");
         return;
       } else {
@@ -267,7 +267,7 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     tools.sqlHelper(query, [event_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
-        if (!req.session.sytem_admin && (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch))) {
+        if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
           // Not logged in or not correct branch
           res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
@@ -299,7 +299,7 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
     tools.sqlHelper(query, [article_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
-        if (!req.session.sytem_admin && (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch))) {
+        if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
           // Not logged in or not correct branch
           res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
