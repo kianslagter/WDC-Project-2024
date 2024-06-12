@@ -47,6 +47,7 @@ function updateSessionVariables(req, res, uname) {
     // log user in
     req.session.isLoggedIn = true;
     req.session.username = uname;
+
     // Get the users userID from the DB
     var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
     tools.sqlHelper(query, [uname], req).then(function (results) {
@@ -98,18 +99,65 @@ function updateSessionVariables(req, res, uname) {
   });
 }
 
-router.post('/login', function (req, res, next) {
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
+
+router.post('/api/login/google', async function (req, res, next) {
+  const token = req.body.credential;
+  // const g_csrf_token = req.cookies['g_csrf_token'];
+
+  // if (!token || !g_csrf_token) {
+  //   return res.status(400).send('Bad Request');
+  // }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_OAUTH_TOKEN,
+    });
+
+    const payload = ticket.getPayload();
+    const userid = payload['sub'];
+    const first_name = payload['given_name'];
+    const last_name = payload['last_name'];
+    const image_url = payload['picture'];
+    const email = payload['email'];
+
+    console.log(payload,userid,email);
+
+    // Check if user exists in your database
+    // const query = "SELECT * FROM users WHERE google_id = ?";
+    // const result = await tools.sqlHelper(query, [userid]);
+
+    // if (result.length === 0) {
+    //   // User does not exist, you may want to create a new user record
+    //   // Or you might want to link this Google account with an existing user
+    //   return res.status(404).send("User not found. Please register.");
+    // }
+
+    // Log the user in by setting session variables
+    // await updateSessionVariables(req, res, email);
+    res.status(200).send("Log in successful");
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post('/api/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
-  if (req.body.username === undefined || req.body.password === undefined) {
+
+  const { username, password } = req.body
+
+  if (!username || !password) {
     res.status(400).send("Undefined username or password"); // bad request
     return;
   }
-  var uname = req.body.username;
-  var pwd = req.body.password;
 
   // Check for matching user in database
   var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = tools.sqlHelper(query, [uname, pwd], req);
+  var queryPromise = tools.sqlHelper(query, [username, password], req);
 
   // Wait for query to complete
   queryPromise.then(function (result) {
@@ -120,7 +168,7 @@ router.post('/login', function (req, res, next) {
       return;
     } else {
       // Log them in by updating the appropriate session variables.
-      updateSessionVariables(req, res, uname).then(function () {
+      updateSessionVariables(req, res, username).then(function () {
         // Session variables updated succesfully
         res.status(200).send("Log in succesful");
         return;
@@ -129,6 +177,11 @@ router.post('/login', function (req, res, next) {
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
+});
+
+router.get('/api/logout', function (req,res, next) {
+  req.session.destroy();
+  res.status(200).redirect('/');
 });
 
 // EVENTS ROUTES

@@ -119,14 +119,17 @@ createApp({
     },
     computed: {
         navitems() {
+            // logged in
             if (this.profile.username) {
                 return [
                     { title: 'Home', url: '/' },
                     { title: 'Events', url: '/events' },
                     { title: 'News', url: '/news' },
                     { title: 'Branches', url: '/branches' },
-                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' }
+                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
+                    { title: 'Log Out', url: '/api/logout' }
                 ];
+            // logged out
             } else {
                 return [
                     { title: 'Home', url: '/' },
