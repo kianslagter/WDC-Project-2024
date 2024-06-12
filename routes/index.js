@@ -526,6 +526,95 @@ router.post('/branches/join/:branchID', function (req, res, next) {
 });
 
 
+// PROFILE ROUTES
+
+router.get('/api/get/profile', function (req, res, next) {
+  // Ensure the user is authenticated
+  if (!req.session.isLoggedIn || !req.session.username) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  // Get the user ID from session
+  const username = req.session.username;
+
+  // Query to retrieve user details
+  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin 
+               FROM users 
+               WHERE username = ?;`;
+
+  req.pool.query(query, [username], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving user information' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    // Send the user details
+    res.json(results[0]);
+  });
+});
+
+router.post('/api/set/profile', function (req, res, next) {
+  if (!req.session.isLoggedIn || !req.session.username) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  const username = req.session.username;
+  console.log(req.body);
+  // let { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
+  const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
+
+  // // Update image_url if a file is uploaded
+  // if (req.files && req.files['profile-image']) {
+  //   // Assuming 'profile-image' is the name of the file input field
+  //   image_url = req.files['profile-image'].name;
+  // }
+  
+  // Simple validation and sanitization
+  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs 
+  // not in browser console or node console which is very annoying. only the status code.
+  if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+    res.status(400).json({ success: false, message: 'Invalid email address' });
+    return;
+  }
+  if (!first_name || typeof first_name !== 'string') {
+    res.status(400).json({ success: false, message: 'Invalid first name' });
+    return;
+  }
+  if (!last_name || typeof last_name !== 'string' ) {
+    res.status(400).json({ success: false, message: 'Invalid last name' });
+    return;
+  }
+  if (!phone_num || !/^\+?[0-9]*$/.test(phone_num)) {
+    res.status(400).json({ success: false, message: 'Invalid phone number' });
+    return;
+  }
+  if (!postcode || typeof postcode !== 'number') {
+    res.status(400).json({ success: false, message: 'Invalid postcode' });
+    return;
+  }
+
+  let query = `UPDATE users 
+               SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
+               WHERE username = ?`;
+ 
+  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, username], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error updating user information' });
+      return;
+    }
+
+    res.json({ success: true, message: 'Profile updated successfully' });
+  });
+});
 
 // PAGE ROUTES
 
@@ -551,6 +640,14 @@ router.get('/branches', function (req, res, next) {
 
 router.get('/login', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+});
+
+router.get('/profile', function (req, res, next) {
+  if (req.session.isLoggedIn) {
+    res.sendFile(path.join(__dirname, '..', 'public', 'profile_page.html'));
+  } else {
+    res.redirect('/login');
+  }
 });
 
 router.get('/register', function (req, res, next) {

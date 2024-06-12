@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <link rel="stylesheet" href="/stylesheets/events.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/App.js" defer></script>
+</head>
+<body id="app">
+    <header class="top-pane">
+      <nav>
+        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      </nav>
+    </header>
+
+    <div class="page-content content">
+        <h1>Profile information</h1>
+        <img :src="profile.image_url" alt="Profile Image">
+        <h4> Change profile photo </h4>
+        <input type="file" name="profile-image" id="profile-image" accept="image/*">
+        <br>
+
+        <h4> {{ profile.username }}</h4>
+        <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
+        <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
+        <br>
+
+        <!-- Can make these to block-inline to save space later -->
+        <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
+        <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
+        <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>
+        <h4> Postcode: <input id="postcode" type="text" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
+
+        <button class="center button primary-button" type="button" @click="setProfileInfo"> Update profile information </button>
+
+        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
+
+    </div>
+    <br>
+    <br>
+
+    <footer>
+      &copy; 2024 Your Website. All rights reserved.
+    </footer>
+  </body>
+  </html>

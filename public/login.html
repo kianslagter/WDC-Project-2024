@@ -12,6 +12,8 @@
   <script src="App.js" defer></script>
   <script>
     function login() {
+      event.preventDefault();
+      
       // Get the username and password
       var uname = document.getElementById("username").value;
       var pwd = document.getElementById("password").value;
@@ -57,25 +59,27 @@
         <div class="login-container">
           <h1>Log in</h1>
           <div class="login-form">
-            <div>
-              <p>Username</p>
-              <input id="username" class="input" type="text">
-            </div>
-            <div>
-              <p>Password</p>
-              <input id="password" class="input" type="password">
-            </div>
-            <button type="button" class="login-button" onclick="login()">Log In</button>
-            <p>Alternatively...</p>
-            <!-- Placeholder image - to be updated with proper embed -->
-            <img
-              src="https://scontent.fadl3-1.fna.fbcdn.net/v/t39.2365-6/294967112_614766366879300_4791806768823542705_n.png?_nc_cat=105&ccb=1-7&_nc_sid=e280be&_nc_ohc=6_vZNKiJ2wAQ7kNvgEzEVl8&_nc_ht=scontent.fadl3-1.fna&oh=00_AYDAAphGNcpcaUdRZHo5Lsq0kFEpKFADWA4GzINJk0ShPw&oe=666000E4"
-              style="width: 324px"></a>
-            <p>Not a member? </p><a href="/register">Join now</a>
+            <form onsubmit="login(event)">
+                
+              <div>
+                <p>Username</p>
+                <input id="username" class="input" type="text">
+              </div>
+              <div>
+                <p>Password</p>
+                <input id="password" class="input" type="password" >
+              </div>
+              <button type="submit" class="login-button">Log In</button>
+              <p>Alternatively...</p>
+              <!-- Placeholder image - to be updated with proper embed -->
+              <p>Not a member? </p><a href="/register">Join now</a>
+
+            </form>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
     <footer>
       &copy; 2024 Your Website. All rights reserved.

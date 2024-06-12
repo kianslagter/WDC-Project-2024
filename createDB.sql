@@ -26,6 +26,7 @@ CREATE TABLE users (
     last_name VARCHAR(64) NOT NULL,
     phone_num VARCHAR(14), -- Add check for validity
     email VARCHAR(320) NOT NULL, -- Add check for validity
+    image_url VARCHAR(64),
     branch_managed INT DEFAULT NULL,
     system_admin BOOLEAN DEFAULT FALSE,
 

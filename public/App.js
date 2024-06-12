@@ -1,14 +1,5 @@
 const { createApp, ref } = Vue;
 
-const navitems = [
-    { title: 'Home', url: '/' },
-    { title: 'Events', url: '/events' },
-    { title: 'News', url: '/news' },
-    { title: 'Branches', url: '/branches' },
-    { title: 'Login', url: '/login' }
-
-];
-
 const people = [
     {
         id: 1,
@@ -45,7 +36,6 @@ createApp({
         return {
             access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
-            navitems: navitems,
             events_results: [],
             show_events_filters: false,
             branches_results: null,
@@ -61,10 +51,22 @@ createApp({
             point_level: [0],
             branch_selected: null,
             people: people,
+            profile: {
+                id: '',
+                username: '',
+                password: '',
+                first_name: '',
+                last_name: '',
+                phone_num: '',
+                email: '',
+                postcode: '',
+                description: '',
+                image_url: ''
+            }, // returns profile information for profile_page.html
             loading: true,
             event: null,
             isLoading: false,
-            error: null
+            error: null,
         };
     },
     setup() {
@@ -113,6 +115,27 @@ createApp({
                 branch_selected,
                 loading,
             };
+        }
+    },
+    computed: {
+        navitems() {
+            if (this.profile.username) {
+                return [
+                    { title: 'Home', url: '/' },
+                    { title: 'Events', url: '/events' },
+                    { title: 'News', url: '/news' },
+                    { title: 'Branches', url: '/branches' },
+                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' }
+                ];
+            } else {
+                return [
+                    { title: 'Home', url: '/' },
+                    { title: 'Events', url: '/events' },
+                    { title: 'News', url: '/news' },
+                    { title: 'Branches', url: '/branches' },
+                    { title: 'Log In', url: '/login' }
+                ];
+            }
         }
     },
     methods: {
@@ -501,6 +524,48 @@ createApp({
                     console.error('Error:', error);
                     alert('An error occurred while joining the branch.');
                 });
+        },
+        getProfileInfo() {
+            fetch('/api/get/profile', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetched profile:", data);
+                this.profile = data;
+            })
+            .catch(error => {
+                console.error("Error fetching profile:", error);
+            });
+        },
+        setProfileInfo() {
+            fetch('/api/set/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.profile)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Profile updated successfully");
+                    alert('Profile updated successfully!');
+                } else {
+                    throw new Error(`Error status: ${response.status}`);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating profile:", error);
+                alert('Failed to update profile.');
+            });
         }
     },
     mounted() {
@@ -524,5 +589,9 @@ createApp({
         if (window.location.pathname.split('/')[1] == 'branches' && !window.location.pathname.split('/')[2]) {
             this.branches_load();
         }
+        // load profile info on profile info page
+        // if (window.location.pathname.split('/')[1] == 'profile_page.html') {
+            this.getProfileInfo();
+        // }
     }
 }).mount('#app');
