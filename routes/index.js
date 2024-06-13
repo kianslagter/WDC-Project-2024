@@ -117,6 +117,8 @@ router.post('/api/login/google', async function (req, res, next) {
     const image_url = payload['picture'];
     const email = payload['email'];
 
+    console.log(payload,userid,email);
+
     // Check if user exists in your database
     // const query = "SELECT * FROM users WHERE google_id = ?";
     // const result = await tools.sqlHelper(query, [userid]);
@@ -660,7 +662,7 @@ router.post('/api/set/profile', function (req, res, next) {
   }
 
   const username = req.session.username;
-
+  console.log(req.body);
   // let { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
   const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
 
