@@ -53,12 +53,11 @@ createApp({
             people: people,
             profile: {
                 id: '',
-                username: '',
+                email: '',
                 password: '',
                 first_name: '',
                 last_name: '',
                 phone_num: '',
-                email: '',
                 postcode: '',
                 description: '',
                 image_url: ''
@@ -120,7 +119,7 @@ createApp({
     computed: {
         navitems() {
             // logged in
-            if (this.profile.username) {
+            if (this.profile.email) {
                 return [
                     { title: 'Home', url: '/' },
                     { title: 'Events', url: '/events' },
