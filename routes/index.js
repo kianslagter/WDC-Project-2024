@@ -193,8 +193,15 @@ router.get('/events/search', function (req, res, next) {
   */
 
   // Construct the SQL query
-  let query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE";
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+             DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+             DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+             DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+             DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+             b.branch_name AS location, e.event_image AS image_url
+             FROM events e
+             JOIN branches b ON e.branch_id = b.branch_id
+             WHERE e.is_public = TRUE`;
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
@@ -248,8 +255,15 @@ router.get('/events/get', function (req, res, next) {
   let from_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE`;
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+             DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+             DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+             DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+             DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+             b.branch_name AS location, e.event_image AS image_url
+             FROM events e
+             JOIN branches b ON e.branch_id = b.branch_id
+             WHERE e.is_public = TRUE`;
   let params = [];
   if (from_date !== undefined) {
     query += " AND start_date_time >= ?";
@@ -293,9 +307,16 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
       return;
     }
     // Get the event details
-    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
-            FROM events
-            WHERE event_id=?;`;
+    query = `SELECT e.event_name AS title, e.event_description AS description,
+    DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+    DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+    DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+    DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+    b.branch_name AS location, e.event_image AS image_url,
+    e.is_public AS public, e.branch_id AS branch
+    FROM events e
+    JOIN branches b ON e.branch_id = b.branch_id
+    WHERE e.event_id = ?`;
     tools.sqlHelper(query, [event_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
@@ -325,9 +346,13 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
       return;
     }
     // Get the article details
-    query = `SELECT title, content, date_published AS date, image_url, is_public AS public, branch_id AS branch
-            FROM news
-            WHERE article_id=?;`;
+    query = `SELECT n.title, n.content, DATE_FORMAT(n.date_published, '%D %M') AS date,
+    n.image_url, n.is_public AS public, n.branch_id AS branch,
+    b.branch_name AS location
+    FROM news n
+    JOIN branches b ON n.branch_id = b.branch_id
+    WHERE n.article_id = ?;`;
+
     tools.sqlHelper(query, [article_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
@@ -348,7 +373,12 @@ router.get('/news/get', function (req, res, next) {
   let from_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE`;
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+             DATE_FORMAT(n.date_published, '%D %M') AS date,
+             n.image_url, b.branch_name AS location
+             FROM news n
+             JOIN branches b ON n.branch_id = b.branch_id
+             WHERE n.is_public = TRUE`;
 
   let params = [];
   if (from_date !== undefined) {
@@ -400,7 +430,12 @@ router.get('/news/search', function (req, res, next) {
     max_num = parseInt(max_num);
   }
   // Construct the SQL query
-  let query = "SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE";
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+             DATE_FORMAT(n.date_published, '%D %M') AS date,
+             n.image_url, b.branch_name AS location
+             FROM news n
+             JOIN branches b ON n.branch_id = b.branch_id
+             WHERE n.is_public = TRUE`;
 
   // MODIFY QUERY BASED ON FILTERS
   let params = [];

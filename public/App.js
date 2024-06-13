@@ -439,6 +439,7 @@ createApp({
         RSVP(response, eventID) {
             if (typeof this.access_level === 'undefined' || this.access_level == 0) {
                 // Visitor, redirect to login page
+                alert('Please login to RSVP');
                 window.location.href = '/login';
             } else {
                 if (!eventID) {
