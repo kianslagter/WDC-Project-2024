@@ -41,61 +41,55 @@ router.get('/', function (req, res, next) {
 });
 
 
-function updateSessionVariables(req, res, uname) {
+function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password
     // log user in
     req.session.isLoggedIn = true;
-    req.session.username = uname;
 
-    // Get the users userID from the DB
-    var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    tools.sqlHelper(query, [uname], req).then(function (results) {
-      // user id succesfully got from database
-      req.session.userID = results[0].user_id;
+    req.session.userID = user_id;
 
-      // Should now get other information about the user from the databases
-      // (can likely be done in parralel with an array of promises)
+    // Should now get other information about the user from the databases
+    // (can likely be done in parralel with an array of promises)
 
-      // Make some SQL queries to check:
-      // branches they are a member of
-      query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
-      var branches_member = tools.sqlHelper(query, [req.session.userID], req);
-      // Branch they manage
-      query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
-      // are they a system admin?
-      query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var system_admin = tools.sqlHelper(query, [req.session.userID], req);
+    // Make some SQL queries to check:
+    // branches they are a member of
+    let query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
+    var branches_member = tools.sqlHelper(query, [req.session.userID], req);
+    // Branch they manage
+    query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
+    // are they a system admin?
+    query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
-      // Wait for the queries to finish
-      Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
-        // Check branches they are member of
-        let members_results = values[0];
-        req.session.branches = [];
-        for (let i = 0; i < members_results.length; i++) {
-          // Add each branch to the session variable branches
-          req.session.branches.push(members_results[i].branch_id);
-        }
+    // Wait for the queries to finish
+    Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
+      // Check branches they are member of
+      let members_results = values[0];
+      req.session.branches = [];
+      for (let i = 0; i < members_results.length; i++) {
+        // Add each branch to the session variable branches
+        req.session.branches.push(members_results[i].branch_id);
+      }
 
-        // Check branch they manage (if any)
-        let manage_results = values[1];
-        if (manage_results[0].branch_managed === null) {
-          req.session.branch_managed = null;
-        } else {
-          req.session.branch_managed = manage_results[0].branch_managed;
-        }
+      // Check branch they manage (if any)
+      let manage_results = values[1];
+      if (manage_results[0].branch_managed === null) {
+        req.session.branch_managed = null;
+      } else {
+        req.session.branch_managed = manage_results[0].branch_managed;
+      }
 
-        // Check if they are a system admin
-        let admin_results = values[2];
-        if (admin_results[0].system_admin == true) {
-          req.session.admin = true;
-        } else {
-          req.session.admin = false;
-        }
-        return resolve();
-      }).catch((err) => { return reject(err); });
-    }).catch(function (err) { return reject(err); });
+      // Check if they are a system admin
+      let admin_results = values[2];
+      if (admin_results[0].system_admin == true) {
+        req.session.admin = true;
+      } else {
+        req.session.admin = false;
+      }
+      return resolve();
+    }).catch((err) => { return reject(err); });
   });
 }
 
@@ -167,13 +161,18 @@ router.post('/api/login', function (req, res, next) {
       res.status(403).send("Wrong username or password");
       return;
     } else {
-      // Log them in by updating the appropriate session variables.
-      updateSessionVariables(req, res, username).then(function () {
-        // Session variables updated succesfully
-        res.status(200).send("Log in succesful");
-        return;
-      }
-      ).catch(function (err) { tools.sendError(res, err); });
+      // Get their user id
+      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE username=?;";
+      var user_id;
+      tools.sqlHelper(query, [username], req).then((result) => {
+        user_id = result[0].user_id;
+        // Log them in by updating the appropriate session variables.
+        updateSessionVariables(req, res, user_id).then(function () {
+          // Session variables updated succesfully
+          res.status(200).send("Log in succesful");
+          return;
+        }).catch(function (err) { tools.sendError(res, err); });
+      }).catch((err) => { tools.sendError(res, err);});
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
@@ -593,8 +592,8 @@ router.get('/api/get/profile', function (req, res, next) {
   const username = req.session.username;
 
   // Query to retrieve user details
-  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin 
-               FROM users 
+  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin
+               FROM users
                WHERE username = ?;`;
 
   req.pool.query(query, [username], function (err, results) {
@@ -630,9 +629,9 @@ router.post('/api/set/profile', function (req, res, next) {
   //   // Assuming 'profile-image' is the name of the file input field
   //   image_url = req.files['profile-image'].name;
   // }
-  
+
   // Simple validation and sanitization
-  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs 
+  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs
   // not in browser console or node console which is very annoying. only the status code.
   if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
     res.status(400).json({ success: false, message: 'Invalid email address' });
@@ -655,10 +654,10 @@ router.post('/api/set/profile', function (req, res, next) {
     return;
   }
 
-  let query = `UPDATE users 
+  let query = `UPDATE users
                SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
                WHERE username = ?`;
- 
+
   req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, username], function (err, results) {
     if (err) {
       console.log(err);
