@@ -23,7 +23,7 @@ CREATE TABLE users (
     password_hash VARCHAR(100) NOT NULL,
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
-    phone_num VARCHAR(14), -- Add check for validity
+    phone_num VARCHAR(14) DEFAULT NULL, -- Add check for validity
     email VARCHAR(320) UNIQUE NOT NULL, -- Add check for validity
     postcode INT, -- Add check for validity (4 digits, not negative)
     image_url VARCHAR(64) DEFAULT '/image/1',
