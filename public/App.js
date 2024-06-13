@@ -34,7 +34,7 @@ const people = [
 createApp({
     data() {
         return {
-            access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            access_level: null,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
             events_results: [],
             show_events_filters: false,
@@ -532,19 +532,19 @@ createApp({
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Fetched profile:", data);
-                this.profile = data;
-            })
-            .catch(error => {
-                console.error("Error fetching profile:", error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched profile:", data);
+                    this.profile = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching profile:", error);
+                });
         },
         setProfileInfo() {
             fetch('/api/set/profile', {
@@ -554,18 +554,39 @@ createApp({
                 },
                 body: JSON.stringify(this.profile)
             })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Profile updated successfully");
-                    alert('Profile updated successfully!');
-                } else {
-                    throw new Error(`Error status: ${response.status}`);
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Profile updated successfully");
+                        alert('Profile updated successfully!');
+                    } else {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating profile:", error);
+                    alert('Failed to update profile.');
+                });
+        },
+        getAccessLevel() {
+            fetch('/api/access', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
             })
-            .catch(error => {
-                console.error("Error updating profile:", error);
-                alert('Failed to update profile.');
-            });
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                })
+                .then(data => {
+                    this.access_level = data.access_level;
+                })
+                .catch(error => {
+                    console.error('Error fetching access level:', error);
+                });
         }
     },
     mounted() {
@@ -585,13 +606,14 @@ createApp({
         if (!window.location.pathname.split('/')[1]) {
             this.news_load();
         }
-        // load branches on branches page
-        if (window.location.pathname.split('/')[1] == 'branches' && !window.location.pathname.split('/')[2]) {
-            this.branches_load();
-        }
+        // load branches on branches page (also needed for events and news filtering)
+        //if ((window.location.pathname.split('/')[1] == 'branches' || window.location.pathname.split('/')[1] == 'events' || window.location.pathname.split('/')[1] == 'news') && !window.location.pathname.split('/')[2]) {
+        this.branches_load();
+        //}
         // load profile info on profile info page
         // if (window.location.pathname.split('/')[1] == 'profile_page.html') {
-            this.getProfileInfo();
+        this.getProfileInfo();
         // }
+        this.getAccessLevel();
     }
 }).mount('#app');

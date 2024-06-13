@@ -85,9 +85,21 @@ function createEvent() {
   let date = document.getElementById('date').value;
   let startTime = document.getElementById('startTime').value;
   let endTime = document.getElementById('endTime').value;
-  let location = "Adelaide"; // assuming adelaide is location, TODO: add this to the create page soon
+  let location = document.querySelector('input[name="branch_filters"]:checked').value;
   let image_url = document.getElementById('image_url').files[0]; // file upload
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
+
+
+    // Log all the variables
+    console.log("Title:", title);
+    console.log("Description:", description);
+    console.log("Details:", details);
+    console.log("Date:", date);
+    console.log("Start Time:", startTime);
+    console.log("End Time:", endTime);
+    console.log("Location:", location);
+    console.log("Image URL:", image_url);
+    console.log("Public Value:", publicValue);
 
   // validate data
   if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {

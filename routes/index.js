@@ -130,6 +130,38 @@ router.post('/login', function (req, res, next) {
   ).catch((err) => { tools.sendError(res, err); });
 });
 
+router.get('/api/access', (req, res) => {
+  // default visitor access level
+  let access_level = 0;
+  // check if logged in
+  const isLoggedIn = req.session.isLoggedIn;
+
+  // determine access level
+  if (isLoggedIn) {
+    access_level = 1; // user
+    if (req.session.branch_managed) {
+      access_level = 2; // branch manager
+    }
+    if (req.session.admin) {
+      access_level = 3; // admin
+    }
+  }
+
+  // get branches which user is member
+  const branches = req.session.branches || [];
+
+  // get branch managed if any
+  const manages = req.session.branch_managed || null;
+
+  // response
+  const response = {
+    access_level: access_level,
+    branches: branches,
+    manages: manages
+  };
+  res.json(response);
+});
+
 // EVENTS ROUTES
 
 router.get('/events/search', function (req, res, next) {
@@ -539,8 +571,8 @@ router.get('/api/get/profile', function (req, res, next) {
   const username = req.session.username;
 
   // Query to retrieve user details
-  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin 
-               FROM users 
+  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin
+               FROM users
                WHERE username = ?;`;
 
   req.pool.query(query, [username], function (err, results) {
@@ -576,9 +608,9 @@ router.post('/api/set/profile', function (req, res, next) {
   //   // Assuming 'profile-image' is the name of the file input field
   //   image_url = req.files['profile-image'].name;
   // }
-  
+
   // Simple validation and sanitization
-  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs 
+  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs
   // not in browser console or node console which is very annoying. only the status code.
   if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
     res.status(400).json({ success: false, message: 'Invalid email address' });
@@ -588,7 +620,7 @@ router.post('/api/set/profile', function (req, res, next) {
     res.status(400).json({ success: false, message: 'Invalid first name' });
     return;
   }
-  if (!last_name || typeof last_name !== 'string' ) {
+  if (!last_name || typeof last_name !== 'string') {
     res.status(400).json({ success: false, message: 'Invalid last name' });
     return;
   }
@@ -601,10 +633,10 @@ router.post('/api/set/profile', function (req, res, next) {
     return;
   }
 
-  let query = `UPDATE users 
+  let query = `UPDATE users
                SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
                WHERE username = ?`;
- 
+
   req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, username], function (err, results) {
     if (err) {
       console.log(err);
