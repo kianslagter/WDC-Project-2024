@@ -142,29 +142,29 @@ router.post('/api/login/google', async function (req, res, next) {
 router.post('/api/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
 
-  const { username, password } = req.body
+  const { email, password } = req.body
 
-  if (!username || !password) {
-    res.status(400).send("Undefined username or password"); // bad request
+  if (!email || !password) {
+    res.status(400).send("Undefined email or password"); // bad request
     return;
   }
 
   // Check for matching user in database
-  var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = tools.sqlHelper(query, [username, password], req);
+  var query = "SELECT COUNT(*) AS count FROM users WHERE email=? AND password_hash=?";
+  var queryPromise = tools.sqlHelper(query, [email, password], req);
 
   // Wait for query to complete
   queryPromise.then(function (result) {
     // Query completed successfully
     if (result[0].count == 0) {
-      // Wrong username or password
-      res.status(403).send("Wrong username or password");
+      // Wrong email or password
+      res.status(403).send("Wrong email or password");
       return;
     } else {
       // Get their user id
-      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE username=?;";
+      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE email=?;";
       var user_id;
-      tools.sqlHelper(query, [username], req).then((result) => {
+      tools.sqlHelper(query, [email], req).then((result) => {
         user_id = result[0].user_id;
         // Log them in by updating the appropriate session variables.
         updateSessionVariables(req, res, user_id).then(function () {
@@ -532,7 +532,7 @@ router.get('/branches/get', function (req, res, next) {
 router.post('/branches/join/:branchID', function (req, res, next) {
   const branchID = req.params.branchID;
   // user id from session
-  const userID = req.session.username;
+  const userID = req.session.userID;
 
   if (!req.session.isLoggedIn || !userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
