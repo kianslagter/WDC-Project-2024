@@ -220,6 +220,48 @@ router.get('/api/logout', function (req,res, next) {
   res.status(200).redirect('/');
 });
 
+
+router.post('/api/register', async function (req, res, next) {
+  const { email, password, first_name, last_name, phone_num, postcode } = req.body;
+
+  // Validate input fields
+  if (!email || !password || !first_name || !last_name || !phone_num || !postcode) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  // Check if the email already exists in the database
+  const emailExistsQuery = "SELECT COUNT(*) AS count FROM users WHERE email=?";
+  var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
+
+  emailExistsQueryPromise.then(function (result) {
+      if (result[0].count > 0) {
+        return res.status(400).json({ success: false, message: 'Email already registered' });
+      } else {
+        // Hash the password (you should use a more secure method in production)
+        const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+
+        // Prepare SQL query to insert new user into the database
+        const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
+        VALUES (?, ?, ?, ?, ?, ?, ?);`;
+
+        req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+          if (err) {
+            console.error(err);
+            console.log("FAILED");
+            return res.status(500).json({ success: false, message: 'Error registering user' });
+          }
+          // Registration successful
+          res.status(200).json({ success: true, message: 'Registration successful' });
+        });
+      }
+    }).catch((err) => tools.sendError(res, err));
+});
+
+router.get('/api/logout', function (req,res, next) {
+  req.session.destroy();
+  res.status(200).redirect('/');
+});
+
 router.get('/api/logout', function (req,res, next) {
   req.session.destroy();
   res.status(200).redirect('/');
