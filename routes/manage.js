@@ -250,10 +250,10 @@ router.post('/event/create', function (req, res, next) {
     res.status(400).send("Location undefined or not string");
     return;
   }
-  if (image_url === undefined || typeof (image_url) != "string") {
-    res.status(400).send("image_url undefined or not string");
-    return;
-  }
+  // if (image_url === undefined || typeof (image_url) != "string") {
+  //   res.status(400).send("image_url undefined or not string");
+  //   return;
+  // }
   if (public === undefined || typeof (public) != "string") {
     res.status(400).send("Public undefined or not string");
     return;

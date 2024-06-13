@@ -104,8 +104,14 @@ router.get('/events/search', function (req, res, next) {
   */
 
   // Construct the SQL query
-  let query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events";
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+  DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+  DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+  DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+  DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+  b.branch_name AS location, e.event_image AS image_url
+  FROM events e
+  JOIN branches b ON e.branch_id = b.branch_id`;
   // check if where has been added to query
   let hasWhere = false;
 
@@ -165,8 +171,14 @@ router.get('/events/get', function (req, res, next) {
   let from_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events`;
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+  DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+  DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+  DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+  DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+  b.branch_name AS location, e.event_image AS image_url
+  FROM events e
+  JOIN branches b ON e.branch_id = b.branch_id`;
   // check if where has been added to query
   let hasWhere = false;
 
@@ -206,18 +218,22 @@ router.get('/events/get', function (req, res, next) {
 // NEWS
 
 router.get('/news/get', function (req, res, next) {
-  let from_date = new Date().toISOString().slice(0, 10);
+  let to_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news`;
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+  DATE_FORMAT(n.date_published, '%D %M') AS date,
+  n.image_url, b.branch_name AS location
+  FROM news n
+  JOIN branches b ON n.branch_id = b.branch_id`;
 
   // check if where has been added to query
   let hasWhere = false;
 
   let params = [];
-  if (from_date !== undefined) {
-    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
-    params.push(from_date);
+  if (to_date !== undefined) {
+    query += hasWhere ? " AND date_published <= ?" : " WHERE date_published <= ?";
+    params.push(to_date);
   }
   if (branches !== undefined) {
     query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
@@ -255,9 +271,9 @@ router.get('/news/search', function (req, res, next) {
   let branches = req.query.branch;
 
   // Update to default if they weren't set (if there is a sensible default)
-  if (from_date === undefined) {
-    let today = new Date().toISOString().slice(0, 10);
-    from_date = today;
+  let today = new Date().toISOString().slice(0, 10);
+  if (to_date === undefined) {
+    to_date = today;
   }
   if (max_num === undefined) {
     max_num = 20;
@@ -265,7 +281,11 @@ router.get('/news/search', function (req, res, next) {
     max_num = parseInt(max_num);
   }
   // Construct the SQL query
-  let query = "SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news";
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+  DATE_FORMAT(n.date_published, '%D %M') AS date,
+  n.image_url, b.branch_name AS location
+  FROM news n
+  JOIN branches b ON n.branch_id = b.branch_id`;
 
   // check if where has been added to query
   let hasWhere = false;
@@ -277,15 +297,15 @@ router.get('/news/search', function (req, res, next) {
     hasWhere = true;
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
-  if (from_date !== undefined) {
-    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
-    hasWhere = true;
-    params.push(from_date);
-  }
   if (to_date !== undefined) {
     query += hasWhere ? " AND date_published <= ?" : " WHERE date_published <= ?";
     hasWhere = true;
     params.push(to_date);
+  }
+  if (from_date !== undefined) {
+    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
+    hasWhere = true;
+    params.push(from_date);
   }
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
