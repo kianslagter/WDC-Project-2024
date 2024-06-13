@@ -25,9 +25,11 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+          <ul class="nav-horizontal">
+            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+          </ul>
         </nav>
-    </header>
+      </header>
 
     <div class="page-content content">
         <h1>RSVP Responses for event: </h1>

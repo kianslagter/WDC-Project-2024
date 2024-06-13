@@ -24,7 +24,7 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
   <script>
     function login() {
       event.preventDefault();
-      
+
       // Get the username and password
       var email = document.getElementById("email").value;
       var password = document.getElementById("password").value;
@@ -79,7 +79,9 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
@@ -90,7 +92,7 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
           <h1>Log in</h1>
           <div class="login-form">
             <form onsubmit="login(event)">
-                
+
               <div>
                 <p>Email</p>
                 <input id="email" class="input" type="text">

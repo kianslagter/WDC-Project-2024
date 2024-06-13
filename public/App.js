@@ -107,20 +107,21 @@ createApp({
             // logged in
             if (this.profile.email) {
                 common_nav.push({ title: 'Log Out', url: '/api/logout', alignClass: "right" });
+
+                // manager
+                if (this.access_level == 2) {
+                    this.access_level.branchID;
+                    common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
+                // admin
+                } else if (this.access_level == 3) {
+                    common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
+                }
+
                 common_nav.push({ title: 'Welcome ' + this.profile.first_name + '!', url: '/profile', alignClass: "right" });
             // logged out
             } else {
                 common_nav.push({ title: 'Log In', url: '/login', alignClass: "right" });
                 common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
-            }
-
-            // manager
-            if (this.access_level == 2) {
-                this.access_level.branchID;
-                common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
-            // admin
-            } else if (this.access_level == 3) {
-                common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
             }
 
             return (common_nav);
