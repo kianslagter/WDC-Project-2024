@@ -30,15 +30,18 @@ createApp({
                 description: '',
                 image_url: ''
             }, // returns profile information for profile_page.html
-            eventData: {
+            eventInfo: {
                 title: '',
                 description: '',
                 date: '',
                 startTime: '',
                 endTime: '',
-                isPublic: false,
+                public: '',
+                dayOfWeek: '',
                 details: [],
-                image_url: ''
+                image_url: '',
+                branch: '',
+                location: ''
             }, // info for event data
             loading: true,
             event: null,
@@ -65,6 +68,7 @@ createApp({
                 loading,
             };
         }
+
         // call getNewsDetails if the page is on an news details page
         let articleID = window.location.pathname.split('/')[3];
 
@@ -106,7 +110,7 @@ createApp({
                     { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
                     { title: 'Log Out', url: '/api/logout' }
                 ];
-            // logged out
+                // logged out
             } else {
                 return [
                     { title: 'Home', url: '/' },
@@ -368,26 +372,29 @@ createApp({
             this.error = null;
             let query_parameters = '';
 
-            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
-            let query_path = "";
-            if (this.access_level > 0) {
-                // requires authentication on server
-                query_path = "/users/news/get" + query_parameters;
-            } else {
-                // Only allow public events
-                query_path = "/news/get" + query_parameters;
-            }
+            // Fetch the access level and then load news based on it
+            this.getAccessLevel()
+                .then(accessData => {
+                    let query_path = "";
+                    if (accessData.access_level > 0) {
+                        // requires authentication on server
+                        query_path = "/users/news/get" + query_parameters;
+                    } else {
+                        // Only allow public events
+                        query_path = "/news/get" + query_parameters;
+                    }
 
-            // AJAX
-            fetch(query_path, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+                    // AJAX
+                    return fetch(query_path, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`error status: ${response.status}`);
+                        throw new Error(`Error status: ${response.status}`);
                     }
                     return response.json();
                 })
@@ -500,10 +507,6 @@ createApp({
             }
             return null;
         },
-        selectBranch(branchId) {
-            this.branch_selected = testBranchSummary.find(branch => branch.id === branchId);
-            window.location.href = `/branches/id/${branchId}`;
-        },
         editEvent(eventId) {
             window.location.href = `/manage/events/edit/${eventId}`;
         },
@@ -581,7 +584,7 @@ createApp({
                 });
         },
         getAccessLevel() {
-            fetch('/api/access', {
+            return fetch('/api/access', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -596,9 +599,32 @@ createApp({
                 })
                 .then(data => {
                     this.access_level = data.access_level;
+                    return data;
                 })
                 .catch(error => {
                     console.error('Error fetching access level:', error);
+                    throw error;
+                });
+        },
+        getEventInfo(eventID) {
+            fetch(`/api/get/event/${eventID}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched event:", data);
+                    this.eventInfo = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching event:", error);
                 });
         },
 
@@ -627,11 +653,18 @@ createApp({
         //}
 
         this.getAccessLevel();
-      
+
         // load profile info on profile info page if user is logged in
         // this currently runs on every page - there needs to be a way that makes this not run
         // if the user isn't logged in... but this is what checks if the user is logged
         this.getProfileInfo();
+
+        let editEventID = window.location.pathname.split('/')[4];
+
+        if (editEventID && window.location.pathname.split('/')[1] == 'manage') {
+            this.getEventInfo(editEventID);
+        }
+
 
     }
 }).mount('#app');

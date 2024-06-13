@@ -116,7 +116,7 @@ router.post('/api/login/google', async function (req, res, next) {
     // Check if user exists in your database
     const query = "SELECT * FROM users WHERE google_uid = ?";
     const result = await tools.sqlHelper(query, [userid]);
-    
+
     if (result.length === 0) {
       // User does not exist, create new user record
       console.log("User does not exist. Creating new user record");
@@ -124,8 +124,8 @@ router.post('/api/login/google', async function (req, res, next) {
       // Prepare SQL query to insert new user into the database
       const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
       VALUES (?, ?, ?, ?, ?, ?, ?);`;
-      
-      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+
+      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err, results) {
         if (err) {
           console.error(err);
           return res.status(500).json({ success: false, message: 'Error registering user' });
@@ -133,7 +133,7 @@ router.post('/api/login/google', async function (req, res, next) {
         // Registration successful
         user_id = results[0].userID;
         res.status(200).json({ success: true, message: 'Registration successful' });
-      }).catch((err) => tools.sendError(res, err)); 
+      }).catch((err) => tools.sendError(res, err));
 
     } else {
       // User exists
@@ -183,7 +183,7 @@ router.post('/api/login', function (req, res, next) {
           res.status(200).send("Log in succesful");
           return;
         }).catch(function (err) { tools.sendError(res, err); });
-      }).catch((err) => { tools.sendError(res, err);});
+      }).catch((err) => { tools.sendError(res, err); });
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
@@ -220,7 +220,7 @@ router.get('/api/access', (req, res) => {
     manages: manages
   };
   res.json(response);
-  });
+});
 
 router.post('/api/register', async function (req, res, next) {
   const { email, password, first_name, last_name, phone_num, postcode } = req.body;
@@ -235,32 +235,32 @@ router.post('/api/register', async function (req, res, next) {
   var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
 
   emailExistsQueryPromise.then(function (result) {
-      if (result[0].count > 0) {
-        return res.status(400).json({ success: false, message: 'Email already registered' });
-      } else {
-        // Hash the password (you should use a more secure method in production)
-        const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
-      
-        // Prepare SQL query to insert new user into the database
-        const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
+    if (result[0].count > 0) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    } else {
+      // Hash the password (you should use a more secure method in production)
+      const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+
+      // Prepare SQL query to insert new user into the database
+      const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
         VALUES (?, ?, ?, ?, ?, ?, ?);`;
-      
-        req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Error registering user' });
-          }
-          // Registration successful
-          res.status(200).json({ success: true, message: 'Registration successful' });
-        });
-      }
-    }).catch((err) => tools.sendError(res, err)); 
+
+      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Error registering user' });
+        }
+        // Registration successful
+        res.status(200).json({ success: true, message: 'Registration successful' });
+      });
+    }
+  }).catch((err) => tools.sendError(res, err));
 });
 
-router.get('/api/logout', function (req,res, next) {
+router.get('/api/logout', function (req, res, next) {
   req.session.destroy();
   res.status(200).redirect('/');
-  });
+});
 
 
 // EVENTS ROUTES
@@ -434,6 +434,38 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
   }).catch(function (err) { tools.sendError(res, err); });
 });
 
+// for editing events
+router.get('/api/get/event/:eventID', function (req, res, next) {
+  let event_id = req.params.eventID;
+  // Check if the event exists
+  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
+  tools.sqlHelper(query, [event_id], req).then(function (results) {
+    if (results[0].event_exists == 0) {
+      // Event does not exist
+      res.status(404).send("Event not found");
+      return;
+    }
+    // Get the event details
+    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
+            FROM events
+            WHERE event_id=?;`;
+    tools.sqlHelper(query, [event_id], req).then(function (results) {
+      if (!results[0].public) {
+        // Authenticate user
+        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
+          // Not logged in or not correct branch
+          res.status(403).send("Not a member of correct branch (or not logged in)");
+          return;
+        }
+      }
+      // Send the details
+      res.json(results[0]);
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
+
 // NEWS ROUTES
 
 router.get('/news/id/:articleID/details.json', function (req, res, next) {
@@ -476,7 +508,7 @@ router.get('/news/get', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
              DATE_FORMAT(n.date_published, '%D %M') AS date,
-             n.image_url, b.branch_name AS location
+             n.image_url, b.branch_name AS location, n.is_public AS public
              FROM news n
              JOIN branches b ON n.branch_id = b.branch_id
              WHERE n.is_public = TRUE`;

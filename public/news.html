@@ -69,7 +69,9 @@
             <h2 class="news-title"> {{news.title}} </h2>
             <!-- Link the location to the branch page? -->
             <span class="news-header">
-              Posted: {{news.date}}&emsp;&emsp;{{news.location}} Branch</span>
+              Posted: {{news.date}}&emsp;&emsp;{{news.location}} Branch &emsp;
+              <span v-if="news.public === 0">Private</span>
+              <span v-else>Public</span></span>
             <p class="news-description"> {{news.content}} </p>
           </div>
         </a>

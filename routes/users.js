@@ -219,28 +219,40 @@ router.get('/events/get', function (req, res, next) {
 
 router.get('/news/get', function (req, res, next) {
   let to_date = new Date().toISOString().slice(0, 10);
-  let branches = req.query.branch;
+  let branches = req.session.branches;
+
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location
+  n.image_url, b.branch_name AS location, n.is_public AS public
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
-  // check if where has been added to query
-  let hasWhere = false;
-
+  // creating the where
+  let conditions = [];
   let params = [];
+
+  // conditions
   if (to_date !== undefined) {
-    query += hasWhere ? " AND date_published <= ?" : " WHERE date_published <= ?";
+    conditions.push("n.date_published <= ?");
     params.push(to_date);
   }
-  if (branches !== undefined) {
-    query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
-    hasWhere = true;
-    params.push([branches]);
+
+  // show all public, but only private for branch which member of
+  if (branches && branches.length > 0) {
+    conditions.push("(n.is_public = 1 OR (n.is_public = 0 AND n.branch_id IN (?)))");
+    params.push(branches);
+  } else {
+    // else just show public
+    conditions.push("n.is_public = 1");
   }
-  query += " ORDER BY date_published DESC LIMIT 10;";
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += " ORDER BY n.date_published DESC LIMIT 10;";
+
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
