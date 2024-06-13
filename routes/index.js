@@ -3,6 +3,7 @@ const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
 var tools = require('./helpers');
+var nodemailer = require('nodemailer');
 
 var router = express.Router();
 
