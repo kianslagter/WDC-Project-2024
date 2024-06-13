@@ -24,7 +24,8 @@
 
                 document.getElementById('startTime').value = data.startTime;
                 document.getElementById('endTime').value = data.endTime;
-                document.getElementById(data.isPublic ? 'public' : 'private').checked = true;
+                document.getElementById(data.public ? 'public' : 'private').checked = true;
+                document.getElementById('location').value = data.location;
 
                 const detailsContainer = document.querySelector('.details-container');
                 detailsContainer.innerHTML = '';  // Clear existing details
@@ -79,7 +80,7 @@
 
     <div class="page-content content">
         <h1>Edit Event</h1>
-        <p> Branch: { branchName } </p>
+        <h4 id="location">Branch:</h4>
         <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
         <h4> Set Event Time </h4>
         <p> Date: <input id="date" type="date" class="create-event-time-inputs"></p>
