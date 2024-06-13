@@ -559,9 +559,9 @@ createApp({
         if (window.location.pathname.split('/')[1] == 'branches' && !window.location.pathname.split('/')[2]) {
             this.branches_load();
         }
-        // load profile info on profile info page
-        // if (window.location.pathname.split('/')[1] == 'profile_page.html') {
-            this.getProfileInfo();
-        // }
+        // load profile info on profile info page if user is logged in
+        // this currently runs on every page - there needs to be a way that makes this not run
+        // if the user isn't logged in... but this is what checks if the user is logged
+        this.getProfileInfo();
     }
 }).mount('#app');
