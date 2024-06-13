@@ -195,11 +195,11 @@ router.post('/api/register', async function (req, res, next) {
       } else {
         // Hash the password (you should use a more secure method in production)
         const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
-
+      
         // Prepare SQL query to insert new user into the database
         const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
         VALUES (?, ?, ?, ?, ?, ?, ?);`;
-
+      
         req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
           if (err) {
             console.error(err);
@@ -209,7 +209,7 @@ router.post('/api/register', async function (req, res, next) {
           res.status(200).json({ success: true, message: 'Registration successful' });
         });
       }
-    }).catch((err) => tools.sendError(res, err));
+    }).catch((err) => tools.sendError(res, err)); 
 });
 
 router.get('/api/logout', function (req,res, next) {
