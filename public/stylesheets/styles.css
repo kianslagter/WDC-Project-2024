@@ -20,11 +20,11 @@ body {
 }
 
 .page-content {
-  padding: 10px;
+  padding: 20px;
 }
 
 .content {
-  max-width: 1000px;
+  max-width: 1200px;
   width: 90%;
   background-color: #FFFFFF;
   border-radius: 20px;
@@ -93,6 +93,11 @@ footer {
   width: 100%;
 }
 
+.justify-text {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 
 
 /* --- Search --- */
@@ -122,6 +127,10 @@ footer {
 .center {
   margin: 0 auto;
   display: block;
+}
+
+.center-text {
+  text-align: center;
 }
 
 .right {
@@ -163,4 +172,9 @@ footer {
 
 .title-link {
   text-decoration: none;
+}
+
+.homepage-img {
+padding: 10px;
+width: 30%;
 }
