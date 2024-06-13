@@ -3,6 +3,7 @@ var router = express.Router();
 const formidable = require('formidable');
 var fs = require('fs');
 var tools = require('./helpers');
+var email = require('./email');
 const path = require('path');
 
 router.get('/events/create', function (req, res, next) {
@@ -218,6 +219,7 @@ router.post('/event/create', function (req, res, next) {
   let location = req.body.location;
   let image_url = req.body.image_url;
   let public = req.body.public;
+  let sendEmail = req.body.sendEmail;
 
   // Validate each field of the event
   if (title === undefined || typeof (title) != "string") {
@@ -281,11 +283,18 @@ router.post('/event/create', function (req, res, next) {
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
+        console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
       // Added successfully
       res.status(200).json({ id: rows.insertId });
+
+      if (sendEmail) {
+        var event_id = rows.insertId;
+        email.createEventEmail(event_id, branch_id, req, res);
+      }
+
       return;
     });
   });
@@ -409,6 +418,12 @@ router.post('/news/create', function (req, res, next) {
   let date_published = req.body.datePublished;
   let image_url = req.body.image_url;
   let public = req.body.public;
+  let sendEmail = req.body.sendEmail;
+
+  var is_public = true;
+  if (public === "Private") {
+    is_public = false;
+  }
 
   // Validate each field
   if (title === undefined || typeof (title) != "string") {
@@ -449,14 +464,21 @@ router.post('/news/create', function (req, res, next) {
       res.status(500).json({ message: "Database connection error" });
       return;
     }
-    connection.query(query, [branch_id, title, content, date_published, image_url, public], function (err, rows, fields) {
+    connection.query(query, [branch_id, title, content, date_published, image_url, is_public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
+        console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
       // Added successfully
       res.status(200).json({ id: rows.insertId });
+
+      if (sendEmail) {
+        var news_id = rows.insertId;
+        email.createNewsEmail(news_id, branch_id, req, res);
+      }
+
       return;
     });
   });
