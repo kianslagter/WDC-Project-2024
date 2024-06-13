@@ -26,13 +26,13 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
       event.preventDefault();
       
       // Get the username and password
-      var uname = document.getElementById("username").value;
-      var pwd = document.getElementById("password").value;
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
 
       // Should validate here, but who really cares right now
 
       // Construct the JSON req body
-      var req_body = { "username": uname, "password": pwd };
+      var req_body = { "email": email, "password": password };
 
 
       // Send the AJAX request
@@ -43,8 +43,8 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
           window.location.href = "/";
           return;
         } else if (this.readyState == 4 && this.status == 403) {
-          // wrong uname or password
-          alert("Wrong username or password. Please try again.");
+          // wrong email or password
+          alert("Wrong email or password. Please try again.");
         } else if (this.readyState == 4) {
           // error
           alert("An error occurred. Please try again later.");
@@ -92,8 +92,8 @@ https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
             <form onsubmit="login(event)">
                 
               <div>
-                <p>Username</p>
-                <input id="username" class="input" type="text">
+                <p>Email</p>
+                <input id="email" class="input" type="text">
               </div>
               <div>
                 <p>Password</p>
