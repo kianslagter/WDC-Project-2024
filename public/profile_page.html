@@ -35,7 +35,7 @@
         <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
         <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
         <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>
-        <h4> Postcode: <input id="postcode" type="text" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
+        <h4> Postcode: <input id="postcode" type="number" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
 
         <button class="center button primary-button" type="button" @click="setProfileInfo"> Update profile information </button>
 

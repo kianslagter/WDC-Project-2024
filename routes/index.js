@@ -41,7 +41,7 @@ router.get('/', function (req, res, next) {
 });
 
 
-function updateSessionVariables(req, res, user_id) {
+async function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password
     // log user in
@@ -65,6 +65,9 @@ function updateSessionVariables(req, res, user_id) {
 
     // Wait for the queries to finish
     Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
+
+      console.log(values);
+
       // Check branches they are member of
       let members_results = values[0];
       req.session.branches = [];
@@ -96,7 +99,29 @@ function updateSessionVariables(req, res, user_id) {
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
 
-router.post('/api/login/google', async function (req, res, next) {
+async function dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode) {
+  return new Promise((resolve, reject) => {
+    console.log("Waiting 500ms");
+    setTimeout(resolve, 500);
+
+    // Prepare SQL query to insert new user into the database
+    const query = `INSERT INTO users (google_uid, email, first_name, last_name, phone_num, postcode)
+    VALUES (?, ?, ?, ?, ?, ?);`;
+  
+    console.log("About to do DB register query");
+    req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err,results) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Error registering user' });
+      }
+      console.log("Completed DB register query");
+      // Registration successful
+      res.status(200).json({ success: true, message: 'Registration successful' });
+    });
+  });
+};
+
+router.post('/api/login/google', async (req, res) => {
   const token = req.body.credential;
 
   try {
@@ -113,40 +138,37 @@ router.post('/api/login/google', async function (req, res, next) {
     const image_url = payload['picture'];
     const email = payload['email'];
 
-    // Check if user exists in your database
-    const query = "SELECT * FROM users WHERE google_uid = ?";
-    const result = await tools.sqlHelper(query, [userid]);
-    
-    if (result.length === 0) {
-      // User does not exist, create new user record
-      console.log("User does not exist. Creating new user record");
+    // Check for matching user in database
+    var query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE google_uid = ?";
+    var queryPromise = tools.sqlHelper(query, [google_uid], req);
 
-      // Prepare SQL query to insert new user into the database
-      const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
-      VALUES (?, ?, ?, ?, ?, ?, ?);`;
-      
-      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ success: false, message: 'Error registering user' });
-        }
-        // Registration successful
-        user_id = results[0].userID;
-        res.status(200).json({ success: true, message: 'Registration successful' });
-      }).catch((err) => tools.sendError(res, err)); 
+    await queryPromise.then(async function (result) {
+      // if user does not exist
+      if (!result || !result[0]) {
+        console.log("User does not exist. Creating new user record");
 
-    } else {
-      // User exists
-      user_id = result[0].userID;
-    }
+        // temporary values for testing
+        postcode = 5000;
+        phone_num = 1234567890;
+
+        console.log('about to register user function');
+        await dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode);
+        console.log("done register user function");
+      } else {
+        console.log("line 150: user id is", result[0].user_id);
+        user_id = result[0].user_id;
+        // user does exist
+      }
+    });
+
+    console.log("About to update session variables");
     await updateSessionVariables(req, res, user_id).then(function () {
       // Session variables updated succesfully
-      res.status(200).send("Log in succesful");
-      return;
-    }).catch(function (err) { tools.sendError(res, err); });
+      res.status(200).json({ success: true, message: 'Login successful' });
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -242,10 +264,10 @@ router.post('/api/register', async function (req, res, next) {
         const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
       
         // Prepare SQL query to insert new user into the database
-        const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
-        VALUES (?, ?, ?, ?, ?, ?, ?);`;
+        const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
+        VALUES (?, ?, ?, ?, ?, ?);`;
       
-        req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+        req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err,results) {
           if (err) {
             console.error(err);
             return res.status(500).json({ success: false, message: 'Error registering user' });
@@ -655,7 +677,7 @@ router.post('/branches/join/:branchID', function (req, res, next) {
     return;
   }
   // Convert username to user ID
-  let query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
+  let query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE username=?;";
   req.pool.query(query, [userID], function (err, results) {
     if (err) {
       console.log(err);
@@ -765,14 +787,13 @@ router.get('/api/get/profile', function (req, res, next) {
 });
 
 router.post('/api/set/profile', function (req, res, next) {
-  if (!req.session.isLoggedIn || !req.session.username) {
+  if (!req.session.isLoggedIn || !req.session.userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
     return;
   }
 
-  const username = req.session.username;
+  userID = req.session.userID;
 
-  // let { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
   const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
 
   // // Update image_url if a file is uploaded
@@ -796,7 +817,8 @@ router.post('/api/set/profile', function (req, res, next) {
     res.status(400).json({ success: false, message: 'Invalid last name' });
     return;
   }
-  if (!phone_num || !/^\+?[0-9]*$/.test(phone_num)) {
+  console.log(phone_num);
+  if (!phone_num || !/^\+?[0-9 ]*$/.test(phone_num)) {
     res.status(400).json({ success: false, message: 'Invalid phone number' });
     return;
   }
@@ -807,21 +829,19 @@ router.post('/api/set/profile', function (req, res, next) {
 
   let query = `UPDATE users
                SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
-               WHERE username = ?`;
+               WHERE user_id = UUID_TO_BIN(?)`;
 
-  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, username], function (err, results) {
+  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, userID], function (err, results) {
     if (err) {
       console.log(err);
       res.status(500).json({ success: false, message: 'Error updating user information' });
       return;
     }
-
     res.json({ success: true, message: 'Profile updated successfully' });
   });
 });
 
 // PAGE ROUTES
-
 router.get('/events', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'events.html'));
 });
