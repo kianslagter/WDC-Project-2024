@@ -86,7 +86,7 @@ function createEvent() {
   let startTime = document.getElementById('startTime').value;
   let endTime = document.getElementById('endTime').value;
   let location = document.querySelector('input[name="branch_filters"]:checked').value;
-  let image_url = document.getElementById('image_url').files[0]; // file upload
+  let image_url = document.getElementById('image_path').innerText; // path to uploaded file
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
   let sendEmail = document.getElementById('event-email-notify').checked;
 
