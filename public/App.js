@@ -63,6 +63,16 @@ createApp({
                 description: '',
                 image_url: ''
             }, // returns profile information for profile_page.html
+            eventData: {
+                title: '',
+                description: '',
+                date: '',
+                startTime: '',
+                endTime: '',
+                isPublic: false,
+                details: [],
+                image_url: ''
+            }, // info for event data
             loading: true,
             event: null,
             isLoading: false,
@@ -620,7 +630,8 @@ createApp({
                 .catch(error => {
                     console.error('Error fetching access level:', error);
                 });
-        }
+        },
+
     },
     mounted() {
         // load events on page initally, probably a better way to do this

@@ -370,7 +370,7 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
 });
 
 router.get('/news/get', function (req, res, next) {
-  let from_date = new Date().toISOString().slice(0, 10);
+  let to_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
@@ -381,9 +381,9 @@ router.get('/news/get', function (req, res, next) {
              WHERE n.is_public = TRUE`;
 
   let params = [];
-  if (from_date !== undefined) {
-    query += " AND date_published >= ?";
-    params.push(from_date);
+  if (to_date !== undefined) {
+    query += " AND date_published <= ?";
+    params.push(to_date);
   }
   if (branches !== undefined) {
     query += " AND branch_id = ?";
@@ -420,9 +420,9 @@ router.get('/news/search', function (req, res, next) {
   let branches = req.query.branch;
 
   // Update to default if they weren't set (if there is a sensible default)
-  if (from_date === undefined) {
-    let today = new Date().toISOString().slice(0, 10);
-    from_date = today;
+  let today = new Date().toISOString().slice(0, 10);
+  if (to_date === undefined) {
+    to_date = today;
   }
   if (max_num === undefined) {
     max_num = 20;
@@ -443,14 +443,15 @@ router.get('/news/search', function (req, res, next) {
     query += " AND (title LIKE ? OR content LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
-  if (from_date !== undefined) {
-    query += " AND date_published >= ?";
-    params.push(from_date);
-  }
   if (to_date !== undefined) {
     query += " AND date_published <= ?";
     params.push(to_date);
   }
+  if (from_date !== undefined) {
+    query += " AND date_published >= ?";
+    params.push(from_date);
+  }
+
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
       query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";

@@ -18,7 +18,12 @@
             getEventDetails(eventID, function (data) {
                 document.getElementById('title').value = data.title;
                 document.getElementById('description').value = data.description;
-                const date = new Date(data.date);
+
+                const dateParts = data.date.split(' ');
+                const day = parseInt(dateParts[0]);
+                const month = getMonthNumber(dateParts[1]);
+                const currentYear = new Date().getFullYear();
+                const date = new Date(currentYear, month, day);
                 const formattedDate = date.toISOString().split('T')[0];
                 document.getElementById('date').value = formattedDate;
 
@@ -68,6 +73,29 @@
                 });
             }
         });
+        // Helper function to convert month name to number
+        function getMonthNumber(monthName) {
+            const months = {
+                'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+                'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+            };
+            return months[monthName];
+        }
+        // Helper function to convert 12-hour time to 24-hour time
+        function convertTo24Hour(time12h) {
+            const [time, modifier] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+
+            if (hours === '12') {
+                hours = '00';
+            }
+
+            if (modifier === 'PM') {
+                hours = parseInt(hours, 10) + 12;
+            }
+
+            return `${hours}:${minutes}`;
+        }
     </script>
 </head>
 
@@ -80,7 +108,10 @@
 
     <div class="page-content content">
         <h1>Edit Event</h1>
-        <h4 id="location">Branch:</h4>
+        <h4> Branch:</h4>
+        <template v-for="branch in branches_results">
+            <input type="radio" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
+        </template>
         <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
         <h4> Set Event Time </h4>
         <p> Date: <input id="date" type="date" class="create-event-time-inputs"></p>
