@@ -24,14 +24,14 @@
     <div class="right text-center manage-side-pane">
       <h3> Quick Manager Actions </h3>
       <p> <b> Branch: </b> <span id="branch-name"> Location </span> </p>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/branches/id/1/view_members"><b>Manage/View Branch Members</b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" :href="`/manage/branches/id/${manages}/view_members`"><b>Manage Branch Members</b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/events/create"><b>Create New Event </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/news/create"><b>Create News Update </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/events"><b>Manage/View Events </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches/id/1"><b>Manage/View Branch Details </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/events"><b>Manage Events </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" :href="`/branches/id/${manages}`"><b>Manage Branch Details </b></a></div>
       <h3> Account </h3>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Update Profile </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Sign Out </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/profile"><b> Update Profile </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/api/logout"><b> Sign Out </b></a></div>
     </div>
 
     <h1> Manager Dashboard</h1>
