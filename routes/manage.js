@@ -210,6 +210,7 @@ router.post('/event/create', function (req, res, next) {
   let location = req.body.location;
   let image_url = req.body.image_url;
   let public = req.body.public;
+  let sendEmail = req.body.sendEmail;
 
   // Validate each field of the event
   if (title === undefined || typeof (title) != "string") {
@@ -255,6 +256,8 @@ router.post('/event/create', function (req, res, next) {
 
   // Need to get which branch they manage from the DB
   let branch_id = req.session.branch_managed;
+  // REMOVE BEFORE FINAL -------------------------------------------------------------------
+  branch_id = 1;
   if (branch_id === null) {
     res.status(403).send("Must be manager of branch to create event");
     return;
@@ -273,6 +276,7 @@ router.post('/event/create', function (req, res, next) {
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
+        console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
