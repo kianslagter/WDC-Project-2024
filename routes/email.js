@@ -144,12 +144,12 @@ function parseReceivers(rows) {
 
 // --- Email Notification Service ---
 const transporter = nodemailer.createTransport({
-    host: "smtp.office365.com",
+    host: "smtp.ethereal.email",
     port: 587,
     secure: false, // Use `true` for port 465, `false` for all other ports
     auth: {
-        user: "realmealmates@outlook.com",
-        pass: String.raw`9l}F1d:E>*x;;\ZfCAb(I"s88`,
+        user: "marian.lehner22@ethereal.email",
+        pass: String.raw`ARBQpE3ANmf2A4VtnS`,
     },
 });
 
