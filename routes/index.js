@@ -98,11 +98,6 @@ const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
 
 router.post('/api/login/google', async function (req, res, next) {
   const token = req.body.credential;
-  // const g_csrf_token = req.cookies['g_csrf_token'];
-
-  // if (!token || !g_csrf_token) {
-  //   return res.status(400).send('Bad Request');
-  // }
 
   try {
     const ticket = await client.verifyIdToken({
@@ -111,26 +106,44 @@ router.post('/api/login/google', async function (req, res, next) {
     });
 
     const payload = ticket.getPayload();
-    const userid = payload['sub'];
+
+    const google_uid = payload['sub'];
     const first_name = payload['given_name'];
-    const last_name = payload['last_name'];
+    const last_name = payload['family_name'];
     const image_url = payload['picture'];
     const email = payload['email'];
 
     // Check if user exists in your database
-    // const query = "SELECT * FROM users WHERE google_id = ?";
-    // const result = await tools.sqlHelper(query, [userid]);
+    const query = "SELECT * FROM users WHERE google_uid = ?";
+    const result = await tools.sqlHelper(query, [userid]);
+    
+    if (result.length === 0) {
+      // User does not exist, create new user record
+      console.log("User does not exist. Creating new user record");
 
-    // if (result.length === 0) {
-    //   // User does not exist, you may want to create a new user record
-    //   // Or you might want to link this Google account with an existing user
-    //   return res.status(404).send("User not found. Please register.");
-    // }
+      // Prepare SQL query to insert new user into the database
+      const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
+      VALUES (?, ?, ?, ?, ?, ?, ?);`;
+      
+      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Error registering user' });
+        }
+        // Registration successful
+        user_id = results[0].userID;
+        res.status(200).json({ success: true, message: 'Registration successful' });
+      }).catch((err) => tools.sendError(res, err)); 
 
-    // Log the user in by setting session variables
-    // await updateSessionVariables(req, res, email);
-    res.status(200).send("Log in successful");
-
+    } else {
+      // User exists
+      user_id = result[0].userID;
+    }
+    await updateSessionVariables(req, res, user_id).then(function () {
+      // Session variables updated succesfully
+      res.status(200).send("Log in succesful");
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -176,7 +189,6 @@ router.post('/api/login', function (req, res, next) {
   ).catch((err) => { tools.sendError(res, err); });
 });
 
-
 router.post('/api/register', async function (req, res, next) {
   const { email, password, first_name, last_name, phone_num, postcode } = req.body;
 
@@ -210,11 +222,6 @@ router.post('/api/register', async function (req, res, next) {
         });
       }
     }).catch((err) => tools.sendError(res, err)); 
-});
-
-router.get('/api/logout', function (req,res, next) {
-  req.session.destroy();
-  res.status(200).redirect('/');
 });
 
 router.get('/api/logout', function (req,res, next) {
