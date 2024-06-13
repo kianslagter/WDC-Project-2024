@@ -1,36 +1,5 @@
 const { createApp, ref } = Vue;
 
-const people = [
-    {
-        id: 1,
-        name: 'John Doe',
-        address: '129 Waymouth Street, Adelaide SA 5000',
-        phone: '0412345678',
-        email: 'johndoe@mealmates.com'
-    },
-    {
-        id: 2,
-        name: 'Mike Smith',
-        address: '129 Waymouth Street, Adelaide SA 5000',
-        phone: '0412345678',
-        email: 'mikesmith@mealmates.com'
-    },
-    {
-        id: 3,
-        name: 'Earl Grey',
-        address: '129 Waymouth Street, Adelaide SA 5000',
-        phone: '0412345678',
-        email: 'earl@mealmates.com'
-    },
-    {
-        id: 4,
-        name: 'Adam James',
-        address: '129 Waymouth Street, Adelaide SA 5000',
-        phone: '0412345678',
-        email: 'adamjames@mealmates.com'
-    },
-];
-
 createApp({
     data() {
         return {
@@ -50,15 +19,13 @@ createApp({
             num_points: 1,
             point_level: [0],
             branch_selected: null,
-            people: people,
             profile: {
                 id: '',
-                username: '',
+                email: '',
                 password: '',
                 first_name: '',
                 last_name: '',
                 phone_num: '',
-                email: '',
                 postcode: '',
                 description: '',
                 image_url: ''
@@ -129,14 +96,17 @@ createApp({
     },
     computed: {
         navitems() {
-            if (this.profile.username) {
+            // logged in
+            if (this.profile.email) {
                 return [
                     { title: 'Home', url: '/' },
                     { title: 'Events', url: '/events' },
                     { title: 'News', url: '/news' },
                     { title: 'Branches', url: '/branches' },
-                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' }
+                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
+                    { title: 'Log Out', url: '/api/logout' }
                 ];
+            // logged out
             } else {
                 return [
                     { title: 'Home', url: '/' },
@@ -650,14 +620,18 @@ createApp({
         if (!window.location.pathname.split('/')[1]) {
             this.news_load();
         }
+
         // load branches on branches page (also needed for events and news filtering)
         //if ((window.location.pathname.split('/')[1] == 'branches' || window.location.pathname.split('/')[1] == 'events' || window.location.pathname.split('/')[1] == 'news') && !window.location.pathname.split('/')[2]) {
         this.branches_load();
         //}
-        // load profile info on profile info page
-        // if (window.location.pathname.split('/')[1] == 'profile_page.html') {
-        this.getProfileInfo();
-        // }
+
         this.getAccessLevel();
+      
+        // load profile info on profile info page if user is logged in
+        // this currently runs on every page - there needs to be a way that makes this not run
+        // if the user isn't logged in... but this is what checks if the user is logged
+        this.getProfileInfo();
+
     }
 }).mount('#app');

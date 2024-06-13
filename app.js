@@ -7,6 +7,12 @@ var logger = require('morgan');
 var mysql = require('mysql');
 var fs = require('fs');
 
+// load credentials from .env to process.env (template .env.example)
+// access using process.env.GOOGLE_OAUTH_TOKEN
+var dotenv = require('dotenv-safe').config();
+// console.log(process.env);
+
+
 var dbConnectionPool = mysql.createPool({
   connectionLimit : 100,
   host: 'localhost',

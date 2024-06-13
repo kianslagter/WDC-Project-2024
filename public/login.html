@@ -7,21 +7,32 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <script src="https://accounts.google.com/gsi/client" async></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/events.js"></script>
   <script src="App.js" defer></script>
+
+
+<!-- This example response header allows Google Identity Services to load and execute successfully:
+
+
+Content-Security-Policy-Report-Only: script-src
+https://accounts.google.com/gsi/client; frame-src
+https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/;
+-->
+
   <script>
     function login() {
       event.preventDefault();
       
       // Get the username and password
-      var uname = document.getElementById("username").value;
-      var pwd = document.getElementById("password").value;
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
 
       // Should validate here, but who really cares right now
 
-      // COnstruct the JSON req body
-      var req_body = { "username": uname, "password": pwd };
+      // Construct the JSON req body
+      var req_body = { "email": email, "password": password };
 
 
       // Send the AJAX request
@@ -32,16 +43,35 @@
           window.location.href = "/";
           return;
         } else if (this.readyState == 4 && this.status == 403) {
-          // wrong uname or password
-          alert("Wrong username or password. Please try again.");
+          // wrong email or password
+          alert("Wrong email or password. Please try again.");
         } else if (this.readyState == 4) {
           // error
           alert("An error occurred. Please try again later.");
         }
       }
-      xhttp.open('POST', '/login', true);
+      xhttp.open('POST', '/api/login', true);
       xhttp.setRequestHeader("Content-type", "application/json");
       xhttp.send(JSON.stringify(req_body));
+    }
+    // send JWT token to /api/login/google for verification etc.
+    // https://developers.google.com/identity/gsi/web/guides/handle-credential-responses-js-functions
+    function loginGoogle(response) {
+        const id_token = response.credential;
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            // Log in successful, redirect to home
+            window.location.href = "/";
+          } else if (this.readyState == 4) {
+            // Error
+            alert("An error occurred. Please try again later.");
+          }
+        };
+        xhttp.open('POST', '/api/login/google', true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send(JSON.stringify({ credential: id_token }));
     }
   </script>
 </head>
@@ -62,8 +92,8 @@
             <form onsubmit="login(event)">
                 
               <div>
-                <p>Username</p>
-                <input id="username" class="input" type="text">
+                <p>Email</p>
+                <input id="email" class="input" type="text">
               </div>
               <div>
                 <p>Password</p>
@@ -72,6 +102,22 @@
               <button type="submit" class="login-button">Log In</button>
               <p>Alternatively...</p>
               <!-- Placeholder image - to be updated with proper embed -->
+              <div id="g_id_onload"
+                  data-client_id="103320053068-jc9ibfe19fia3hbrl820p85f1rqi9gil.apps.googleusercontent.com"
+                  data-context="signin"
+                  data-ux_mode="popup"
+                  data-callback="loginGoogle"
+                  data-auto_prompt="false">
+              </div>
+
+              <div class="g_id_signin"
+                  data-type="standard"
+                  data-shape="rectangular"
+                  data-theme="outline"
+                  data-text="signin_with"
+                  data-size="large"
+                  data-logo_alignment="left">
+              </div>
               <p>Not a member? </p><a href="/register">Join now</a>
 
             </form>

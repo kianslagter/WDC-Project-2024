@@ -88,6 +88,7 @@ function createEvent() {
   let location = document.querySelector('input[name="branch_filters"]:checked').value;
   let image_url = document.getElementById('image_url').files[0]; // file upload
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
+  let sendEmail = document.getElementById('event-email-notify').checked;
 
 
     // Log all the variables
@@ -108,11 +109,11 @@ function createEvent() {
   }
   // TODO: handle image upload
 
-  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue);
+  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue, sendEmail);
 
 }
 
-function submitEvent(title, description, details, date, startTime, endTime, location, imageUrl, publicValue) {
+function submitEvent(title, description, details, date, startTime, endTime, location, imageUrl, publicValue, sendEmail) {
   let eventData = {
     title: title,
     description: description,
@@ -122,7 +123,8 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
     endTime: endTime,
     location: location,
     image_url: imageUrl,
-    public: publicValue
+    public: publicValue,
+    sendEmail: sendEmail
   };
 
   // POST request

@@ -3,6 +3,7 @@ const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
 var tools = require('./helpers');
+var nodemailer = require('nodemailer');
 
 var router = express.Router();
 
@@ -40,95 +41,154 @@ router.get('/', function (req, res, next) {
 });
 
 
-function updateSessionVariables(req, res, uname) {
+function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password
     // log user in
     req.session.isLoggedIn = true;
-    req.session.username = uname;
-    // Get the users userID from the DB
-    var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    tools.sqlHelper(query, [uname], req).then(function (results) {
-      // user id succesfully got from database
-      req.session.userID = results[0].user_id;
 
-      // Should now get other information about the user from the databases
-      // (can likely be done in parralel with an array of promises)
+    req.session.userID = user_id;
 
-      // Make some SQL queries to check:
-      // branches they are a member of
-      query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
-      var branches_member = tools.sqlHelper(query, [req.session.userID], req);
-      // Branch they manage
-      query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
-      // are they a system admin?
-      query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var system_admin = tools.sqlHelper(query, [req.session.userID], req);
+    // Should now get other information about the user from the databases
+    // (can likely be done in parralel with an array of promises)
 
-      // Wait for the queries to finish
-      Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
-        // Check branches they are member of
-        let members_results = values[0];
-        req.session.branches = [];
-        for (let i = 0; i < members_results.length; i++) {
-          // Add each branch to the session variable branches
-          req.session.branches.push(members_results[i].branch_id);
-        }
+    // Make some SQL queries to check:
+    // branches they are a member of
+    let query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
+    var branches_member = tools.sqlHelper(query, [req.session.userID], req);
+    // Branch they manage
+    query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
+    // are they a system admin?
+    query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
-        // Check branch they manage (if any)
-        let manage_results = values[1];
-        if (manage_results[0].branch_managed === null) {
-          req.session.branch_managed = null;
-        } else {
-          req.session.branch_managed = manage_results[0].branch_managed;
-        }
+    // Wait for the queries to finish
+    Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
+      // Check branches they are member of
+      let members_results = values[0];
+      req.session.branches = [];
+      for (let i = 0; i < members_results.length; i++) {
+        // Add each branch to the session variable branches
+        req.session.branches.push(members_results[i].branch_id);
+      }
 
-        // Check if they are a system admin
-        let admin_results = values[2];
-        if (admin_results[0].system_admin == true) {
-          req.session.admin = true;
-        } else {
-          req.session.admin = false;
-        }
-        return resolve();
-      }).catch((err) => { return reject(err); });
-    }).catch(function (err) { return reject(err); });
+      // Check branch they manage (if any)
+      let manage_results = values[1];
+      if (manage_results[0].branch_managed === null) {
+        req.session.branch_managed = null;
+      } else {
+        req.session.branch_managed = manage_results[0].branch_managed;
+      }
+
+      // Check if they are a system admin
+      let admin_results = values[2];
+      if (admin_results[0].system_admin == true) {
+        req.session.admin = true;
+      } else {
+        req.session.admin = false;
+      }
+      return resolve();
+    }).catch((err) => { return reject(err); });
   });
 }
 
-router.post('/login', function (req, res, next) {
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
+
+router.post('/api/login/google', async function (req, res, next) {
+  const token = req.body.credential;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_OAUTH_TOKEN,
+    });
+
+    const payload = ticket.getPayload();
+
+    const google_uid = payload['sub'];
+    const first_name = payload['given_name'];
+    const last_name = payload['family_name'];
+    const image_url = payload['picture'];
+    const email = payload['email'];
+
+    // Check if user exists in your database
+    const query = "SELECT * FROM users WHERE google_uid = ?";
+    const result = await tools.sqlHelper(query, [userid]);
+    
+    if (result.length === 0) {
+      // User does not exist, create new user record
+      console.log("User does not exist. Creating new user record");
+
+      // Prepare SQL query to insert new user into the database
+      const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
+      VALUES (?, ?, ?, ?, ?, ?, ?);`;
+      
+      req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Error registering user' });
+        }
+        // Registration successful
+        user_id = results[0].userID;
+        res.status(200).json({ success: true, message: 'Registration successful' });
+      }).catch((err) => tools.sendError(res, err)); 
+
+    } else {
+      // User exists
+      user_id = result[0].userID;
+    }
+    await updateSessionVariables(req, res, user_id).then(function () {
+      // Session variables updated succesfully
+      res.status(200).send("Log in succesful");
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post('/api/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
-  if (req.body.username === undefined || req.body.password === undefined) {
-    res.status(400).send("Undefined username or password"); // bad request
+
+  const { email, password } = req.body
+
+  if (!email || !password) {
+    res.status(400).send("Undefined email or password"); // bad request
     return;
   }
-  var uname = req.body.username;
-  var pwd = req.body.password;
 
   // Check for matching user in database
-  var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = tools.sqlHelper(query, [uname, pwd], req);
+  var query = "SELECT COUNT(*) AS count FROM users WHERE email=? AND password_hash=?";
+  var queryPromise = tools.sqlHelper(query, [email, password], req);
 
   // Wait for query to complete
   queryPromise.then(function (result) {
     // Query completed successfully
     if (result[0].count == 0) {
-      // Wrong username or password
-      res.status(403).send("Wrong username or password");
+      // Wrong email or password
+      res.status(403).send("Wrong email or password");
       return;
     } else {
-      // Log them in by updating the appropriate session variables.
-      updateSessionVariables(req, res, uname).then(function () {
-        // Session variables updated succesfully
-        res.status(200).send("Log in succesful");
-        return;
-      }
-      ).catch(function (err) { tools.sendError(res, err); });
+      // Get their user id
+      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE email=?;";
+      var user_id;
+      tools.sqlHelper(query, [email], req).then((result) => {
+        user_id = result[0].user_id;
+        // Log them in by updating the appropriate session variables.
+        updateSessionVariables(req, res, user_id).then(function () {
+          // Session variables updated succesfully
+          res.status(200).send("Log in succesful");
+          return;
+        }).catch(function (err) { tools.sendError(res, err); });
+      }).catch((err) => { tools.sendError(res, err);});
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
 });
+
 
 router.get('/api/access', (req, res) => {
   // default visitor access level
@@ -160,7 +220,48 @@ router.get('/api/access', (req, res) => {
     manages: manages
   };
   res.json(response);
+  });
+
+router.post('/api/register', async function (req, res, next) {
+  const { email, password, first_name, last_name, phone_num, postcode } = req.body;
+
+  // Validate input fields
+  if (!email || !password || !first_name || !last_name || !phone_num || !postcode) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  // Check if the email already exists in the database
+  const emailExistsQuery = "SELECT COUNT(*) AS count FROM users WHERE email=?";
+  var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
+
+  emailExistsQueryPromise.then(function (result) {
+      if (result[0].count > 0) {
+        return res.status(400).json({ success: false, message: 'Email already registered' });
+      } else {
+        // Hash the password (you should use a more secure method in production)
+        const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+      
+        // Prepare SQL query to insert new user into the database
+        const query = `INSERT INTO users (email, password_hash, postcode, first_name, last_name, phone_num)
+        VALUES (?, ?, ?, ?, ?, ?, ?);`;
+      
+        req.pool.query(query, [email, passwordHash, postcode, first_name, last_name, phone_num], function (err,results) {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: 'Error registering user' });
+          }
+          // Registration successful
+          res.status(200).json({ success: true, message: 'Registration successful' });
+        });
+      }
+    }).catch((err) => tools.sendError(res, err)); 
 });
+
+router.get('/api/logout', function (req,res, next) {
+  req.session.destroy();
+  res.status(200).redirect('/');
+  });
+
 
 // EVENTS ROUTES
 
@@ -547,7 +648,7 @@ router.get('/branches/get', function (req, res, next) {
 router.post('/branches/join/:branchID', function (req, res, next) {
   const branchID = req.params.branchID;
   // user id from session
-  const userID = req.session.username;
+  const userID = req.session.userID;
 
   if (!req.session.isLoggedIn || !userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
@@ -633,20 +734,20 @@ router.get('/branches/events/get', function (req, res, next) {
 
 router.get('/api/get/profile', function (req, res, next) {
   // Ensure the user is authenticated
-  if (!req.session.isLoggedIn || !req.session.username) {
+  if (!req.session.isLoggedIn || !req.session.userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
     return;
   }
 
   // Get the user ID from session
-  const username = req.session.username;
+  const UserID = req.session.userID;
 
   // Query to retrieve user details
-  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin
+  let query = `SELECT user_id, email, first_name, last_name, postcode, phone_num, image_url, branch_managed, system_admin
                FROM users
-               WHERE username = ?;`;
+               WHERE user_id = UUID_TO_BIN(?);`;
 
-  req.pool.query(query, [username], function (err, results) {
+  req.pool.query(query, [UserID], function (err, results) {
     if (err) {
       console.log(err);
       res.status(500).json({ success: false, message: 'Error retrieving user information' });
@@ -670,7 +771,7 @@ router.post('/api/set/profile', function (req, res, next) {
   }
 
   const username = req.session.username;
-  console.log(req.body);
+
   // let { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
   const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
 
