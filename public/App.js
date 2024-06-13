@@ -4,6 +4,7 @@ createApp({
     data() {
         return {
             access_level: null,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            manages: null,
             message: 'Hello Vue!',
             events_results: [],
             show_events_filters: false,
@@ -96,26 +97,33 @@ createApp({
     },
     computed: {
         navitems() {
+            const common_nav = [
+                { title: 'Home', url: '/', class: null},
+                { title: 'Events', url: '/events', class: null },
+                { title: 'News', url: '/news',class: null },
+                { title: 'Branches', url: '/branches', class: null }
+            ];
+
             // logged in
             if (this.profile.email) {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
-                    { title: 'Log Out', url: '/api/logout' }
-                ];
+                common_nav.push({ title: 'Log Out', url: '/api/logout', alignClass: "right" });
+                common_nav.push({ title: 'Welcome ' + this.profile.first_name + '!', url: '/profile', alignClass: "right" });
             // logged out
             } else {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Log In', url: '/login' }
-                ];
+                common_nav.push({ title: 'Log In', url: '/login', alignClass: "right" });
+                common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
             }
+
+            // manager
+            if (this.access_level == 2) {
+                this.access_level.branchID;
+                common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
+            // admin
+            } else if (this.access_level == 3) {
+                common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
+            }
+
+            return (common_nav);
         }
     },
     methods: {
@@ -596,6 +604,7 @@ createApp({
                 })
                 .then(data => {
                     this.access_level = data.access_level;
+                    this.manages = data.manages;
                 })
                 .catch(error => {
                     console.error('Error fetching access level:', error);
@@ -627,7 +636,7 @@ createApp({
         //}
 
         this.getAccessLevel();
-      
+
         // load profile info on profile info page if user is logged in
         // this currently runs on every page - there needs to be a way that makes this not run
         // if the user isn't logged in... but this is what checks if the user is logged
