@@ -39,7 +39,7 @@
 
       <!-- Note: need to add an AJAX request on initial page load to update the branches-->
 
-      <template v-for="branch in branches_summary">
+      <template v-for="branch in branches_results">
         <input type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
       </template>
 

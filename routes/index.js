@@ -189,6 +189,39 @@ router.post('/api/login', function (req, res, next) {
   ).catch((err) => { tools.sendError(res, err); });
 });
 
+
+router.get('/api/access', (req, res) => {
+  // default visitor access level
+  let access_level = 0;
+  // check if logged in
+  const isLoggedIn = req.session.isLoggedIn;
+
+  // determine access level
+  if (isLoggedIn) {
+    access_level = 1; // user
+    if (req.session.branch_managed) {
+      access_level = 2; // branch manager
+    }
+    if (req.session.admin) {
+      access_level = 3; // admin
+    }
+  }
+
+  // get branches which user is member
+  const branches = req.session.branches || [];
+
+  // get branch managed if any
+  const manages = req.session.branch_managed || null;
+
+  // response
+  const response = {
+    access_level: access_level,
+    branches: branches,
+    manages: manages
+  };
+  res.json(response);
+  });
+
 router.post('/api/register', async function (req, res, next) {
   const { email, password, first_name, last_name, phone_num, postcode } = req.body;
 
@@ -227,7 +260,8 @@ router.post('/api/register', async function (req, res, next) {
 router.get('/api/logout', function (req,res, next) {
   req.session.destroy();
   res.status(200).redirect('/');
-});
+  });
+
 
 // EVENTS ROUTES
 
@@ -260,8 +294,15 @@ router.get('/events/search', function (req, res, next) {
   */
 
   // Construct the SQL query
-  let query = "SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE";
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+             DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+             DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+             DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+             DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+             b.branch_name AS location, e.event_image AS image_url
+             FROM events e
+             JOIN branches b ON e.branch_id = b.branch_id
+             WHERE e.is_public = TRUE`;
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
@@ -315,8 +356,15 @@ router.get('/events/get', function (req, res, next) {
   let from_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE`;
-
+  let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
+             DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+             DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+             DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+             DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+             b.branch_name AS location, e.event_image AS image_url
+             FROM events e
+             JOIN branches b ON e.branch_id = b.branch_id
+             WHERE e.is_public = TRUE`;
   let params = [];
   if (from_date !== undefined) {
     query += " AND start_date_time >= ?";
@@ -360,9 +408,16 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
       return;
     }
     // Get the event details
-    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
-            FROM events
-            WHERE event_id=?;`;
+    query = `SELECT e.event_name AS title, e.event_description AS description,
+    DATE_FORMAT(e.start_date_time, '%D %M') AS date,
+    DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
+    DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
+    DAYOFWEEK(e.start_date_time) AS dayOfWeek,
+    b.branch_name AS location, e.event_image AS image_url,
+    e.is_public AS public, e.branch_id AS branch
+    FROM events e
+    JOIN branches b ON e.branch_id = b.branch_id
+    WHERE e.event_id = ?`;
     tools.sqlHelper(query, [event_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
@@ -392,9 +447,13 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
       return;
     }
     // Get the article details
-    query = `SELECT title, content, date_published AS date, image_url, is_public AS public, branch_id AS branch
-            FROM news
-            WHERE article_id=?;`;
+    query = `SELECT n.title, n.content, DATE_FORMAT(n.date_published, '%D %M') AS date,
+    n.image_url, n.is_public AS public, n.branch_id AS branch,
+    b.branch_name AS location
+    FROM news n
+    JOIN branches b ON n.branch_id = b.branch_id
+    WHERE n.article_id = ?;`;
+
     tools.sqlHelper(query, [article_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
@@ -412,15 +471,20 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
 });
 
 router.get('/news/get', function (req, res, next) {
-  let from_date = new Date().toISOString().slice(0, 10);
+  let to_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
   // Construct the SQL query
-  let query = `SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE`;
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+             DATE_FORMAT(n.date_published, '%D %M') AS date,
+             n.image_url, b.branch_name AS location
+             FROM news n
+             JOIN branches b ON n.branch_id = b.branch_id
+             WHERE n.is_public = TRUE`;
 
   let params = [];
-  if (from_date !== undefined) {
-    query += " AND date_published >= ?";
-    params.push(from_date);
+  if (to_date !== undefined) {
+    query += " AND date_published <= ?";
+    params.push(to_date);
   }
   if (branches !== undefined) {
     query += " AND branch_id = ?";
@@ -457,9 +521,9 @@ router.get('/news/search', function (req, res, next) {
   let branches = req.query.branch;
 
   // Update to default if they weren't set (if there is a sensible default)
-  if (from_date === undefined) {
-    let today = new Date().toISOString().slice(0, 10);
-    from_date = today;
+  let today = new Date().toISOString().slice(0, 10);
+  if (to_date === undefined) {
+    to_date = today;
   }
   if (max_num === undefined) {
     max_num = 20;
@@ -467,7 +531,12 @@ router.get('/news/search', function (req, res, next) {
     max_num = parseInt(max_num);
   }
   // Construct the SQL query
-  let query = "SELECT article_id AS id, title, content, DATE_FORMAT(date_published, '%D %M') AS date, image_url FROM news WHERE is_public=TRUE";
+  let query = `SELECT n.article_id AS id, n.title, n.content,
+             DATE_FORMAT(n.date_published, '%D %M') AS date,
+             n.image_url, b.branch_name AS location
+             FROM news n
+             JOIN branches b ON n.branch_id = b.branch_id
+             WHERE n.is_public = TRUE`;
 
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
@@ -475,14 +544,15 @@ router.get('/news/search', function (req, res, next) {
     query += " AND (title LIKE ? OR content LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
-  if (from_date !== undefined) {
-    query += " AND date_published >= ?";
-    params.push(from_date);
-  }
   if (to_date !== undefined) {
     query += " AND date_published <= ?";
     params.push(to_date);
   }
+  if (from_date !== undefined) {
+    query += " AND date_published >= ?";
+    params.push(from_date);
+  }
+
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
       query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
@@ -624,6 +694,41 @@ router.post('/branches/join/:branchID', function (req, res, next) {
   });
 });
 
+router.get('/branches/events/get', function (req, res, next) {
+  let from_date = new Date().toISOString().slice(0, 10);
+  let branches = req.query.branch;
+  // Construct the SQL query
+  let query = `SELECT event_id AS id, event_name AS title, event_description AS description, DATE_FORMAT(start_date_time, '%D %M') AS date, DATE_FORMAT(start_date_time, '%l:%i %p') AS startTime, DATE_FORMAT(end_date_time, '%l:%i %p') AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url FROM events WHERE is_public=TRUE`;
+  let params = [];
+  if (from_date !== undefined) {
+    query += " AND start_date_time >= ?";
+    params.push(from_date);
+  }
+  if (branches !== undefined) {
+    query += " AND branch_id = ?";
+    params.push([branches]);
+  }
+  query += " ORDER BY start_date_time ASC LIMIT 10;";
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
 
 // PROFILE ROUTES
 
@@ -687,7 +792,7 @@ router.post('/api/set/profile', function (req, res, next) {
     res.status(400).json({ success: false, message: 'Invalid first name' });
     return;
   }
-  if (!last_name || typeof last_name !== 'string' ) {
+  if (!last_name || typeof last_name !== 'string') {
     res.status(400).json({ success: false, message: 'Invalid last name' });
     return;
   }
