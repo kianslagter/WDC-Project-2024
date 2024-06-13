@@ -19,7 +19,7 @@ CREATE TABLE branches (
 
 CREATE TABLE users (
     user_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
-    google_uid INT DEFAULT NULL,
+    google_uid BIGINT DEFAULT NULL,
     password_hash VARCHAR(100),
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
