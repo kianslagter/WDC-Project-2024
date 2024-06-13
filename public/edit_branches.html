@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/branches.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="/branches.js" defer></script>
+    <script src="/App.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const branchID = window.location.pathname.split('/')[4];
+            // Load initial branch details
+            getBranchDetails(branchID, function (data) {
+                document.getElementById('name').value = data.name;
+                document.getElementById('email').value = data.email;
+                document.getElementById('phone').value = data.phone;
+                document.getElementById('streetNumber').value = data.streetNumber;
+                document.getElementById('streetName').value = data.streetName;
+                document.getElementById('city').value = data.city;
+                document.getElementById('state').value = data.state;
+                document.getElementById('postcode').value = data.postcode;
+                document.getElementById('description').value = data.description;
+                document.getElementById('image_url').value = data.image_url;
+            });
+            // Delete branch
+            const deleteBranchButton = document.getElementById('deleteBranchButton');
+            if (deleteBranchButton) {
+                deleteBranchButton.addEventListener('click', function () {
+                    const branchID = window.location.pathname.split('/')[4];
+                    deleteBranch(branchID);
+                });
+            }
+            // Update branch
+            const updateBranchButton = document.getElementById('updateBranchButton');
+            if (updateBranchButton) {
+                updateBranchButton.addEventListener('click', function () {
+                    const branchID = window.location.pathname.split('/')[4];
+                    const branchData = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        streetNumber: document.getElementById('streetNumber').value,
+                        streetName: document.getElementById('streetName').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        postcode: document.getElementById('postcode').value,
+                        description: document.getElementById('description').value,
+                        image_url: document.getElementById('image_url').value
+                    };
+                    updateBranch(branchID, branchData);
+                });
+            }
+        });
+    </script>
+</head>
+
+<body id="app">
+    <header class="top-pane">
+        <nav>
+            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        </nav>
+    </header>
+
+    <div class="page-content content">
+        <h1>Edit Branch</h1>
+        <h4> Branch Name: <input id="name" class="create-branch-name" type="text" name="name"></h4>
+        <h4> Email: <input id="email" class="create-branch-email" type="email" name="email"></h4>
+        <h4> Phone: <input id="phone" class="create-branch-phone" type="text" name="phone"></h4>
+        <h4> Street Number: <input id="streetNumber" class="create-branch-street-number" type="text" name="streetNumber">
+        </h4>
+        <h4> Street Name: <input id="streetName" class="create-branch-street-name" type="text" name="streetName"></h4>
+        <h4> City: <input id="city" class="create-branch-city" type="text" name="city"></h4>
+        <h4> State: <input id="state" class="create-branch-state" type="text" name="state"></h4>
+        <h4> Postcode: <input id="postcode" class="create-branch-postcode" type="text" name="postcode"></h4>
+        <h4> Description: <textarea id="description" class="create-branch-description"></textarea></h4>
+        <h4> Add an Image: <input id="image_url" class="create-branch-image-upload" type="file" name="image_url"
+                accept="image/*"></h4>
+        <div>
+            <button id="updateBranchButton" class="button primary-button create-branch-button" type="button">Update
+                Branch</button>
+            <button id="deleteBranchButton" class="button secondary-button create-branch-button" type="button">Delete
+                Branch</button>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Your Website. All rights reserved.
+    </footer>
+</body>
+
+</html>

@@ -88,6 +88,7 @@ function createEvent() {
   let location = "Adelaide"; // assuming adelaide is location, TODO: add this to the create page soon
   let image_url = document.getElementById('image_url').files[0]; // file upload
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
+  let sendEmail = document.getElementById('event-email-notify').checked;
 
   // validate data
   if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {
@@ -96,11 +97,11 @@ function createEvent() {
   }
   // TODO: handle image upload
 
-  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue);
+  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue, sendEmail);
 
 }
 
-function submitEvent(title, description, details, date, startTime, endTime, location, imageUrl, publicValue) {
+function submitEvent(title, description, details, date, startTime, endTime, location, imageUrl, publicValue, sendEmail) {
   let eventData = {
     title: title,
     description: description,
@@ -110,7 +111,8 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
     endTime: endTime,
     location: location,
     image_url: imageUrl,
-    public: publicValue
+    public: publicValue,
+    sendEmail: sendEmail
   };
 
   // POST request

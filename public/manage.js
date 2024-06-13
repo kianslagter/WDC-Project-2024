@@ -39,7 +39,7 @@ function get_branch_information() {
         statistic_element.innerHTML += `
           <div class="dashboard-container">
               <p>
-                <a href=/events/id/${responseJSON.recent_news[i].event_id}> <b> ${responseJSON.recent_news[i].title} </b> </a>
+                <a href=/news/id/${responseJSON.recent_news[i].article_id}> <b> ${responseJSON.recent_news[i].title} </b> </a>
                 &emsp;
                 (<u>Date:</u> ${responseJSON.recent_news[i].date_published})
               </p>

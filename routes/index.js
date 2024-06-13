@@ -3,6 +3,7 @@ const path = require('path');
 const { send } = require('process');
 var fs = require('fs');
 var tools = require('./helpers');
+var nodemailer = require('nodemailer');
 
 var router = express.Router();
 
@@ -23,7 +24,7 @@ router.get('/image/:id', function (req, res, next) {
       return;
     } else {
       // Do this
-      if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
+      if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
         res.status(403).send("Not member of correct branch log in to access");
         return;
       } else {
@@ -40,75 +41,117 @@ router.get('/', function (req, res, next) {
 });
 
 
-function updateSessionVariables(req, res, uname) {
+function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password
     // log user in
     req.session.isLoggedIn = true;
-    req.session.username = uname;
-    // Get the users userID from the DB
-    var query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
-    tools.sqlHelper(query, [uname], req).then(function (results) {
-      // user id succesfully got from database
-      req.session.userID = results[0].user_id;
 
-      // Should now get other information about the user from the databases
-      // (can likely be done in parralel with an array of promises)
+    req.session.userID = user_id;
 
-      // Make some SQL queries to check:
-      // branches they are a member of
-      query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
-      var branches_member = tools.sqlHelper(query, [req.session.userID], req);
-      // Branch they manage
-      query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
-      // are they a system admin?
-      query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
-      var system_admin = tools.sqlHelper(query, [req.session.userID], req);
+    // Should now get other information about the user from the databases
+    // (can likely be done in parralel with an array of promises)
 
-      // Wait for the queries to finish
-      Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
-        // Check branches they are member of
-        let members_results = values[0];
-        req.session.branches = [];
-        for (let i = 0; i < members_results.length; i++) {
-          // Add each branch to the session variable branches
-          req.session.branches.push(members_results[i].branch_id);
-        }
+    // Make some SQL queries to check:
+    // branches they are a member of
+    let query = "SELECT branch_id FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
+    var branches_member = tools.sqlHelper(query, [req.session.userID], req);
+    // Branch they manage
+    query = "SELECT branch_managed FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var branch_managed = tools.sqlHelper(query, [req.session.userID], req);
+    // are they a system admin?
+    query = "SELECT system_admin FROM users WHERE user_id = UUID_TO_BIN(?);";
+    var system_admin = tools.sqlHelper(query, [req.session.userID], req);
 
-        // Check branch they manage (if any)
-        let manage_results = values[1];
-        if (manage_results[0].branch_managed === null) {
-          req.session.branch_managed = null;
-        } else {
-          req.session.branch_managed = manage_results[0].branch_managed;
-        }
+    // Wait for the queries to finish
+    Promise.all([branches_member, branch_managed, system_admin]).then(function (values) {
+      // Check branches they are member of
+      let members_results = values[0];
+      req.session.branches = [];
+      for (let i = 0; i < members_results.length; i++) {
+        // Add each branch to the session variable branches
+        req.session.branches.push(members_results[i].branch_id);
+      }
 
-        // Check if they are a system admin
-        let admin_results = values[2];
-        if (admin_results[0].system_admin == true) {
-          req.session.admin = true;
-        } else {
-          req.session.admin = false;
-        }
-        return resolve();
-      }).catch((err) => { return reject(err); });
-    }).catch(function (err) { return reject(err); });
+      // Check branch they manage (if any)
+      let manage_results = values[1];
+      if (manage_results[0].branch_managed === null) {
+        req.session.branch_managed = null;
+      } else {
+        req.session.branch_managed = manage_results[0].branch_managed;
+      }
+
+      // Check if they are a system admin
+      let admin_results = values[2];
+      if (admin_results[0].system_admin == true) {
+        req.session.admin = true;
+      } else {
+        req.session.admin = false;
+      }
+      return resolve();
+    }).catch((err) => { return reject(err); });
   });
 }
 
-router.post('/login', function (req, res, next) {
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
+
+router.post('/api/login/google', async function (req, res, next) {
+  const token = req.body.credential;
+  // const g_csrf_token = req.cookies['g_csrf_token'];
+
+  // if (!token || !g_csrf_token) {
+  //   return res.status(400).send('Bad Request');
+  // }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_OAUTH_TOKEN,
+    });
+
+    const payload = ticket.getPayload();
+    const userid = payload['sub'];
+    const first_name = payload['given_name'];
+    const last_name = payload['last_name'];
+    const image_url = payload['picture'];
+    const email = payload['email'];
+
+    console.log(payload,userid,email);
+
+    // Check if user exists in your database
+    // const query = "SELECT * FROM users WHERE google_id = ?";
+    // const result = await tools.sqlHelper(query, [userid]);
+
+    // if (result.length === 0) {
+    //   // User does not exist, you may want to create a new user record
+    //   // Or you might want to link this Google account with an existing user
+    //   return res.status(404).send("User not found. Please register.");
+    // }
+
+    // Log the user in by setting session variables
+    // await updateSessionVariables(req, res, email);
+    res.status(200).send("Log in successful");
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post('/api/login', function (req, res, next) {
   // Need to check validity of inputs (NOT DONE YET)
-  if (req.body.username === undefined || req.body.password === undefined) {
+
+  const { username, password } = req.body
+
+  if (!username || !password) {
     res.status(400).send("Undefined username or password"); // bad request
     return;
   }
-  var uname = req.body.username;
-  var pwd = req.body.password;
 
   // Check for matching user in database
   var query = "SELECT COUNT(*) AS count FROM users WHERE username=? AND password_hash=?";
-  var queryPromise = tools.sqlHelper(query, [uname, pwd], req);
+  var queryPromise = tools.sqlHelper(query, [username, password], req);
 
   // Wait for query to complete
   queryPromise.then(function (result) {
@@ -118,16 +161,26 @@ router.post('/login', function (req, res, next) {
       res.status(403).send("Wrong username or password");
       return;
     } else {
-      // Log them in by updating the appropriate session variables.
-      updateSessionVariables(req, res, uname).then(function () {
-        // Session variables updated succesfully
-        res.status(200).send("Log in succesful");
-        return;
-      }
-      ).catch(function (err) { tools.sendError(res, err); });
+      // Get their user id
+      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE username=?;";
+      var user_id;
+      tools.sqlHelper(query, [username], req).then((result) => {
+        user_id = result[0].user_id;
+        // Log them in by updating the appropriate session variables.
+        updateSessionVariables(req, res, user_id).then(function () {
+          // Session variables updated succesfully
+          res.status(200).send("Log in succesful");
+          return;
+        }).catch(function (err) { tools.sendError(res, err); });
+      }).catch((err) => { tools.sendError(res, err);});
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
+});
+
+router.get('/api/logout', function (req,res, next) {
+  req.session.destroy();
+  res.status(200).redirect('/');
 });
 
 // EVENTS ROUTES
@@ -267,7 +320,7 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     tools.sqlHelper(query, [event_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
-        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
+        if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
           // Not logged in or not correct branch
           res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
@@ -299,7 +352,7 @@ router.get('/news/id/:articleID/details.json', function (req, res, next) {
     tools.sqlHelper(query, [article_id], req).then(function (results) {
       if (!results[0].public) {
         // Authenticate user
-        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
+        if (!req.session.isLoggedIn || (!req.session.admin && !req.session.branches.includes(results[0].branch))) {
           // Not logged in or not correct branch
           res.status(403).send("Not a member of correct branch (or not logged in)");
           return;
@@ -418,6 +471,203 @@ router.get('/news/search', function (req, res, next) {
   });
 });
 
+// BRANCH ROUTES
+
+router.get('/branch/id/:branchID/details.json', function (req, res, next) {
+  let branch_id = req.params.branchID;
+  // Check if the branch exists
+  let query = "SELECT EXISTS(SELECT * FROM branches WHERE branch_id = ?) AS branch_exists;";
+  tools.sqlHelper(query, [branch_id], req).then(function (results) {
+    if (results[0].branch_exists == 0) {
+      // Branch does not exist
+      res.status(404).send("Branch not found");
+      return;
+    }
+    // Get the branch details
+    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description
+               FROM branches
+               WHERE branch_id=?;`;
+    tools.sqlHelper(query, [branch_id], req).then(function (results) {
+      // Send the details
+      res.json(results[0]);
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
+router.get('/branches/get', function (req, res, next) {
+  // Construct the SQL query
+  let query = `SELECT branch_id AS id, branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description FROM branches`;
+
+  let params = [];
+  // Add any additional filters if needed
+  if (req.query.city) {
+    query += " WHERE city = ?";
+    params.push(req.query.city);
+  }
+
+  query += " ORDER BY branch_name ASC LIMIT 10;";
+
+  // Query the SQL database
+  req.pool.getConnection(function (err, connection) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+    connection.query(query, params, function (err, rows, fields) {
+      connection.release(); // release connection
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.type('json');
+      res.send(JSON.stringify(rows));
+      return;
+    });
+  });
+});
+
+router.post('/branches/join/:branchID', function (req, res, next) {
+  const branchID = req.params.branchID;
+  // user id from session
+  const userID = req.session.username;
+
+  if (!req.session.isLoggedIn || !userID) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+  // Convert username to user ID
+  let query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
+  req.pool.query(query, [userID], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving user ID from database' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'User not found in the database' });
+      return;
+    }
+    const userID = results[0].user_id;
+
+    // Check if user is already a member of branch
+    let query = `SELECT COUNT(*) AS count FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?) AND branch_id = ?;`;
+    req.pool.query(query, [userID, branchID], function (err, affiliationResults) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: 'Error checking user affiliation' });
+        return;
+      }
+      if (affiliationResults[0].count > 0) {
+        res.status(400).json({ success: false, message: 'User is already a member of the branch' });
+        return;
+      }
+      // Add user to branch
+      query = `INSERT INTO user_branch_affiliation (user_id, branch_id) VALUES (UUID_TO_BIN(?), ?);`;
+      req.pool.query(query, [userID, branchID], function (err, results) {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ success: false, message: 'Error adding user to branch' });
+          return;
+        }
+        res.status(200).json({ success: true, message: 'User successfully joined the branch' });
+      });
+    });
+  });
+});
+
+
+// PROFILE ROUTES
+
+router.get('/api/get/profile', function (req, res, next) {
+  // Ensure the user is authenticated
+  if (!req.session.isLoggedIn || !req.session.username) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  // Get the user ID from session
+  const username = req.session.username;
+
+  // Query to retrieve user details
+  let query = `SELECT username, first_name, last_name, postcode, phone_num, email, image_url, branch_managed, system_admin
+               FROM users
+               WHERE username = ?;`;
+
+  req.pool.query(query, [username], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving user information' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    // Send the user details
+    res.json(results[0]);
+  });
+});
+
+router.post('/api/set/profile', function (req, res, next) {
+  if (!req.session.isLoggedIn || !req.session.username) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  const username = req.session.username;
+  console.log(req.body);
+  // let { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
+  const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
+
+  // // Update image_url if a file is uploaded
+  // if (req.files && req.files['profile-image']) {
+  //   // Assuming 'profile-image' is the name of the file input field
+  //   image_url = req.files['profile-image'].name;
+  // }
+
+  // Simple validation and sanitization
+  // for some reason when one of these fails i can't seem to find this 'message' anywhere in log outputs
+  // not in browser console or node console which is very annoying. only the status code.
+  if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+    res.status(400).json({ success: false, message: 'Invalid email address' });
+    return;
+  }
+  if (!first_name || typeof first_name !== 'string') {
+    res.status(400).json({ success: false, message: 'Invalid first name' });
+    return;
+  }
+  if (!last_name || typeof last_name !== 'string' ) {
+    res.status(400).json({ success: false, message: 'Invalid last name' });
+    return;
+  }
+  if (!phone_num || !/^\+?[0-9]*$/.test(phone_num)) {
+    res.status(400).json({ success: false, message: 'Invalid phone number' });
+    return;
+  }
+  if (!postcode || typeof postcode !== 'number') {
+    res.status(400).json({ success: false, message: 'Invalid postcode' });
+    return;
+  }
+
+  let query = `UPDATE users
+               SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
+               WHERE username = ?`;
+
+  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, username], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error updating user information' });
+      return;
+    }
+
+    res.json({ success: true, message: 'Profile updated successfully' });
+  });
+});
 
 // PAGE ROUTES
 
@@ -443,6 +693,14 @@ router.get('/branches', function (req, res, next) {
 
 router.get('/login', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+});
+
+router.get('/profile', function (req, res, next) {
+  if (req.session.isLoggedIn) {
+    res.sendFile(path.join(__dirname, '..', 'public', 'profile_page.html'));
+  } else {
+    res.redirect('/login');
+  }
 });
 
 router.get('/register', function (req, res, next) {

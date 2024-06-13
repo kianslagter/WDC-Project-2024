@@ -1,51 +1,5 @@
 const { createApp, ref } = Vue;
 
-const navitems = [
-    { title: 'Home', url: '/' },
-    { title: 'Events', url: '/events' },
-    { title: 'News', url: '/news' },
-    { title: 'Branches', url: '/branches' },
-    { title: 'Login', url: '/login' }
-
-];
-
-const testBranchSummary = [
-    {
-        id: 1,
-        name: 'Adelaide',
-        location: '129 Waymouth Street, Adelaide SA 5000',
-        openingHours: '9am-5pm',
-        phone: '0412345678',
-        email: 'adelaidebranch@mealmates.com',
-        description: 'The Adelaide branch of Meal Mates is located in the heart of the city. This branch has been serving the community for over a decade, providing nutritious meals to those in need. With a dedicated team of volunteers, they work tirelessly to prepare and distribute food. They also collaborate with local farms and businesses to source fresh ingredients, ensuring that every meal is not only filling but also healthy.',
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
-        page_url: '/branches/adelaidebranch'
-    },
-    {
-        id: 2,
-        name: 'Sydney',
-        location: '212 York Street, Sydney NSW 2000',
-        openingHours: '8am-7pm',
-        phone: '0412345678',
-        email: 'sydneybranch@mealmates.com',
-        description: 'Situated in the bustling city of Sydney, the Meal Mates branch here is known for its large-scale operations. They have a vast network of volunteers who collect surplus food from restaurants, supermarkets, and households, and distribute it to people in need. This branch has made a significant impact in reducing food waste in the city while ensuring that no one goes hungry.',
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
-        page_url: '/branches/sydneybranch'
-    },
-    {
-        id: 3,
-        name: 'Melbourne',
-        location: '73 Lonsdale Steet, Melbourne VIC 3000',
-        openingHours: '8.30am-4.30pm',
-        phone: '0412345678',
-        email: 'melbournebranch@mealmates.com',
-        description: 'The Melbourne branch of Meal Mates is renowned for its innovative approach to tackling food insecurity. They run community kitchens where people in need are invited to share a meal, fostering a sense of community and belonging. This branch not only provides food relief but also organizes cooking classes and nutrition workshops, empowering individuals to make healthy food choices.',
-        image_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg/320px-11_Gloddaeth_Street%2C_Llandudno_shop_front.jpg',
-        page_url: '/branches/melbournebranch'
-    },
-];
-
-
 const people = [
     {
         id: 1,
@@ -82,10 +36,9 @@ createApp({
         return {
             access_level: 1,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
             message: 'Hello Vue!',
-            navitems: navitems,
             events_results: [],
             show_events_filters: false,
-            branches_summary: testBranchSummary,
+            branches_results: null,
             event_selected: null, // set to null intially in real thing
             event_attendance: 4,
             news_results: [],
@@ -96,17 +49,30 @@ createApp({
             article_selected: null,
             num_points: 1,
             point_level: [0],
-            branch_selected: testBranchSummary[0],
+            branch_selected: null,
             people: people,
+            profile: {
+                id: '',
+                username: '',
+                password: '',
+                first_name: '',
+                last_name: '',
+                phone_num: '',
+                email: '',
+                postcode: '',
+                description: '',
+                image_url: ''
+            }, // returns profile information for profile_page.html
             loading: true,
             event: null,
             isLoading: false,
-            error: null
+            error: null,
         };
     },
     setup() {
         const event_selected = ref(null);
         const article_selected = ref(null);
+        const branch_selected = ref(null);
         const loading = ref(true);
         // call getEventDetails if the page is on an events details page
         let eventID = window.location.pathname.split('/')[3];
@@ -122,7 +88,7 @@ createApp({
                 loading,
             };
         }
-        // call getNewsDetails if the page is on an events details page
+        // call getNewsDetails if the page is on an news details page
         let articleID = window.location.pathname.split('/')[3];
 
         if (articleID && window.location.pathname.split('/')[1] == 'news') {
@@ -135,6 +101,44 @@ createApp({
                 article_selected,
                 loading,
             };
+        }
+        // call getBranchDetails if the page is on an branch details page
+        let branchID = window.location.pathname.split('/')[3];
+
+        if (branchID && window.location.pathname.split('/')[1] == 'branches') {
+            getBranchDetails(branchID, function (data) {
+                branch_selected.value = data;
+                loading.value = false;
+            });
+
+            return {
+                branch_selected,
+                loading,
+            };
+        }
+    },
+    computed: {
+        navitems() {
+            // logged in
+            if (this.profile.username) {
+                return [
+                    { title: 'Home', url: '/' },
+                    { title: 'Events', url: '/events' },
+                    { title: 'News', url: '/news' },
+                    { title: 'Branches', url: '/branches' },
+                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
+                    { title: 'Log Out', url: '/api/logout' }
+                ];
+            // logged out
+            } else {
+                return [
+                    { title: 'Home', url: '/' },
+                    { title: 'Events', url: '/events' },
+                    { title: 'News', url: '/news' },
+                    { title: 'Branches', url: '/branches' },
+                    { title: 'Log In', url: '/login' }
+                ];
+            }
         }
     },
     methods: {
@@ -390,6 +394,37 @@ createApp({
                     this.isLoading = false;
                 });
         },
+        branches_load() {
+            // loading check
+            this.isLoading = true;
+            this.error = null;
+
+            // AJAX
+            fetch('/branches/get', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched branches:", data);
+                    this.branches_results = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching branches:", error);
+                    this.branches_results = [];
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
         news_show_more_results() {
             // Increase the max number of news shown by 5
             document.getElementById("num-news").value = parseInt(document.getElementById("num-news").value) + 5;
@@ -468,6 +503,73 @@ createApp({
         editNews(newsId) {
             window.location.href = `/manage/news/edit/${newsId}`;
         },
+        editBranch(branchId) {
+            window.location.href = `/manage/branches/edit/${branchId}`;
+        },
+        joinBranch(branchID) {
+            // Send a POST request to join the branch
+            fetch(`/branches/join/${branchID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Successfully joined the branch!');
+                    } else {
+                        alert('Failed to join the branch: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while joining the branch.');
+                });
+        },
+        getProfileInfo() {
+            fetch('/api/get/profile', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Fetched profile:", data);
+                this.profile = data;
+            })
+            .catch(error => {
+                console.error("Error fetching profile:", error);
+            });
+        },
+        setProfileInfo() {
+            fetch('/api/set/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.profile)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Profile updated successfully");
+                    alert('Profile updated successfully!');
+                } else {
+                    throw new Error(`Error status: ${response.status}`);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating profile:", error);
+                alert('Failed to update profile.');
+            });
+        }
     },
     mounted() {
         // load events on page initally, probably a better way to do this
@@ -486,5 +588,13 @@ createApp({
         if (!window.location.pathname.split('/')[1]) {
             this.news_load();
         }
+        // load branches on branches page
+        if (window.location.pathname.split('/')[1] == 'branches' && !window.location.pathname.split('/')[2]) {
+            this.branches_load();
+        }
+        // load profile info on profile info page
+        // if (window.location.pathname.split('/')[1] == 'profile_page.html') {
+            this.getProfileInfo();
+        // }
     }
 }).mount('#app');

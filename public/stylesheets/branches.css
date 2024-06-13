@@ -151,4 +151,36 @@
     color: grey;
     font-size: 0.9em;
     margin: 2px;
+
+}
+
+.create-branch-details {
+    width: 80%;
+}
+
+.create-branch-title {
+    font-size: 1.2em;
+    width: 60%;
+}
+
+.create-branch-point-level {
+    margin-top: 10px;
+    margin-right: 10px;
+    float: right;
+}
+
+.create-branch-description {
+    width: 90%;
+    height: 3.4em;
+}
+
+.create-branch-image-upload {
+    display: block;
+    margin: 10px;
+}
+
+.create-branch-button {
+    margin: auto;
+    display: block;
+    margin-bottom: 30px;
 }
