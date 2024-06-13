@@ -19,14 +19,14 @@ CREATE TABLE branches (
 
 CREATE TABLE users (
     user_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
-    username VARCHAR(64) UNIQUE,
+    google_uid INT DEFAULT NULL,
     password_hash VARCHAR(100) NOT NULL,
-    postcode INT, -- Add check for validity (4 digits, not negative)
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
-    phone_num VARCHAR(14), -- Add check for validity
-    email VARCHAR(320) NOT NULL, -- Add check for validity
-    image_url VARCHAR(64),
+    phone_num VARCHAR(14) DEFAULT NULL, -- Add check for validity
+    email VARCHAR(320) UNIQUE NOT NULL, -- Add check for validity
+    postcode INT, -- Add check for validity (4 digits, not negative)
+    image_url VARCHAR(64) DEFAULT '/image/1',
     branch_managed INT DEFAULT NULL,
     system_admin BOOLEAN DEFAULT FALSE,
 
