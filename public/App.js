@@ -86,26 +86,36 @@ createApp({
     },
     computed: {
         navitems() {
+            const common_nav = [
+                { title: 'Home', url: '/', class: null},
+                { title: 'Events', url: '/events', class: null },
+                { title: 'News', url: '/news',class: null },
+                { title: 'Branches', url: '/branches', class: null }
+            ];
+
             // logged in
             if (this.profile.email) {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
-                    { title: 'Log Out', url: '/api/logout' }
-                ];
+                common_nav.push({ title: 'Log Out', url: '/api/logout', alignClass: "right" });
+                common_nav.push({ title: 'Welcome ' + this.profile.first_name + '!', url: '/profile', alignClass: "right" });
             // logged out
             } else {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Log In', url: '/login' }
-                ];
+                common_nav.push({ title: 'Log In', url: '/login', alignClass: "right" });
+                common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
             }
+
+            // need to update along with branch id
+            console.log(this.access_level);
+            // manager
+            if (this.access_level == 1) {
+                common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/1', alignClass: "right"});
+            // admin
+            }
+
+            if (this.access_level == 1) {
+                common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
+            }
+
+            return (common_nav);
         }
     },
     methods: {
