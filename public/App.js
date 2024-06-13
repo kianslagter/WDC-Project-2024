@@ -4,6 +4,7 @@ createApp({
     data() {
         return {
             access_level: null,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            manages: null,
             message: 'Hello Vue!',
             events_results: [],
             show_events_filters: false,
@@ -113,15 +114,12 @@ createApp({
                 common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
             }
 
-            // need to update along with branch id
-            console.log(this.access_level);
             // manager
-            if (this.access_level == 1) {
-                common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/1', alignClass: "right"});
+            if (this.access_level == 2) {
+                this.access_level.branchID;
+                common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
             // admin
-            }
-
-            if (this.access_level == 1) {
+            } else if (this.access_level == 3) {
                 common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
             }
 
@@ -606,6 +604,7 @@ createApp({
                 })
                 .then(data => {
                     this.access_level = data.access_level;
+                    this.manages = data.manages;
                 })
                 .catch(error => {
                     console.error('Error fetching access level:', error);
@@ -637,7 +636,7 @@ createApp({
         //}
 
         this.getAccessLevel();
-      
+
         // load profile info on profile info page if user is logged in
         // this currently runs on every page - there needs to be a way that makes this not run
         // if the user isn't logged in... but this is what checks if the user is logged
