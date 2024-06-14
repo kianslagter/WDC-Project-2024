@@ -453,6 +453,9 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
       }
       // Send the details
       res.json(results[0]);
+      // response = results[0];
+      // response.details = JSON.parse(response.details);
+      // res.json(response);
       return;
     }).catch(function (err) { tools.sendError(res, err); });
   }).catch(function (err) { tools.sendError(res, err); });

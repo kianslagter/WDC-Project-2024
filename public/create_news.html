@@ -28,14 +28,14 @@
   <header class="top-pane">
     <nav>
       <ul class="nav-horizontal">
-        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{
+            item.title }} </a> </li>
       </ul>
     </nav>
   </header>
 
   <div class="page-content content">
     <h1>Create News Update</h1>
-    <p> <b> Branch: </b> {Branch name} </p>
     <h4> Title: <input id="news-title" class="create-news-title" type="text"></h4>
 
     <h4> Set Update to Public or Private </h4>
@@ -45,28 +45,28 @@
     <label for="private"> Private </label>
     <h4> Enter News Description Below </h4>
     <textarea id="news-description" class="create-news-description news-textarea">Enter news description here</textarea>
-    <button v-if="show_preview" v-on:click="show_preview=false" class="button secondary-button" type="button"> Hide
-      Preview </button>
-    <button v-else="show_preview" v-on:click="show_preview=true" class="button primary-button" type="button"> Show
-      Preview </button>
-    <h4 v-if="show_preview"> Preview Below: </h4>
-    <div v-if="show_preview" class="preview">
-      <pre>{{ create_news_preview }}</pre>
-    </div>
+
     <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
 
-    <h4> Add an Image </h4>
-    <input id="image_url" class="create-news-image-upload" type="file" name="news-image" accept="image/*">
-    <br>
+    <h4> Choose an Image </h4>
+    <select v-model="image_path">
+      <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
+    </select>
+    <p id="image_path" class="hidden"> {{image_path}} </p>
+    <div class="image-container">
+      <img id="news_image" class="select-image" v-bind:src="image_path" alt="news image">
+    </div>
 
-    <h4> Other Options </h4>
-    <input type="checkbox" id="news-email-notify" name="news-email-notify" value="news-email-notify">
-    <label for="news-email-notify"> Send email notification to relevant members? </label><br>
-    <br>
+    <div class="other-options">
+      <h4> Other Options </h4>
+      <input type="checkbox" id="news-email-notify" name="news-email-notify" value="news-email-notify">
+      <label for="news-email-notify"> Send email notification to relevant members? </label><br>
+      <br>
 
-    <button id="createNewsButton" class="button primary-button create-news-button center" type="button"> Create News
-    </button>
-    <br>
+      <button id="createNewsButton" class="button primary-button create-news-button center" type="button"> Create News
+      </button>
+      <br>
+    </div>
   </div>
   <br>
   <br>
