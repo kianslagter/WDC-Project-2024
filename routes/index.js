@@ -771,7 +771,7 @@ router.get('/branch/id/:branchID/details.json', function (req, res, next) {
       return;
     }
     // Get the branch details
-    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description
+    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description, openingHours, closingHours
                FROM branches
                WHERE branch_id=?;`;
     tools.sqlHelper(query, [branch_id], req).then(function (results) {

@@ -32,10 +32,12 @@ function createBranch() {
     let state = document.getElementById('state').value;
     let postcode = document.getElementById('postcode').value;
     let description = document.querySelector('.create-branch-description').value;
+    let openingHours = document.getElementById('openingHours').value;
+    let closingHours = document.getElementById('closingHours').value;
     let image_url = document.querySelector('.create-branch-image-upload').files[0]; // file upload
 
     // Validate data
-    if (!name || !email || !city || !state || !postcode || !description) {
+    if (!name || !email || !city || !state || !postcode || !description || !openingHours || !closingHours) {
         alert('Please fill all required fields.');
         return;
     }
@@ -46,10 +48,10 @@ function createBranch() {
     // }
     // TODO: handle image upload
 
-    submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url);
+    submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url, openingHours, closingHours);
 }
 
-function submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, imageUrl) {
+function submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, imageUrl, openingHours, closingHours) {
     let branchData = {
         name: name,
         email: email,
@@ -60,6 +62,8 @@ function submitBranch(name, email, phone, streetNumber, streetName, city, state,
         state: state,
         postcode: postcode,
         description: description,
+        openingHours: openingHours,
+        closingHours: closingHours,
         image_url: imageUrl
     };
 

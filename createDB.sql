@@ -13,6 +13,8 @@ CREATE TABLE branches (
     phone VARCHAR(12),
     image_url VARCHAR(256),
     branch_description VARCHAR(1024) NOT NULL,
+    openingHours DATETIME NOT NULL,
+    closingHours DATETIME NOT NULL,
 
     PRIMARY KEY (branch_id)
 );
