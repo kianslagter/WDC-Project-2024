@@ -740,6 +740,7 @@ createApp({
                 .then(data => {
                     console.log("Fetched event:", data);
                     this.eventInfo = data;
+                    this.image_path = data.event_image;
                 })
                 .catch(error => {
                     console.error("Error fetching event:", error);

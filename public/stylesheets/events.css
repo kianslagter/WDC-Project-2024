@@ -149,3 +149,10 @@
 .response-section {
     margin-bottom: 20px;
 }
+.image-container {
+    position: relative;
+  }
+
+.select-image {
+    width: 500px;
+}
