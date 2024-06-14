@@ -6,8 +6,8 @@ function get_site_information() {
       if (this.readyState == 4 && this.status == 200) {
         var responseJSON = JSON.parse(this.responseText);
 
-        console.log(this.responseText);
-        console.log(responseJSON);
+        // console.log(this.responseText);
+        // console.log(responseJSON);
 
         var statistic_element;
 
@@ -20,12 +20,14 @@ function get_site_information() {
         statistic_element = document.getElementById('num-total-events');
         statistic_element.innerText = responseJSON.num_total_events;
 
+        statistic_element = document.getElementById('num-managers');
+        statistic_element.innerText = responseJSON.num_managers;
+
         statistic_element = document.getElementById('num-today-news');
         statistic_element.innerText = responseJSON.num_today_news;
 
         statistic_element = document.getElementById('num-total-news');
         statistic_element.innerText = responseJSON.num_total_news;
-
 
         statistic_element = document.getElementById('other-admins');
         statistic_element.innerHTML = "";
@@ -42,6 +44,9 @@ function get_site_information() {
             </div>`;
         }
       }
+      else if (this.status == 403)  {
+        window.location.replace("/");
+      }
     };
 
     xhttp.open("GET", "/admin/site_information", true);
@@ -57,6 +62,12 @@ function get_users() {
         var responseJSON = JSON.parse(this.responseText);
 
         var container;
+
+        var list_branches = "";
+
+        for (let i = 0; i < responseJSON.branches.length; i++) {
+          list_branches += `<option>${responseJSON.branches[i].branch_name}</option>`;
+        }
 
         container = document.getElementById('members-container');
         container.innerHTML = "";
@@ -77,7 +88,7 @@ function get_users() {
           }
 
           container.innerHTML += `
-            <div id="member-${responseJSON.users[i].username}" class="view-members-container">
+            <div id="member-${responseJSON.users[i].user_id}" class="view-members-container">
                 <p>
                   <b> ${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name} ${note_admin} ${note_manager} </b>
                   &emsp;
@@ -85,14 +96,26 @@ function get_users() {
                   &emsp;
                   (<u>Phone:</u> ${responseJSON.users[i].phone_num})
                   <br>
-                  <u>Address:</u> ${responseJSON.users[i].postcode}
+                  <u>Post Code:</u> ${responseJSON.users[i].postcode}
                   <br>
-                  <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].username}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
-                  <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].username}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
+                  <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
+                  <button class="right button secondary-button" onclick="alert_promote_manager('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')">
+                    <form>
+                      <label>
+                        Promote To
+                        <select onclick="event.stopPropagation();" name="branch-to-manage" id="branch-to-manage-${responseJSON.users[i].user_id}"> ${list_branches} </select> <label>
+                        Manager
+                      </label>
+                    </form>
+                  </button>
+                  <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
                   <br>
                 </p>
             </div>`;
         }
+      }
+      else if (this.status == 403)  {
+        window.location.replace("/");
       }
     };
 
@@ -101,10 +124,10 @@ function get_users() {
   }
 
   function alert_promote_admin(name, userID) {
-    var res = confirm(`Are you sure you want to promote ${name} (${userID}) to a branch manager?`);
+    var res = confirm(`Are you sure you want to promote ${name} to an admin?`);
 
     if (res) {
-      fetch(`/admin/user/promote/${userID}`, {
+      fetch(`/admin/promote/admin/${userID}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,8 +145,41 @@ function get_users() {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while promoting the member');
+        // console.error('Error:', error);
+        alert('An error occurred while promoting the member.');
+      });
+    }
+    else {
+      return;
+    }
+  }
+
+  function alert_promote_manager(name, userID) {
+    var branchID = document.getElementById(`branch-to-manage-${userID}`).value;
+
+    var res = confirm(`Are you sure you want to promote ${name} to a manager of ${branchID}?`);
+
+    if (res) {
+      fetch(`/admin/branch/${branchID}/promote/manager/${userID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          // promoted successfully
+          location.reload();
+          alert('Member promoted successfully!');
+        } else if (response.status === 403) {
+          alert('You do not have permission to promote this member.');
+        } else {
+          alert('Failed to promote member.');
+        }
+      })
+      .catch(error => {
+        // console.error('Error:', error);
+        alert('An error occurred while promoting the member.');
       });
     }
     else {
@@ -132,7 +188,7 @@ function get_users() {
   }
 
   function alert_delete_user(name, userID) {
-    var res = confirm(`Are you sure you want to delete user ${name} (${userID})?`);
+    var res = confirm(`Are you sure you want to delete user ${name}?`);
 
     if (res) {
       fetch(`/admin/user/delete/${userID}`, {
@@ -156,7 +212,7 @@ function get_users() {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        // console.error('Error:', error);
         alert('An error occurred while removing the member');
       });
     }

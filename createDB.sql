@@ -13,20 +13,23 @@ CREATE TABLE branches (
     phone VARCHAR(12),
     image_url VARCHAR(256),
     branch_description VARCHAR(1024) NOT NULL,
+    openingHours DATETIME DEFAULT '2024-01-01 09:00:00',
+    closingHours DATETIME DEFAULT '2024-01-01 17:00:00',
 
     PRIMARY KEY (branch_id)
 );
 
 CREATE TABLE users (
     user_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
-    username VARCHAR(64) UNIQUE,
-    password_hash VARCHAR(100) NOT NULL,
-    postcode INT, -- Add check for validity (4 digits, not negative)
+    google_uid decimal(21, 0) DEFAULT NULL,
+    password_hash BINARY(60),
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
-    phone_num VARCHAR(14), -- Add check for validity
+    phone_num VARCHAR(14) DEFAULT NULL, -- Add check for validity
     email VARCHAR(320) NOT NULL, -- Add check for validity
-    image_url VARCHAR(64),
+    postcode INT, -- Add check for validity (4 digits, not negative)
+    image_url VARCHAR(64) DEFAULT '/image/1',
+    email_notifications BOOLEAN DEFAULT TRUE,
     branch_managed INT DEFAULT NULL,
     system_admin BOOLEAN DEFAULT FALSE,
 

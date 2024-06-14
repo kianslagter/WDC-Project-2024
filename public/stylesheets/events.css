@@ -7,6 +7,7 @@
 .event-container {
     width: 90%;
     border-radius: 1em;
+    min-height: 180px;
     padding: 1em 2em;
     margin: auto;
     margin-top: 1em;
@@ -39,7 +40,7 @@
 
 .event-image {
     float: right;
-    width: 100px;
+    width: 200px;
 }
 
 .event-rsvp-button {
@@ -148,4 +149,23 @@
 
 .response-section {
     margin-bottom: 20px;
+}
+
+.image-container {
+    position: relative;
+  }
+
+.select-image {
+    width: 500px;
+}
+
+.preview_event_image {
+    width: 40%;
+}
+
+.event-details-image{
+    width: 70%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

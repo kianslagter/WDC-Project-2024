@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/branches.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="/branches.js" defer></script>
     <script src="/App.js" defer></script>
@@ -19,13 +20,15 @@
                 document.getElementById('name').value = data.name;
                 document.getElementById('email').value = data.email;
                 document.getElementById('phone').value = data.phone;
-                document.getElementById('streetNumber').value = data.streetNumber;
-                document.getElementById('streetName').value = data.streetName;
+                document.getElementById('streetNumber').value = data.street_number;
+                document.getElementById('streetName').value = data.street_name;
                 document.getElementById('city').value = data.city;
-                document.getElementById('state').value = data.state;
+                document.getElementById('state').value = data.branch_state;
                 document.getElementById('postcode').value = data.postcode;
                 document.getElementById('description').value = data.description;
                 document.getElementById('image_url').value = data.image_url;
+                //document.getElementById('openingHours').value = data.open_time;
+                //document.getElementById('closingHours').value = data.close_time;
             });
             // Delete branch
             const deleteBranchButton = document.getElementById('deleteBranchButton');
@@ -50,7 +53,9 @@
                         state: document.getElementById('state').value,
                         postcode: document.getElementById('postcode').value,
                         description: document.getElementById('description').value,
-                        image_url: document.getElementById('image_url').value
+                        image_url: document.getElementById('image_url').innerText,
+                        closing_time: document.getElementById('closing_hours').value,
+                        opening_time: document.getElementById('opening_hours').value
                     };
                     updateBranch(branchID, branchData);
                 });
@@ -62,7 +67,9 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+          <ul class="nav-horizontal">
+            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+          </ul>
         </nav>
     </header>
 
@@ -77,9 +84,18 @@
         <h4> City: <input id="city" class="create-branch-city" type="text" name="city"></h4>
         <h4> State: <input id="state" class="create-branch-state" type="text" name="state"></h4>
         <h4> Postcode: <input id="postcode" class="create-branch-postcode" type="text" name="postcode"></h4>
+        <h4> Set Trading Hours </h4>
+        <p> Opening time: <input type="time" id="opening_hours" class="create-event-time-inputs"></p>
+        <p> Closing time: <input type="time" id="closing_hours" class="create-event-time-inputs"></p>
         <h4> Description: <textarea id="description" class="create-branch-description"></textarea></h4>
-        <h4> Add an Image: <input id="image_url" class="create-branch-image-upload" type="file" name="image_url"
-                accept="image/*"></h4>
+        <h4> Choose an Image </h4>
+        <select v-model="image_path">
+          <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
+        </select>
+        <p id="image_url" class="hidden"> {{image_path}} </p>
+        <div class="image-container">
+          <img id="branch_image" class="select-image" v-bind:src="image_path" alt="news image">
+        </div>
         <div>
             <button id="updateBranchButton" class="button primary-button create-branch-button" type="button">Update
                 Branch</button>
@@ -89,7 +105,8 @@
     </div>
 
     <footer>
-        &copy; 2024 Your Website. All rights reserved.
+        &copy; 2024 Meal Mates. All rights reserved.
+        <a class="private_policy" href="/private_policy"> Private Policy</a>
     </footer>
 </body>
 

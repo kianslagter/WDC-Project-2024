@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
@@ -16,19 +17,21 @@
 <body id="app" onload="get_site_information()">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
   <div class="page-content content">
     <div class="right text-center manage-side-pane">
       <h3> Quick Admin Actions </h3>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/view_users"><b>Manage/View Users </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/view_users"><b>Manage Users </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/admin/branches/create"><b>Create New Branch </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches"><b>Manage/View Branches </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches"><b>Manage Branches </b></a></div>
       <h3> Account </h3>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Update Profile </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Sign Out </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/profile"><b> Update Profile </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/api/logout"><b> Log Out </b></a></div>
     </div>
 
     <h1> System Admin Dashboard</h1>
@@ -52,6 +55,11 @@
         <p id="num-total-events"></p>
       </div>
       <div class="statistics-item">
+        <b> Total Managers: </b>
+        <br>
+        <p id="num-managers"></p>
+      </div>
+      <div class="statistics-item">
         <b> Total News (Today): </b>
         <br>
         <p id="num-today-news"></p>
@@ -63,7 +71,7 @@
       </div>
     </div>
 
-    <h2> Other System Admins </h2>
+    <h2> All System Admins </h2>
     <div id="other-admins">
       <p> Loading... </p>
     </div>
@@ -72,11 +80,8 @@
   <br>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
-    These buttons will be removed, for testing purposes only
-    <button type="button" v-on:click="access_level=0"> Visitor </button>
-    <button type="button" v-on:click="access_level=1"> User </button>
-    <button type="button" v-on:click="access_level=2"> Manager </button>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

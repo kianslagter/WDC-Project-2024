@@ -7,44 +7,55 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/App.js" defer></script>
 </head>
 <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
+  <header class="top-pane">
+    <nav>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
+    </nav>
+  </header>
 
     <div class="page-content content">
         <h1>Profile information</h1>
-        <img :src="profile.image_url" alt="Profile Image">
-        <h4> Change profile photo </h4>
-        <input type="file" name="profile-image" id="profile-image" accept="image/*">
-        <br>
+        <h4> {{ profile.first_name + " " + profile.last_name }}</h4>
+        <img :src="profile.image_url" alt="Profile Image" style="max-width: 100px">
+        <!-- <h4> Change profile photo </h4>
+        <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">
+          <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
+          <input type="number" id="branch_id" name="branch" class="hidden" value=1>
+          <input id="public_image" type="checkbox" name="public" class="hidden" checked>
+          <button type="submit"> Upload Image </button>
+        </form> -->
+        <p id="status_text"> </p>
 
-        <h4> {{ profile.username }}</h4>
-        <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
-        <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
-        <br>
+        <form @submit="setProfileInfo">
+          <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
+          <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
 
-        <!-- Can make these to block-inline to save space later -->
-        <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
-        <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
-        <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>
-        <h4> Postcode: <input id="postcode" type="text" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
+          <h4> Email notifications <input id="email_notifications" type="checkbox" true-value="1" false-value="0" v-model="profile.email_notifications"></h4>
+          <br>
 
-        <button class="center button primary-button" type="button" @click="setProfileInfo"> Update profile information </button>
+          <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name" required></h4>
+          <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name" required></h4>
+          <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$" required></h4>
+          <h4> Postcode: <input id="postcode" type="number" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$" required></h4>
 
-        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
+          <button class="center button primary-button" type="submit"> Update profile information </button>
 
+          <!-- Note there should be some validation of data before it is sent to server -->
+        </form>
     </div>
     <br>
     <br>
 
     <footer>
-      &copy; 2024 Your Website. All rights reserved.
+      &copy; 2024 Meal Mates. All rights reserved.
+      <a class="private_policy" href="/private_policy"> Private Policy</a>
     </footer>
   </body>
   </html>

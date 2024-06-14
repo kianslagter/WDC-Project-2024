@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/App.js" defer></script>
@@ -16,7 +17,9 @@
 <body id="app" onload="get_branch_information()">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
@@ -24,14 +27,14 @@
     <div class="right text-center manage-side-pane">
       <h3> Quick Manager Actions </h3>
       <p> <b> Branch: </b> <span id="branch-name"> Location </span> </p>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/branches/id/1/view_members"><b>Manage/View Branch Members</b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" :href="`/manage/branches/id/${manages}/view_members`"><b>Manage Branch Members</b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/events/create"><b>Create New Event </b></a></div>
       <div class="center text-center manage-side-pane-container"><a class="text-white" href="/manage/news/create"><b>Create News Update </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/events"><b>Manage/View Events </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/branches/id/1"><b>Manage/View Branch Details </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/events"><b>Manage Events </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" :href="`/branches/id/${manages}`"><b>Manage Branch Details </b></a></div>
       <h3> Account </h3>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Update Profile </b></a></div>
-      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/"><b> Sign Out </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/profile"><b> Update Profile </b></a></div>
+      <div class="center text-center manage-side-pane-container"><a class="text-white" href="/api/logout"><b> Sign Out </b></a></div>
     </div>
 
     <h1> Manager Dashboard</h1>
@@ -66,20 +69,15 @@
       <p> Loading... </p>
     </div>
 
-    <h2> Other Branch Managers </h2>
+    <h2> All Branch Managers </h2>
     <div id="other-managers">
       <p> Loading... </p>
     </div>
   </div>
-  <br>
-  <br>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
-    These buttons will be removed, for testing purposes only
-    <button type="button" v-on:click="access_level=0"> Visitor </button>
-    <button type="button" v-on:click="access_level=1"> User </button>
-    <button type="button" v-on:click="access_level=2"> Manager </button>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

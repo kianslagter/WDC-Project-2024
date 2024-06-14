@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/stylesheets/events.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
+    <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
     <script src="/events.js"></script>
     <script src="/App.js" defer></script>
 </head>
@@ -16,23 +18,24 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-            <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+          <ul class="nav-horizontal">
+            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+          </ul>
         </nav>
-    </header>
+      </header>
 
     <div class="page-content content">
         <a class="back-button" href="/events"> &lt; BACK</a>
         <br>
-        <p v-if="access_level == 0"> <a href="/login"> Log in </a> to RSVP for this event </p>
+        <p v-if="access_level == 0"> <a href="/login"> Log in</a> to RSVP for this event </p>
         <template v-if="loading">
             <p> Loading Event Details...</p>
         </template>
         <template v-else-if="event_selected !== null">
             <div class="right event-side-pane">
-                <p><b> Date: </b> {{event_selected.date}} </p>
-                <p><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
-                <p><b> Location: </b> {{event_selected.location}} </p>
-                <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
+                <p><i class="fa fa-calendar-o"></i><b> Date: </b> {{event_selected.date}} </p>
+                <p><i class="fa fa-clock-o"></i><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
+                <p><i class="fa fa-map-marker"></i><b> Location: </b> {{event_selected.location}} </p>
                 <button class="button primary-button event-details-rsvp-button" type="button"
                     v-on:click="RSVP('yes', getEventIDFromPath())">RSVP Yes</button>
                 <button class="button secondary-button event-details-rsvp-button" type="button"
@@ -65,16 +68,13 @@
                         </template>
                     </template>
                 </ul>
-                <img v-bind:src="event_selected.image_url" alt="Event Image">
+                <img v-bind:src="event_selected.image_url" alt="Event Image" class="event-details-image">
             </template>
         </template>
     </div>
     <footer>
-        &copy; 2024 Your Website. All rights reserved.
-        These buttons will be removed, for testing purposes only
-        <button type="button" v-on:click="access_level=0"> Visitor </button>
-        <button type="button" v-on:click="access_level=1"> User </button>
-        <button type="button" v-on:click="access_level=2"> Manager </button>
+        &copy; 2024 Meal Mates. All rights reserved.
+        <a class="private_policy" href="/private_policy"> Private Policy</a>
     </footer>
   </body>
   </html>

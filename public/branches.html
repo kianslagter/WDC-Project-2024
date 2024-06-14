@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/branches.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/branches.js" defer></script>
@@ -17,22 +18,29 @@
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
   <div class="page-content content">
-    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2"
-      onclick="window.location.href='/manage/branches/create'"> New Branch </button>
+    <button class="button primary-button right new-button" type="button" v-if="access_level >= 3"
+      onclick="window.location.href='/admin/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_results">
+      <div class="branch-image-container"
+      style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+      <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+      <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
+    </div>
       <div class="branch-content">
         <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)"
           style="text-decoration: none; color: inherit;">
           <div class="branch-details-container" style="flex: 2;">
             <h2 class="branch-name"> {{branch.name}} </h2>
             <div class="branch-details">
-              <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.openingHours}}</p>
+              <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch.open_time}} - {{branch.close_time}} </p>
               <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch.street_number}}
                 {{branch.street_name}}, {{branch.city}}, {{branch.branch_state}} {{branch.postcode}}</p>
             </div>
@@ -41,17 +49,12 @@
             </div>
           </div>
         </a>
-        <div class="branch-image-container"
-          style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-          <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
-          <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
-        </div>
       </div>
 
       <div class="branch-buttons">
         <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
         <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="(access_level >= 2 && manages === branch.id) || access_level == 3" class="button secondary-button event-rsvp-button" type="button"
           @click="editBranch(branch.id)"> Edit Branch
         </button>
       </div>
@@ -59,11 +62,8 @@
   </div>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
-    These buttons will be removed, for testing purposes only
-    <button type="button" v-on:click="access_level=0"> Visitor </button>
-    <button type="button" v-on:click="access_level=1"> User </button>
-    <button type="button" v-on:click="access_level=2"> Manager </button>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

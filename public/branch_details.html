@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/branches.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/branches.js" defer></script>
@@ -17,7 +18,9 @@
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
@@ -31,7 +34,7 @@
       <div class="branch-details-container" style="flex: 2;">
 
         <div class="branch-details">
-          <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch_selected.openingHours}} </p>
+          <p class="branch-hours"><i class="fa fa-clock-o"></i> {{branch_selected.open_time}} - {{branch_selected.close_time}} </p>
           <p class="branch-location"><i class="fa fa-map-marker"></i> {{branch_selected.street_number}} {{branch_selected.street_name}}, {{branch_selected.city}}, {{branch_selected.branch_state}} {{branch_selected.postcode}}</p>
         </div>
         <div>
@@ -44,7 +47,7 @@
       </div>
       <div class="branch-image-container" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
         <img class="branch-image" v-bind:src="branch_selected.image_url" alt="Branch Image">
-        <a href="/register" class="button join-branch-button">Join Branch</a>
+        <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
       </div>
     </div>
     <hr>
@@ -69,7 +72,8 @@
   </div>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/events.js"></script>
   <script src="App.js" defer></script>
 </head>
@@ -16,15 +18,17 @@
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
   <div class="page-content content">
     <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
-      onclick="window.location.href='/manage/events/create'"> New Event </button>
+      onclick="window.location.href='/manage/events/create'"> Create Event for your branch </button>
     <h1>Upcoming Events</h1>
-    <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+    <p v-if="access_level == 0"> <a href="/login">Log in</a> to view private events and to RSVP for events </p>
     <div class="search-div">
       <input id="events-search" class="search-bar" type="text" placeholder="Search...">
       <button class="button primary-button search-button" type="button" v-on:click="events_search()">Search</button>
@@ -39,7 +43,7 @@
 
       <!-- Note: need to add an AJAX request on initial page load to update the branches-->
 
-      <template v-for="branch in branches_summary">
+      <template v-for="branch in branches_results">
         <input type="checkbox" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
       </template>
 
@@ -70,20 +74,22 @@
             <h2 class="event-title"> {{event.title}} </h2>
             <!-- Link the location to the branch page? -->
             <span class="event-header">
-              {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}</span>
+              <i class="fa fa-calendar-o"></i> {{event.date}} &emsp; &emsp; &emsp; <i class="fa fa-clock-o"></i> {{event.startTime}} - {{event.endTime}} &emsp; &emsp; &emsp; <i class="fa fa-map-marker"></i> {{event.location}} &emsp; &emsp; &emsp;
+              <span v-if="event.public === 0"><i class="fa fa-lock"></i> Private</span>
+              <span v-else><i class="fa fa-unlock"></i> Public</span></span>
             <p class="event-description"> {{event.description}} </p>
           </div>
         </a>
         <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-        <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
+        <button v-if="branches.includes(event.branchID)" class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
           Yes</button>
-        <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
+        <button v-if="branches.includes(event.branchID)" class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
           No</button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === event.branchID" class="button secondary-button event-rsvp-button" type="button"
           @click="eventRSVPresponse(event.id)"> View
           Responses
         </button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === event.branchID" class="button secondary-button event-rsvp-button" type="button"
           @click="editEvent(event.id)"> Edit Event
         </button>
 
@@ -99,12 +105,9 @@
 
   </div>
 
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
-    </footer>
+  <footer>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
+  </footer>
   </body>
   </html>

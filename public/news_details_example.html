@@ -7,16 +7,20 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
+  <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/news.js"></script>
   <script src="/App.js" defer></script>
 </head>
 <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
+  <header class="top-pane">
+    <nav>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
+    </nav>
+  </header>
 
     <div class="page-content content">
         <a href="/news"> &lt; BACK</a>
@@ -25,8 +29,8 @@
           <h1> {{article_selected.title}} </h1>
 
           <div class="news-details-container">
-                <div><b> Date Posted: </b> {{article_selected.date}} </div>
-                <div><b> Posted By Branch: </b> {{article_selected.branch}} </div>
+                <div> <i class="fa fa-calendar-o"></i> <b> Date Posted: </b> {{article_selected.date}} </div>
+                <div> <i class="fa fa-map-marker"></i> <b> Posted By Branch: </b> {{article_selected.location}} </div>
           </div>
 
             <p><b> {{article_selected.content}} </b></p>
@@ -35,7 +39,7 @@
                   <template v-for="detail in article_selected.details">
                     <p>{{ detail }}</p>
                   </template>
-                  <img v-bind:src="article_selected.image_url" alt="Update Image" class="center">
+                  <img v-bind:src="article_selected.image_url" alt="Update Image" class="news-details-image">
               </template>
 
             </template>
@@ -49,11 +53,8 @@
 
       </div>
       <footer>
-        &copy; 2024 Your Website. All rights reserved.
-        These buttons will be removed, for testing purposes only
-        <button type="button" v-on:click="access_level=0"> Visitor </button>
-        <button type="button" v-on:click="access_level=1"> User </button>
-        <button type="button" v-on:click="access_level=2"> Manager </button>
+        &copy; 2024 Meal Mates. All rights reserved.
+        <a class="private_policy" href="/private_policy"> Private Policy</a>
       </footer>
   </body>
   </html>

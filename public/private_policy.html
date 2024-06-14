@@ -7,15 +7,18 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
 </head>
 <body id="app">
-    <header class="top-pane">
-      <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
-      </nav>
-    </header>
+  <header class="top-pane">
+    <nav>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
+    </nav>
+  </header>
 
     <div class="page-content content">
       <h1> Private Policy </h1>
@@ -27,11 +30,15 @@
       <p>
         By engaging with MealMates, you consent to the collection and use of your information in accordance with this policy. If you have any questions or concerns about our privacy practices, or if you wish to update or remove your information from our records, please contact us at realmealmates@outlook.com. We are dedicated to maintaining the trust and confidence of our community and regularly review and update our privacy practices to ensure compliance with current regulations and best practices.
       </p>
-      <br>
+
+      <p>
+        We also gather non-personal data, such as feedback, service usage statistics, and anonymized demographic information to better understand the needs and preferences of our community. This data helps us to enhance our programs, improve user experiences, and measure the impact of our services. Rest assured that any such data is used in aggregate form, ensuring that individual identities remain confidential. MealMates is committed to transparency and integrity in all aspects of data management, and we regularly audit our data collection and handling processes to ensure they align with ethical standards and legal requirements. Your trust is paramount, and we strive to create a secure and respectful environment for all data interactions.
+      </p>
     </div>
 
     <footer>
-      &copy; 2024 Your Website. All rights reserved.
+      &copy; 2024 Meal Mates. All rights reserved.
+      <a class="private_policy" href="/private_policy"> Private Policy</a>
     </footer>
   </body>
   </html>

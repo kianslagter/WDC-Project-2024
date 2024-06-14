@@ -6,7 +6,9 @@
   <title>Your Website</title>
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/news.css">
+  <link rel="stylesheet" href="/stylesheets/others.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/news.js"></script>
   <script src="App.js" defer></script>
@@ -14,27 +16,40 @@
 <body id="app">
     <header class="top-pane">
       <nav>
-        <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+        <ul class="nav-horizontal">
+          <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+        </ul>
       </nav>
     </header>
 
     <div class="page-content content">
-      <h1>What We Do</h1>
-      <p> A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion. A reasonabley sized paragraph here explaining the goals of the organistion.</p>
-      <h1> How You Can Help </h1>
-      <p> By volunteering with mealmates, you can have a real impact whilst gaining valuable experience. Some more text here probably. Register now using the button below</p>
-      <button class="button primary-button" onclick="window.location.href='/register'">Register Now!</button>
+      <div class="justify-text">
+        <img class="homepage-img right" src="https://www.foodbank.org.au/wp-content/uploads/2019/03/VolunteerWithUsFeature.jpg" alt="Volunteers helping with meal preperations at Meal Mates HQ.">
+        <h1> What We Do! </h1>
+        <p> At Meal Mates, our mission is centered on addressing food insecurity through a multifaceted approach that spans community engagement, food rescue, and educational empowerment. We actively collaborate with local farms, businesses, and volunteers to ensure that every meal we provide is nutritious and sourced sustainably. </p>
+        <p> Beyond food distribution, Meal Mates cultivates community cohesion through a variety of events and programs. From community BBQs and garden planting days to youth mentorship programs and family cooking classes, we foster connections and empower individuals with the skills to make positive lifestyle choices. </p>
 
-      <h1> News </h1>
-      <div class="scrolling-wrapper">
+        <h1> How You Can Help? </h1>
+        <p>Volunteering with Meal Mates offers you the opportunity to make a tangible difference in your community while gaining valuable experience and personal fulfillment. Our volunteers play a crucial role in every aspect of our operations, from preparing nutritious meals to organizing community events and workshops.</p>
+        <p>Whether you're passionate about food sustainability, community engagement, or simply want to give back, there's a place for you at Meal Mates! </p>
+        <p>At Meal Mates, we believe in the power of community and the impact that dedicated volunteers can make. Whether you have a few hours to spare or want to commit regularly, there are numerous ways you can contribute to our mission of promoting food sustainability and supporting those in need.</p>
+        <p>Your contribution, no matter how small, can make a tangible difference in our community. Whether you're passionate about food sustainability, community engagement, or simply want to give back, there's a place for you at Meal Mates! Join us today and be a part of a team that is dedicated to making a positive impact.</p>
+        <button type="button" class="center button primary-button" onclick="window.location.href='/register'">Register Now!</button>
+      </div>
+      <br>
+
+      <hr>
+
+      <h1 class="center-text"> News </h1>
+      <div class="scrolling-wrapper center">
         <div class="inner-scroll">
           <template v-for="news in news_results" :key="news.id">
             <div class="news-pane">
               <a v-bind:href="'/news/id/' + news.id" class="title-link">
-              <img v-bind:src="news.image" class="news-image-1" alt="News image">
+              <img v-bind:src="news.image_url" class="news-image-1" alt="News image">
               <p class="news-branch"> {{news.branch}} </p>
               <p class="news-date"> {{news.date}} </p>
-               <h3 class="news-card-title"> {{news.title}} </h3>
+              <h3 class="news-card-title"> {{news.title}} </h3>
               <p class="news-article"> {{news.content}} </p>
               </a>
             </div>
@@ -42,12 +57,13 @@
         </div>
       </div>
       <br>
-      <button class="button primary-button" onclick="window.location.href='/news'">See all news</button>
+      <button type="button" class="center button primary-button" onclick="window.location.href='/news'"> See All News </button>
 
     </div>
 
     <footer>
-      &copy; 2024 Your Website. All rights reserved.
+      &copy; 2024 Meal Mates. All rights reserved.
+      <a class="private_policy" href="/private_policy"> Private Policy</a>
     </footer>
   </body>
   </html>
