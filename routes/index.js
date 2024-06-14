@@ -40,7 +40,6 @@ router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-
 async function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password

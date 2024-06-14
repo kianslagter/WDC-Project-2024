@@ -22,7 +22,8 @@
 
     <div class="page-content content">
         <h1>Profile information</h1>
-        <img :src="profile.image_url" alt="Profile Image">
+        <h3> {{ profile.first_name + " " + profile.last_name }}</h4>
+        <img :src="profile.image_url" alt="Profile Image" style="max-width: 100px">
         <h4> Change profile photo </h4>
         <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">
           <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
@@ -33,22 +34,22 @@
         <p id="status_text"> </p>
         <br>
 
-        <h4> {{ profile.username }}</h4>
-        <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
-        <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
+        <form @submit="setProfileInfo">
+          <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
+          <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
 
-        <h4> Email notifications <input id="email_notifications" type="checkbox" true-value="1" false-value="0" v-model="profile.email_notifications"></h4>
-        <br>
+          <h4> Email notifications <input id="email_notifications" type="checkbox" true-value="1" false-value="0" v-model="profile.email_notifications"></h4>
+          <br>
 
-        <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
-        <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
-        <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>
-        <h4> Postcode: <input id="postcode" type="number" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
+          <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name" required></h4>
+          <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name" required></h4>
+          <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$" required></h4>
+          <h4> Postcode: <input id="postcode" type="number" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$" required></h4>
 
-        <button class="center button primary-button" type="button" @click="setProfileInfo"> Update profile information </button>
+          <button class="center button primary-button" type="submit"> Update profile information </button>
 
-        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
-
+          <!-- Note there should be some validation of data before it is sent to server -->
+        </form>
     </div>
     <br>
     <br>
