@@ -74,17 +74,6 @@
         <textarea id="location" type="text" class="create-event-title" v-model="eventInfo.location"></textarea>
         <h4>Enter Event Description Below</h4>
         <textarea id="description" class="create-event-description" v-model="eventInfo.event_description"></textarea>
-        <p>Note: Event description should be brief, further details can go in the details section below</p>
-        <h4>Enter Event Details Below</h4>
-        <div class="details-container">
-            <template v-for="(point, index) in eventInfo.event_details" :key="index">
-                <div>
-                    <p v-if="point.level === 0" style="display: inline-block"> - </p>
-                    <p v-else style="display: inline-block">  - </p>
-                    <input type="text" class="create-event-details" v-model="point.text">
-                </div>
-            </template>
-        </div>
         <h4>Choose an Image</h4>
         <select v-model="image_path">
             <option v-for="image in images" :key="image.path" :value="image.path"> {{image.description}}</option>
