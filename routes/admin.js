@@ -94,7 +94,7 @@ router.get('/get_users', function (req, res, next) {
     }
 
     // Query 1
-    var query = `SELECT users.username, first_name, last_name, email, phone_num, postcode, branch_managed, system_admin FROM users;`;
+    var query = `SELECT users.user_id, first_name, last_name, email, phone_num, postcode, branch_managed, system_admin FROM users;`;
 
     connection.query(query, function (err, rows, fields) {
       connection.release();
