@@ -9,9 +9,9 @@ function getNewsDetails(articleID, callback, errorCallback) {
                 var data = JSON.parse(xhttp.responseText);
                 callback(data);
             } else if (xhttp.status == 404) {
-                console.error("Article not found");
+                // console.error("Article not found");
             } else {
-                console.error("Error fetching article");
+                // console.error("Error fetching article");
             }
         }
     };
@@ -59,7 +59,7 @@ function submitNews(title, content, datePublished, imageUrl, publicValue, sendEm
     })
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => { throw new Error(text) });
+                return response.text().then(text => { throw new Error(text); });
             }
             return response.json();
         })
@@ -106,7 +106,7 @@ function deleteNews(articleID) {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            // console.error('Error:', error);
             alert('An error occurred while deleting the news article');
         });
 }
@@ -146,7 +146,7 @@ function updateNews(articleID) {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            // console.error('Error:', error);
             alert('Error updating news article');
         });
 }

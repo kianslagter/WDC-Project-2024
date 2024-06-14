@@ -168,7 +168,7 @@ function sendMail(sender, receivers, title, plain_text, html_body) {
         if (error) {
             // console.log(error);
         } else {
-            console.log('Email sent: ' + info.response);
+            // console.log('Email sent: ' + info.response);
         }
     });
 

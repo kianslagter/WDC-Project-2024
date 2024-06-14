@@ -647,7 +647,7 @@ createApp({
                     alert('Failed to update profile.');
                 });
         },
-        async alt_profile_picture_upload() {
+        async alt_profile_picture_upload()  {
             var vm = this;
             const form = document.getElementById("upload_form");
             const status_text = document.getElementById("status_text");

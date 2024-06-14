@@ -6,8 +6,8 @@ function get_site_information() {
       if (this.readyState == 4 && this.status == 200) {
         var responseJSON = JSON.parse(this.responseText);
 
-        console.log(this.responseText);
-        console.log(responseJSON);
+        // console.log(this.responseText);
+        // console.log(responseJSON);
 
         var statistic_element;
 
@@ -178,7 +178,7 @@ function get_users() {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        // console.error('Error:', error);
         alert('An error occurred while promoting the member.');
       });
     }
@@ -212,7 +212,7 @@ function get_users() {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        // console.error('Error:', error);
         alert('An error occurred while removing the member');
       });
     }
