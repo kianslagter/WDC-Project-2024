@@ -603,6 +603,14 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
       fieldsToUpdate.push("image_url=?");
       values.push(req.body.image_url);
     }
+    if (req.body.opening_time !== undefined) {
+      fieldsToUpdate.push("openingHours=?");
+      values.push('2024-01-01 ' + req.body.openingHours);
+    }
+    if (req.body.closing_time !== undefined) {
+      fieldsToUpdate.push("closingHours=?");
+      values.push('2024-01-01 ' + req.body.closingHours);
+    }
 
     if (fieldsToUpdate.length === 0) {
       res.status(400).send("Nothing to update");
