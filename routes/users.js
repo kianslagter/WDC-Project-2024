@@ -195,7 +195,7 @@ router.get('/events/search', function (req, res, next) {
   DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
   DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
   DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public
+  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public, e.branch_id AS branchID
   FROM events e
   JOIN branches b ON e.branch_id = b.branch_id`;
 
@@ -228,6 +228,7 @@ router.get('/events/search', function (req, res, next) {
 
   // show all public, but only private for branch which member of
   if (user_branches && user_branches.length > 0) {
+    console.log(user_branches);
     conditions.push("(e.is_public = 1 OR (e.is_public = 0 AND e.branch_id IN (?)))");
     params.push(user_branches);
   } else {
@@ -274,7 +275,7 @@ router.get('/events/get', function (req, res, next) {
   DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
   DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
   DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public
+  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public, e.branch_id AS branchID
   FROM events e
   JOIN branches b ON e.branch_id = b.branch_id`;
 
@@ -335,7 +336,7 @@ router.get('/news/get', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location, n.is_public AS public
+  n.image_url, b.branch_name AS location, n.is_public AS public, n.branch_id AS branchID
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
@@ -407,7 +408,7 @@ router.get('/news/search', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location, n.is_public AS public
+  n.image_url, b.branch_name AS location, n.is_public AS public, n.branch_id AS branchID
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 

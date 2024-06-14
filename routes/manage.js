@@ -231,6 +231,7 @@ router.post('/event/edit/:eventID', function (req, res, next) {
       return;
     } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
+      alert("Can only edit events of branches you manage");
       res.status(403).send("Can only edit events of branches you manage");
     }
 
@@ -290,7 +291,7 @@ router.post('/event/edit/:eventID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 router.post('/event/delete/:eventID', function (req, res, next) {
@@ -325,7 +326,7 @@ router.post('/event/delete/:eventID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 // NEWS
@@ -415,6 +416,7 @@ router.post('/news/edit/:articleID', function (req, res, next) {
       return;
     } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
+      alert("Can only edit news articles of branches you manage");
       res.status(403).send("Can only edit news articles of branches you manage");
       return;
     }
@@ -473,7 +475,7 @@ router.post('/news/edit/:articleID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 router.post('/news/delete/:articleID', function (req, res, next) {
@@ -508,7 +510,7 @@ router.post('/news/delete/:articleID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) { tools.sendError(res,err); });
 });
 
 

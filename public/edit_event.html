@@ -48,54 +48,46 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-          <ul class="nav-horizontal">
-            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
-          </ul>
+            <ul class="nav-horizontal">
+                <li v-for="item in navitems"> <a :key="item.title" :href="item.url"
+                        :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+            </ul>
         </nav>
     </header>
 
     <div class="page-content content">
         <h1>Edit Event</h1>
-        <h4> Branch:</h4>
-        <h4 > {{eventInfo.branch}}</h4>
-        <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
-        <h4> Set Event Time </h4>
-        <p> Date: <input id="date" type="date" class="create-event-time-inputs" v-model="eventInfo.date"></p>
-
-        <p> Start time: <input id="startTime" type="time" class="create-event-time-inputs"></p>
-
-        <p> End time: <input id="endTime" type="time" class="create-event-time-inputs"></p>
-
-        <h4> Set Event to Public or Private </h4>
-        <input id="public" type="radio" name="event_privacy" value="1">
+        <h4>Branch: {{ eventInfo.branch }}</h4>
+        <h4>Title: <input id="title" class="create-event-title" type="text" v-model="eventInfo.event_name"></h4>
+        <h4>Set Event Time</h4>
+        <p>Date: <input id="date" type="date" class="create-event-time-inputs" v-model="eventInfo.start_date"></p>
+        <p>Start time: <input id="startTime" type="time" class="create-event-time-inputs"
+                v-model="eventInfo.start_time"></p>
+        <p>End time: <input id="endTime" type="time" class="create-event-time-inputs" v-model="eventInfo.end_time">
+        </p>
+        <h4>Set Event to Public or Private</h4>
+        <input id="public" type="radio" name="event_privacy" value="1" v-model="eventInfo.is_public">
         <label for="public"> Public </label>
-        <input id="private" type="radio" name="event_privacy" value="0">
+        <input id="private" type="radio" name="event_privacy" value="0" v-model="eventInfo.is_public">
         <label for="private"> Private </label>
-        <h4> Enter Event Description Below </h4>
-        <textarea id="description" class="create-event-description"> Enter event description here </textarea>
-        <p> Note: Event description should be brief, further details can go in the details section below </p>
-        <h4> Enter Event Details Below </h4>
-        <p> Event details are listed as dot points, with up to 2 levels of dot points able to be used. Use the button on
-            the
-            right to toggle between the two list levels </p>
-        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
+        <h4>Enter Event Description Below</h4>
+        <textarea id="description" class="create-event-description" v-model="eventInfo.event_description"></textarea>
+        <p>Note: Event description should be brief, further details can go in the details section below</p>
+        <h4>Enter Event Details Below</h4>
         <div class="details-container">
-            <template v-for="point in num_points">
+            <template v-for="(point, index) in eventInfo.event_details" :key="index">
                 <div>
-                    <button v-if="point != 1" class="secondary-button button create-event-point-level" type="button"
-                        v-on:click="point_level[point-1] = (point_level[point - 1] + 1)%2"> Change level </button>
-                    <p v-if="point_level[point-1] == 0" style="display: inline-block"> - </p>
-                    <p v-else style="display: inline-block"> &emsp;- </p>
-                    <input id="details" type="text" class="create-event-details">
+                    <p v-if="point.level === 0" style="display: inline-block"> - </p>
+                    <p v-else style="display: inline-block">  - </p>
+                    <input type="text" class="create-event-details" v-model="point.text">
                 </div>
             </template>
         </div>
-        <button class="secondary-button button" type="button" v-on:click="num_points++; point_level.push(0)"> Add
-            another
-            point </button>
-
-        <h4> Add an Image </h4>
+        <h4>Add an Image</h4>
         <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
+        <div v-if="eventInfo.event_image">
+            <img :src="eventInfo.event_image" alt="Event Image">
+        </div>
         <button id="updateEventButton" class="button primary-button create-event-button" type="button">
             Update Event
         </button>

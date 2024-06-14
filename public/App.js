@@ -33,18 +33,28 @@ createApp({
                 email_notifications: ''
             }, // returns profile information for profile_page.html
             eventInfo: {
-                title: '',
-                description: '',
-                date: '',
-                startTime: '',
-                endTime: '',
-                public: '',
-                dayOfWeek: '',
-                details: [],
-                image_url: '',
-                branch: '',
-                location: ''
+                event_id: null,
+                branch_id: null,
+                event_name: '',
+                start_date_time: '',
+                end_date_time: '',
+                event_description: '',
+                event_details: [],
+                event_location: '',
+                event_image: '',
+                is_public: 1,
+                branch: ''
             }, // info for event data
+            newsInfo: {
+                article_id: '',
+                branch_id: '',
+                branch_name: '',
+                title: '',
+                date_published: '',
+                is_public: '',
+                content: '',
+                image_url: ''
+            },// info for news data
             loading: true,
             event: null,
             isLoading: false,
@@ -53,35 +63,35 @@ createApp({
             images: [
                 {
                     'description': 'Food Truck',
-                    'path' : '/image/2'
+                    'path': '/image/2'
                 },
                 {
                     'description': 'Gardening',
-                    'path' : '/image/3'
+                    'path': '/image/3'
                 },
                 {
                     'description': 'Handing out Food',
-                    'path' : '/image/4'
+                    'path': '/image/4'
                 },
                 {
                     'description': 'Packing Boxes',
-                    'path' : '/image/5'
+                    'path': '/image/5'
                 },
                 {
                     'description': 'People with Box',
-                    'path' : '/image/7'
+                    'path': '/image/7'
                 },
                 {
                     'description': 'Potatoes',
-                    'path' : '/image/8'
+                    'path': '/image/8'
                 },
                 {
                     'description': 'Sausage Sizzle',
-                    'path' : '/image/9'
+                    'path': '/image/9'
                 },
                 {
                     'description': 'Volunteers',
-                    'path' : '/image/10'
+                    'path': '/image/10'
                 }
             ]
         };
@@ -138,7 +148,7 @@ createApp({
     computed: {
         navitems() {
             const common_nav = [
-                { title: 'Meal Mates', url: '/', alignClass: "lobster-regular"},
+                { title: 'Meal Mates', url: '/', alignClass: "lobster-regular" },
                 { title: 'Events', url: '/events', alignClass: null },
                 { title: 'News', url: '/news', alignClass: null },
                 { title: 'Branches', url: '/branches', alignClass: null }
@@ -151,14 +161,14 @@ createApp({
                 // manager
                 if (this.access_level == 2) {
                     this.access_level.branchID;
-                    common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
-                // admin
+                    common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right" });
+                    // admin
                 } else if (this.access_level == 3) {
-                    common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
+                    common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right" });
                 }
 
                 common_nav.push({ title: 'Welcome ' + this.profile.first_name + '!', url: '/profile', alignClass: "right" });
-            // logged out
+                // logged out
             } else {
                 common_nav.push({ title: 'Log In', url: '/login', alignClass: "right" });
                 common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
@@ -638,7 +648,7 @@ createApp({
                     alert('Failed to update profile.');
                 });
         },
-        async alt_profile_picture_upload(){
+        async alt_profile_picture_upload() {
             var vm = this;
             const form = document.getElementById("upload_form");
             const status_text = document.getElementById("status_text");
@@ -647,16 +657,16 @@ createApp({
             const response = await fetch(form.action,
                 {
                     method: form.method,
-                    headers : {
+                    headers: {
                         'accept': 'application/JSON'
-                        },
+                    },
                     body: form_data,
                     processData: false,
                     contentType: false
-            });
-            if(response.ok){
+                });
+            if (response.ok) {
                 resp_json = response.json();
-                resp_json.then(function (resp_json){
+                resp_json.then(function (resp_json) {
                     status_text.innerText = "Uploaded Succesfully!";
                     vm.profile.image_url = resp_json.image_path;
                 })
@@ -664,7 +674,7 @@ createApp({
                 status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
             }
         },
-        async news_picture_upload(){
+        async news_picture_upload() {
             const form = document.getElementById("upload_form");
             const status_text = document.getElementById("status_text");
             const im_path_p = document.getElementById("image_path");
@@ -672,16 +682,16 @@ createApp({
             const response = await fetch(form.action,
                 {
                     method: form.method,
-                    headers : {
+                    headers: {
                         'accept': 'application/JSON'
-                        },
+                    },
                     body: form_data,
                     processData: false,
                     contentType: false
-            });
-            if(response.ok){
+                });
+            if (response.ok) {
                 resp_json = response.json();
-                resp_json.then(function (resp_json){
+                resp_json.then(function (resp_json) {
                     status_text.innerText = "Uploaded Succesfully!";
                     im_path_p.innerText = resp_json.image_path;
                     document.getElementById("news_image").src = resp_json.image_path;
@@ -715,7 +725,7 @@ createApp({
                 });
         },
         getEventInfo(eventID) {
-            fetch(`/api/get/event/${eventID}`, {
+            fetch(`/api/get/event/${eventID}/details.json`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -733,6 +743,27 @@ createApp({
                 })
                 .catch(error => {
                     console.error("Error fetching event:", error);
+                });
+        },
+        getNewsInfo(articleID) {
+            fetch(`/api/get/news/${articleID}/details.json`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched news:", data);
+                    this.newsInfo = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
                 });
         },
 
@@ -767,10 +798,16 @@ createApp({
         // if the user isn't logged in... but this is what checks if the user is logged
         this.getProfileInfo();
 
-        let editEventID = window.location.pathname.split('/')[4];
-
-        if (editEventID && window.location.pathname.split('/')[1] == 'manage') {
+        // edit event
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'events') {
+            let editEventID = window.location.pathname.split('/')[4];
             this.getEventInfo(editEventID);
+        }
+
+        // edit news
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'news') {
+            let editNewsID = window.location.pathname.split('/')[4];
+            this.getNewsInfo(editNewsID);
         }
 
 

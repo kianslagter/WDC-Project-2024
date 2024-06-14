@@ -54,7 +54,7 @@
       <div class="branch-buttons">
         <a v-bind:href="'tel:' + branch.phone" class="button primary-button">Phone</a>
         <a v-bind:href="'mailto:' + branch.email" class="button secondary-button">Email</a>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === branch.id" class="button secondary-button event-rsvp-button" type="button"
           @click="editBranch(branch.id)"> Edit Branch
         </button>
       </div>
