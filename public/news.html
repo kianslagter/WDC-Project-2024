@@ -73,8 +73,8 @@
             <h2 class="news-title"> {{news.title}} </h2>
             <!-- Link the location to the branch page? -->
             <span class="news-header">
-              Posted: {{news.date}}&emsp;{{news.location}} Branch &emsp;
-              <span v-if="news.public === 0"><i class="fa fa-lock"></i> Private</span>
+              <i class="fa fa-calendar-o"></i> Posted: {{news.date}} &emsp; &emsp; &emsp; &emsp; <i class="fa fa-map-marker"></i> {{news.location}} Branch &emsp; &emsp; &emsp; &emsp;
+              <span v-if="news.public === 0"><i class="fa fa-lock"></i> Private </span>
               <span v-else><i class="fa fa-unlock"></i> Public</span></span>
             <p class="news-description"> {{news.content}} </p>
           </div>
