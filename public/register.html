@@ -10,9 +10,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="App.js" defer></script>
-
   <script>
-    function register() {
+    function register(event) {
       event.preventDefault();
 
       var email = document.getElementById("email").value;
@@ -21,8 +20,6 @@
       var last_name = document.getElementById("last_name").value;
       var phone_num = document.getElementById("phone_num").value;
       var postcode = document.getElementById("postcode").value;
-
-      // Should validate here, but who really cares right now
 
       // Construct the JSON req body
       var req_body = {
@@ -37,18 +34,23 @@
       // Send the AJAX request
       let xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          // log in successful, redirect to home?
-          window.location.href = "/";
-          return;
-        } else if (this.readyState == 4 && this.status == 403) {
-          // wrong email or password
-          alert("Wrong email or password. Please try again.");
-        } else if (this.readyState == 4) {
-          // error
-          alert("An error occurred. Please try again later.");
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            // Log in successful, redirect to home?
+            window.location.href = "/";
+          } else if (this.status == 403) {
+            // Wrong email or password
+            alert("Wrong email or password. Please try again.");
+          } else if (this.status == 400) {
+            // Bad request, show the error message from the server
+            alert(this.responseText);
+            window.location.href = "/register";
+          } else {
+            // Other errors
+            alert("An error occurred. Please try again later.");
+          }
         }
-      }
+      };
       xhttp.open('POST', '/api/register', true);
       xhttp.setRequestHeader("Content-type", "application/json");
       xhttp.send(JSON.stringify(req_body));
@@ -77,6 +79,24 @@
                 <div>
                   <p>Password</p>
                   <input id="password" class="input" type="password" required>
+                  <p>Password requirements:</p>
+                    <ul>
+                      <li>
+                        Must be at least 8 characters long
+                      </li>
+                      <li>
+                        Must contain at least one uppercase letter
+                      </li>
+                      <li>
+                        Must contain at least one lowercase letter
+                      </li>
+                      <li>
+                        Must contain at least one number
+                      </li>
+                      <li>
+                        Must contain at least one special character
+                      </li>
+                    </ul>
                 </div>
                 <div>
                 <div>

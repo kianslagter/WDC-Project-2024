@@ -263,7 +263,7 @@ router.get('/api/access', (req, res) => {
 
 const bcrypt = require('bcrypt');
 
-async function validateAndHashPassword(plainTextPassword) {
+async function validateAndHashPassword(plainTextPassword, res) {
   const saltRounds = 10;
 
   // Password validation requirements
@@ -274,22 +274,20 @@ async function validateAndHashPassword(plainTextPassword) {
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(plainTextPassword);
 
   // Validate password
-
-  // TODO these errors need to be displayed client side not backend
   if (plainTextPassword.length < minLength) {
-    throw new Error('Password must be at least 8 characters long.');
+    res.status(400).send("Password must be at least 8 characters long.");
   }
   if (!hasUpperCase) {
-    throw new Error('Password must contain at least one uppercase letter.');
+    res.status(400).send("Password must contain at least one uppercase letter.");
   }
   if (!hasLowerCase) {
-    throw new Error('Password must contain at least one lowercase letter.');
+    res.status(400).send("Password must contain at least one lowercase letter.");
   }
   if (!hasNumber) {
-    throw new Error('Password must contain at least one number.');
+    res.status(400).send("Password must contain at least one number.");
   }
   if (!hasSpecialChar) {
-    throw new Error('Password must contain at least one special character.');
+    res.status(400).send("Password must contain at least one special character.");
   }
 
   // Hash password
@@ -332,7 +330,7 @@ router.post('/api/register', async function (req, res, next) {
         return res.status(400).json({ success: false, message: 'Email already registered' });
       } else {
 
-        await validateAndHashPassword(password).then( function(hash) {
+        await validateAndHashPassword(password, res).then( function(hash) {
           // Prepare SQL query to insert new user into the database
           const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
           VALUES (?, ?, ?, ?, ?, ?);`;
