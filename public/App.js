@@ -45,6 +45,41 @@ createApp({
             event: null,
             isLoading: false,
             error: null,
+            image_path: '/image/10',
+            images: [
+                {
+                    'description': 'Food Truck',
+                    'path' : '/image/2'
+                },
+                {
+                    'description': 'Gardening',
+                    'path' : '/image/3'
+                },
+                {
+                    'description': 'Handing out Food',
+                    'path' : '/image/4'
+                },
+                {
+                    'description': 'Packing Boxes',
+                    'path' : '/image/5'
+                },
+                {
+                    'description': 'People with Box',
+                    'path' : '/image/7'
+                },
+                {
+                    'description': 'Potatoes',
+                    'path' : '/image/8'
+                },
+                {
+                    'description': 'Sausage Sizzle',
+                    'path' : '/image/9'
+                },
+                {
+                    'description': 'Volunteers',
+                    'path' : '/image/10'
+                }
+            ]
         };
     },
     setup() {
@@ -614,8 +649,32 @@ createApp({
             } else {
                 status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
             }
-            console.log(im_path)
-            this.profile.image_url = im_path;
+        },
+        async news_picture_upload(){
+            const form = document.getElementById("upload_form");
+            const status_text = document.getElementById("status_text");
+            const im_path_p = document.getElementById("image_path");
+            var form_data = new FormData(form);
+            const response = await fetch(form.action,
+                {
+                    method: form.method,
+                    headers : {
+                        'accept': 'application/JSON'
+                        },
+                    body: form_data,
+                    processData: false,
+                    contentType: false
+            });
+            if(response.ok){
+                resp_json = response.json();
+                resp_json.then(function (resp_json){
+                    status_text.innerText = "Uploaded Succesfully!";
+                    im_path_p.innerText = resp_json.image_path;
+                    document.getElementById("news_image").src = resp_json.image_path;
+                })
+            } else {
+                status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
+            }
         },
         getAccessLevel() {
             fetch('/api/access', {

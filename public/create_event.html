@@ -72,9 +72,12 @@
     <button class="secondary-button button" type="button" v-on:click="num_points++; point_level.push(0)"> Add another
       point </button>
 
-    <h4> Add an Image </h4>
-    <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-    <p id="image_path" class="hidden">/image/10</p>
+    <h4> Choose an Image </h4>
+    <select v-model="image_path">
+      <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
+    </select>
+    <p id="image_path" class="hidden"> {{image_path}} </p>
+    <img id="news_image" v-bind:src="image_path" alt="news image">
 
     <h4> Other Options </h4>
     <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">

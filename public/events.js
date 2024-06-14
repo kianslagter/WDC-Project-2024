@@ -107,9 +107,8 @@ function createEvent() {
     alert('Please fill all required fields.');
     return;
   }
-  // TODO: handle image upload
 
-  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue, sendEmail);
+  submitEvent(title, description, details, date, startTime, endTime, location, image_url, publicValue, sendEmail);
 
 }
 
