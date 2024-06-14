@@ -186,3 +186,7 @@ footer {
 padding: 10px;
 width: 30%;
 }
+
+.hidden {
+  display: none;
+}

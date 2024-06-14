@@ -23,7 +23,13 @@
         <h1>Profile information</h1>
         <img :src="profile.image_url" alt="Profile Image">
         <h4> Change profile photo </h4>
-        <input type="file" name="profile-image" id="profile-image" accept="image/*">
+        <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">
+          <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
+          <input type="number" id="branch_id" name="branch" class="hidden" value=1>
+          <input id="public_image" type="checkbox" name="public" class="hidden" checked>
+          <button type="submit"> Upload Image </button>
+        </form>
+        <p id="status_text"> </p>
         <br>
 
         <h4> {{ profile.username }}</h4>
