@@ -27,6 +27,7 @@ CREATE TABLE users (
     email VARCHAR(320) NOT NULL, -- Add check for validity
     postcode INT, -- Add check for validity (4 digits, not negative)
     image_url VARCHAR(64) DEFAULT '/image/1',
+    email_notifications BOOLEAN DEFAULT TRUE,
     branch_managed INT DEFAULT NULL,
     system_admin BOOLEAN DEFAULT FALSE,
 

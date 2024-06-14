@@ -59,7 +59,7 @@ function submitBranch(name, email, phone, streetNumber, streetName, city, state,
     };
 
     // POST request
-    fetch('/manage/branch/create', {
+    fetch('/admin/branch/create', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ function deleteBranch(branchID) {
         return;
     }
 
-    fetch(`/manage/branch/delete/${branchID}`, {
+    fetch(`/admin/branch/delete/${branchID}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -163,7 +163,3 @@ function updateBranch(branchID) {
             alert('Error updating branch');
         });
 }
-
-
-
-
