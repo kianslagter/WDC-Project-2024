@@ -80,7 +80,7 @@
           </div>
         </a>
         <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-        <button v-if="access_level >= 2" class="button secondary-button news-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === news.branchID" class="button secondary-button news-rsvp-button" type="button"
           @click="editNews(news.id)"> Edit News
         </button>
       </div>

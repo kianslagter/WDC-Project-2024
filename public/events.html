@@ -85,11 +85,11 @@
           Yes</button>
         <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
           No</button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === event.branchID" class="button secondary-button event-rsvp-button" type="button"
           @click="eventRSVPresponse(event.id)"> View
           Responses
         </button>
-        <button v-if="access_level >= 2" class="button secondary-button event-rsvp-button" type="button"
+        <button v-if="access_level >= 2 && manages === event.branchID" class="button secondary-button event-rsvp-button" type="button"
           @click="editEvent(event.id)"> Edit Event
         </button>
 

@@ -108,6 +108,7 @@ async function dbRegisterUser(req, res, google_uid, email, first_name, last_name
 
     console.log("About to do DB Register Insert query");
     req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err,results) {
+
       if (err) {
         console.error(err);
       }
@@ -259,26 +260,26 @@ router.post('/api/register', async function (req, res, next) {
   var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
 
   emailExistsQueryPromise.then(function (result) {
-      if (result[0].count > 0) {
-        return res.status(400).json({ success: false, message: 'Email already registered' });
-      } else {
-        // Hash the password (you should use a more secure method in production)
-        const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+    if (result[0].count > 0) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    } else {
+      // Hash the password (you should use a more secure method in production)
+      const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
 
-        // Prepare SQL query to insert new user into the database
-        const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
+      // Prepare SQL query to insert new user into the database
+      const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
         VALUES (?, ?, ?, ?, ?, ?);`;
 
-        req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err,results) {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Error registering user' });
-          }
-          // Registration successful
-          res.status(200).json({ success: true, message: 'Registration successful' });
-        });
-      }
-    }).catch((err) => tools.sendError(res, err));
+      req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Error registering user' });
+        }
+        // Registration successful
+        res.status(200).json({ success: true, message: 'Registration successful' });
+      });
+    }
+  }).catch((err) => tools.sendError(res, err));
 });
 
 router.get('/api/logout', function (req, res, next) {
@@ -323,7 +324,7 @@ router.get('/events/search', function (req, res, next) {
              DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
              DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
              DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-             b.branch_name AS location, e.event_image AS image_url
+             b.branch_name AS location, e.event_image AS image_url, e.branch_id AS branchID
              FROM events e
              JOIN branches b ON e.branch_id = b.branch_id
              WHERE e.is_public = TRUE`;
@@ -385,7 +386,7 @@ router.get('/events/get', function (req, res, next) {
              DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
              DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
              DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-             b.branch_name AS location, e.event_image AS image_url
+             b.branch_name AS location, e.event_image AS image_url, e.branch_id AS branchID
              FROM events e
              JOIN branches b ON e.branch_id = b.branch_id
              WHERE e.is_public = TRUE`;
@@ -458,36 +459,45 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
 });
 
 // for editing events
-router.get('/api/get/event/:eventID', function (req, res, next) {
-  let event_id = req.params.eventID;
-  // Check if the event exists
-  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
-  tools.sqlHelper(query, [event_id], req).then(function (results) {
-    if (results[0].event_exists == 0) {
-      // Event does not exist
-      res.status(404).send("Event not found");
+router.get('/api/get/event/:eventID/details.json', function (req, res, next) {
+  const eventID = req.params.eventID;
+
+  // Ensure the user is authenticated
+  if (!req.session.isLoggedIn || !req.session.userID) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  // Query to retrieve event details
+  let query = `SELECT events.event_id, events.branch_id, events.event_name,
+                  DATE_FORMAT(events.start_date_time, '%Y-%m-%d') AS start_date,
+                  DATE_FORMAT(events.start_date_time, '%H:%i') AS start_time,
+                  DATE_FORMAT(events.end_date_time, '%Y-%m-%d') AS end_date,
+                  DATE_FORMAT(events.end_date_time, '%H:%i') AS end_time,
+                  events.event_description, events.event_details, events.event_location,
+                  events.event_image, events.is_public,
+                  branches.branch_name AS branch
+                  FROM events
+                  JOIN branches ON events.branch_id = branches.branch_id
+                  WHERE events.event_id = ?;`;
+
+
+  req.pool.query(query, [eventID], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving event information' });
       return;
     }
-    // Get the event details
-    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
-            FROM events
-            WHERE event_id=?;`;
-    tools.sqlHelper(query, [event_id], req).then(function (results) {
-      if (!results[0].public) {
-        // Authenticate user
-        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
-          // Not logged in or not correct branch
-          res.status(403).send("Not a member of correct branch (or not logged in)");
-          return;
-        }
-      }
-      // Send the details
-      res.json(results[0]);
-      return;
-    }).catch(function (err) { tools.sendError(res, err); });
-  }).catch(function (err) { tools.sendError(res, err); });
-});
 
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'Event not found' });
+      return;
+    }
+
+    // Send the event details
+    res.json(results[0]);
+  });
+});
 
 // NEWS ROUTES
 
@@ -531,7 +541,7 @@ router.get('/news/get', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
              DATE_FORMAT(n.date_published, '%D %M') AS date,
-             n.image_url, b.branch_name AS location, n.is_public AS public
+             n.image_url, b.branch_name AS location, n.is_public AS public, n.branch_id AS branchID
              FROM news n
              JOIN branches b ON n.branch_id = b.branch_id
              WHERE n.is_public = TRUE`;
@@ -588,7 +598,7 @@ router.get('/news/search', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
              DATE_FORMAT(n.date_published, '%D %M') AS date,
-             n.image_url, b.branch_name AS location
+             n.image_url, b.branch_name AS location, n.branch_id AS branchID
              FROM news n
              JOIN branches b ON n.branch_id = b.branch_id
              WHERE n.is_public = TRUE`;
@@ -639,6 +649,40 @@ router.get('/news/search', function (req, res, next) {
       res.send(JSON.stringify(rows));
       return;
     });
+  });
+});
+
+// for editing news
+router.get('/api/get/news/:article_id/details.json', function (req, res, next) {
+  const article_id = req.params.article_id;
+  // Ensure the user is authenticated
+  if (!req.session.isLoggedIn || !req.session.userID) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  // Query to get news details
+  let query = `SELECT news.article_id, news.branch_id, news.title, news.content,
+                      DATE_FORMAT(news.date_published, '%Y-%m-%d') AS date_published,
+                      news.image_url, news.is_public, branches.branch_name
+                      FROM news
+                      JOIN branches ON news.branch_id = branches.branch_id
+                      WHERE news.article_id = ?;`;
+
+  req.pool.query(query, [article_id], function (err, results) {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Error retrieving news article' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'News article not found' });
+      return;
+    }
+
+    // Send the news article details
+    res.json(results[0]);
   });
 });
 
@@ -704,6 +748,8 @@ router.post('/branches/join/:branchID', function (req, res, next) {
   const branchID = req.params.branchID;
   // user id from session
   const userID = req.session.userID;
+  let user_branches = req.session.branches;
+  let branchIdInt = parseInt(branchID);
 
   if (!req.session.isLoggedIn || !userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
@@ -730,6 +776,7 @@ router.post('/branches/join/:branchID', function (req, res, next) {
         res.status(500).json({ success: false, message: 'Error adding user to branch' });
         return;
       }
+      req.session.branches.push(branchIdInt);
       res.status(200).json({ success: true, message: 'User successfully joined the branch' });
     });
   });
