@@ -16,21 +16,21 @@ function createEventEmail(event_id, branch_id, req, res) {
     date = reversedArray.join(' ');
 
     // REDUCE LIMIT TO AVOID SPAM
-    let query = `SELECT email FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ${branch_id} LIMIT 2;`;
+    let query = `SELECT email FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.email_notifications = TRUE;`;
 
     req.pool.getConnection(function(err, connection) {
         if (err) {
-            console.log(err);
+            // console.log(err);
             res.sendStatus(500);
             return;
         }
 
-        connection.query(query, function(err, rows, fields) {
+        connection.query(query, [branch_id], function(err, rows, fields) {
             connection.release(); // release connection
             if (err) {
-            console.log(err);
-            res.sendStatus(500);
-            return;
+                // console.log(err);
+                res.sendStatus(500);
+                return;
             }
 
             var receivers = parseReceivers(rows);
@@ -78,21 +78,21 @@ function createNewsEmail(news_id, branch_id, req, res) {
     date_published = reversedArray.join(' ');
 
     // REDUCE LIMIT TO AVOID SPAM
-    let query = `SELECT email FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ${branch_id} LIMIT 2;`;
+    let query = `SELECT email FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.email_notifications = TRUE;`;
 
     req.pool.getConnection(function(err, connection) {
         if (err) {
-            console.log(err);
+            // console.log(err);
             res.sendStatus(500);
             return;
         }
 
-        connection.query(query, function(err, rows, fields) {
+        connection.query(query, [branch_id], function(err, rows, fields) {
             connection.release(); // release connection
             if (err) {
-            console.log(err);
-            res.sendStatus(500);
-            return;
+                //console.log(err);
+                res.sendStatus(500);
+                return;
             }
 
             var receivers = parseReceivers(rows);
@@ -191,7 +191,7 @@ function sendMail(sender, receivers, title, plain_text, html_body) {
 
     transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
-            console.log(error);
+            // console.log(error);
         } else {
             console.log('Email sent: ' + info.response);
         }
