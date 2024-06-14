@@ -45,31 +45,20 @@
     <label for="private"> Private </label>
     <h4> Enter News Description Below </h4>
     <textarea id="news-description" class="create-news-description news-textarea">Enter news description here</textarea>
-    <button v-if="show_preview" v-on:click="show_preview=false" class="button secondary-button" type="button"> Hide
-      Preview </button>
-    <button v-else="show_preview" v-on:click="show_preview=true" class="button primary-button" type="button"> Show
-      Preview </button>
-    <h4 v-if="show_preview"> Preview Below: </h4>
-    <div v-if="show_preview" class="preview">
-      <pre>{{ create_news_preview }}</pre>
-    </div>
+
     <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
 
     <h4> Add an Image </h4>
     <input id="image_url" class="create-news-image-upload" type="file" name="news-image" accept="image/*">
-    <br>
 
     <h4> Other Options </h4>
     <input type="checkbox" id="news-email-notify" name="news-email-notify" value="news-email-notify">
-    <label for="news-email-notify"> Send email notification to relevant members? </label><br>
+    <label for="news-email-notify"> Send email notification to relevant members? </label>
     <br>
 
     <button id="createNewsButton" class="button primary-button create-news-button center" type="button"> Create News
     </button>
-    <br>
   </div>
-  <br>
-  <br>
 
   <footer>
     &copy; 2024 Meal Mates. All rights reserved.
