@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
+    <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
     <script src="/events.js"></script>
     <script src="/App.js" defer></script>
 </head>
@@ -26,16 +27,15 @@
     <div class="page-content content">
         <a class="back-button" href="/events"> &lt; BACK</a>
         <br>
-        <p v-if="access_level == 0"> <a href="/login"> Log in </a> to RSVP for this event </p>
+        <p v-if="access_level == 0"> <a href="/login"> Log in</a> to RSVP for this event </p>
         <template v-if="loading">
             <p> Loading Event Details...</p>
         </template>
         <template v-else-if="event_selected !== null">
             <div class="right event-side-pane">
-                <p><b> Date: </b> {{event_selected.date}} </p>
-                <p><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
-                <p><b> Location: </b> {{event_selected.location}} </p>
-                <p v-if="event_attendance !== null"><b> {{event_attendance}} others are attending </b> </p>
+                <p><i class="fa fa-calendar-o"></i><b> Date: </b> {{event_selected.date}} </p>
+                <p><i class="fa fa-clock-o"></i><b> Time: </b> {{event_selected.startTime}} - {{event_selected.endTime}} </p>
+                <p><i class="fa fa-map-marker"></i><b> Location: </b> {{event_selected.location}} </p>
                 <button class="button primary-button event-details-rsvp-button" type="button"
                     v-on:click="RSVP('yes', getEventIDFromPath())">RSVP Yes</button>
                 <button class="button secondary-button event-details-rsvp-button" type="button"

@@ -10,7 +10,6 @@ createApp({
             show_events_filters: false,
             branches_results: null,
             event_selected: null, // set to null intially in real thing
-            event_attendance: 4,
             news_results: [],
             news_array: [],
             news_array1: [],
