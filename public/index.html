@@ -44,7 +44,7 @@
           <template v-for="news in news_results" :key="news.id">
             <div class="news-pane">
               <a v-bind:href="'/news/id/' + news.id" class="title-link">
-              <img v-bind:src="news.image" class="news-image-1" alt="News image">
+              <img v-bind:src="news.image_url" class="news-image-1" alt="News image">
               <p class="news-branch"> {{news.branch}} </p>
               <p class="news-date"> {{news.date}} </p>
               <h3 class="news-card-title"> {{news.title}} </h3>
