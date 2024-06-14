@@ -43,9 +43,10 @@ router.get('/news/edit/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_news.html'));
 });
 
-router.get('/branches/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
-});
+// Managers cannot create branches
+// router.get('/branches/create', function (req, res, next) {
+//   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
+// });
 
 router.get('/branches/edit/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_branches.html'));
