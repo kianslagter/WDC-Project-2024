@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/news.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/news.js"></script>
   <script src="App.js" defer></script>
@@ -26,7 +27,7 @@
     <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
       onclick="window.location.href='/manage/news/create'"> Create News </button>
     <h1>Recent News</h1>
-    <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private news updates </p>
+    <p v-if="access_level == 0"> <a href="/login"> Log in</a> to view private news updates </p>
     <div class="search-div">
       <input id="news-search" class="search-bar" type="text" placeholder="Search...">
       <button class="button primary-button search-button" type="button" v-on:click="news_search()">Search</button>

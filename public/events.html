@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/events.js"></script>
   <script src="App.js" defer></script>
@@ -26,7 +27,7 @@
     <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
       onclick="window.location.href='/manage/events/create'"> New Event </button>
     <h1>Upcoming Events</h1>
-    <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+    <p v-if="access_level == 0"> <a href="/login">Log in</a> to view private events and to RSVP for events </p>
     <div class="search-div">
       <input id="events-search" class="search-bar" type="text" placeholder="Search...">
       <button class="button primary-button search-button" type="button" v-on:click="events_search()">Search</button>

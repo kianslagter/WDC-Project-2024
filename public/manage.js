@@ -107,7 +107,7 @@ function get_members() {
                 &emsp;
                 (<u>Phone:</u> ${responseJSON.members[i].phone_num})
                 <br>
-                <u>Address:</u> ${responseJSON.members[i].postcode}
+                <u>Post Code:</u> ${responseJSON.members[i].postcode}
                 <br>
                 <button onclick="alert_remove_member('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].user_id}')" class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
                 <button onclick="alert_promote_manager('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Manager </button>
