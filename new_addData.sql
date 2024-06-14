@@ -200,6 +200,21 @@ VALUES
 	('Gold Coast Mealmates', 'Manager', '9', 'Gold Coast Mealmates', '0449 442 300', 'gold.coast.mealmates@mealmates.com', 2783),
 	('Newcastle Mealmates', 'Manager', '10', 'Newcastle Mealmates', '0434 458 556', 'newcastle.mealmates@mealmates.com', 2913);
 
+-- Add managers as nembers of there branch
+INSERT INTO user_branch_affiliation
+	(user_id, branch_id)
+VALUES
+	((SELECT user_id FROM users WHERE email='adelaide.mealmates@mealmates.com'), 1),
+	((SELECT user_id FROM users WHERE email='sydney.mealmates@mealmates.com'), 2),
+	((SELECT user_id FROM users WHERE email='melbourne.mealmates@mealmates.com'), 3),
+	((SELECT user_id FROM users WHERE email='brisbane.mealmates@mealmates.com'), 4),
+	((SELECT user_id FROM users WHERE email='perth.mealmates@mealmates.com'), 5),
+	((SELECT user_id FROM users WHERE email='canberra.mealmates@mealmates.com'), 6),
+	((SELECT user_id FROM users WHERE email='hobart.mealmates@mealmates.com'), 7),
+	((SELECT user_id FROM users WHERE email='darwin.mealmates@mealmates.com'), 8),
+	((SELECT user_id FROM users WHERE email='gold.coast.mealmates@mealmates.com'), 9),
+	((SELECT user_id FROM users WHERE email='newcastle.mealmates@mealmates.com'), 10);
+
 -- Add a system admin
 INSERT INTO users
 	(first_name, last_name, password_hash, phone_num, email, postcode, system_admin)
