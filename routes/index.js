@@ -203,7 +203,7 @@ router.post('/api/login', function (req, res, next) {
       // Get their user id and password hash
       query = "SELECT BIN_TO_UUID(user_id) AS user_id, password_hash FROM users WHERE email=?;";
       queryPromise2 = tools.sqlHelper(query, [email], req)
-      
+
       queryPromise2.then(async function (result) {
         user_id = result[0].user_id;
         hash = result[0].password_hash.toString();
@@ -265,14 +265,14 @@ const bcrypt = require('bcrypt');
 
 async function validateAndHashPassword(plainTextPassword) {
   const saltRounds = 10;
-  
+
   // Password validation requirements
   const minLength = 8;
   const hasUpperCase = /[A-Z]/.test(plainTextPassword);
   const hasLowerCase = /[a-z]/.test(plainTextPassword);
   const hasNumber = /\d/.test(plainTextPassword);
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(plainTextPassword);
-  
+
   // Validate password
 
   // TODO these errors need to be displayed client side not backend
@@ -291,7 +291,7 @@ async function validateAndHashPassword(plainTextPassword) {
   if (!hasSpecialChar) {
     throw new Error('Password must contain at least one special character.');
   }
-  
+
   // Hash password
   try {
     const hash = await bcrypt.hash(plainTextPassword, saltRounds);
@@ -521,10 +521,10 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
         }
       }
       // Send the details
-      res.json(results[0]);
-      // response = results[0];
-      // response.details = JSON.parse(response.details);
-      // res.json(response);
+      //res.json(results[0]);
+      response = results[0];
+      response.details = JSON.parse(response.details);
+      res.json(response);
       return;
     }).catch(function (err) { tools.sendError(res, err); });
   }).catch(function (err) { tools.sendError(res, err); });
