@@ -143,3 +143,11 @@
     display: block;
     margin: 10px;
 }
+
+.image-container {
+    position: relative;
+  }
+
+.select-image {
+    width: 500px;
+}

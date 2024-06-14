@@ -35,10 +35,6 @@
 
   <div class="page-content content">
     <h1>Create New Event</h1>
-    <h4> Branch:</h4>
-    <template v-for="branch in branches_results">
-      <input type="radio" name="branch_filters" v-bind:value="branch.id"> <label> {{branch.name}}</label>
-    </template>
     <h4> Title: <input id="title" class="create-event-title" type="text" name="title"></h4>
     <h4> Set Event Time </h4>
     <p> Date: <input id="date" type="date" class="create-event-time-inputs"></p>
@@ -53,7 +49,7 @@
     <input id="private" type="radio" name="event_privacy" value="0" checked="checked">
     <label for="private"> Private </label>
     <h4> Enter event location </h4>
-
+    <textarea id="location" type="text" class="create-event-title"></textarea>
     <h4> Enter Event Description Below </h4>
     <textarea id="description" class="create-event-description"> Enter event description here </textarea>
     <p> Note: Event description should be brief, further details can go in the details section below </p>
@@ -78,17 +74,22 @@
       <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
     </select>
     <p id="image_path" class="hidden"> {{image_path}} </p>
-    <br>
-    <img class="preview_event_image" v-bind:src="image_path" alt="news image">
 
-    <h4> Other Options </h4>
-    <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">
-    <label for="event-email-notify"> Send email notification to relevant members? </label>
-    <br><br>
+    <div class="image-container">
+      <img id="news_image" class="select-image" v-bind:src="image_path" alt="news image">
+    </div>
 
-    <button id="createEventButton" class="button primary-button create-event-button" type="button">
-      Create Event
-    </button>
+    <div class="other-options">
+      <h4> Other Options </h4>
+      <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">
+      <label for="event-email-notify"> Send email notification to relevant members? </label>
+      <br><br>
+
+      <button id="createEventButton" class="button primary-button create-event-button" type="button">
+        Create Event
+      </button>
+    </div>
+
   </div>
 
   <footer>

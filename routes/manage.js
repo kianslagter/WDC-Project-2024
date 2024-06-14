@@ -31,11 +31,11 @@ router.get('/news/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_news.html'));
 });
 
-router.get('/branches/id/:branchId', function(req, res, next) {
+router.get('/branches/id/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'manager_dashboard.html'));
 });
 
-router.get('/branches/id/:branchId/view_members', function(req, res, next) {
+router.get('/branches/id/:branchId/view_members', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'view_members.html'));
 });
 
@@ -128,6 +128,8 @@ router.post('/event/responses/:eventID', function (req, res, next) {
 });
 
 router.post('/event/create', function (req, res, next) {
+  console.log(req.body);
+  console.log(req.body.details);
   // Get the event content from the request body
   let title = req.body.title;
   let description = req.body.description;
@@ -149,10 +151,11 @@ router.post('/event/create', function (req, res, next) {
     res.status(400).send("Description undefined or not string");
     return;
   }
-  if (details === undefined || typeof (details) != "string") {
-    res.status(400).send("Details undefined or not string");
+  if (details === undefined) {
+    details = [];
     return;
   }
+  details = JSON.stringify(details);
   if (date === undefined || typeof (date) != "string") {
     res.status(400).send("date undefined or not string");
     return;
@@ -244,11 +247,13 @@ router.post('/event/edit/:eventID', function (req, res, next) {
       fieldsToUpdate.push("event_name=?");
       values.push(req.body.title);
     }
+
     // update description
     if (req.body.description !== undefined) {
       fieldsToUpdate.push("event_description=?");
       values.push(req.body.description);
     }
+
     // update details
     if (typeof req.body.details === 'string' && req.body.details.trim() !== '') {
       fieldsToUpdate.push("event_details=?");
@@ -262,6 +267,24 @@ router.post('/event/edit/:eventID', function (req, res, next) {
       fieldsToUpdate.push("start_date_time=?");
       fieldsToUpdate.push("end_date_time=?");
       values.push(`${req.body.date} ${startTime}`, `${req.body.date} ${endTime}`);
+    }
+
+    // update location
+    if (req.body.location !== undefined) {
+      fieldsToUpdate.push("event_location=?");
+      values.push(req.body.location);
+    }
+
+    // update image
+    if (req.body.image_url !== undefined) {
+      fieldsToUpdate.push("event_image=?");
+      values.push(req.body.image_url);
+    }
+
+    // update public
+    if (req.body.public !== undefined) {
+      fieldsToUpdate.push("is_public=?");
+      values.push(req.body.public);
     }
 
     // if no fields then return early
@@ -289,6 +312,11 @@ router.post('/event/edit/:eventID', function (req, res, next) {
         }
 
         res.sendStatus(200);
+
+        // Send email if requested
+        if (req.body.sendEmail) {
+          email.createEventEmail(eventID, results[0].branch, req, res);
+        }
       });
     });
   }).catch(function (err) { tools.sendError(res, err); });
@@ -510,7 +538,7 @@ router.post('/news/delete/:articleID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(res,err); });
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 
@@ -605,7 +633,7 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
 
 
 
-router.get('/branch_information', function(req, res, next) {
+router.get('/branch_information', function (req, res, next) {
   var branchID = req.query.id;
 
   if (!req.session.branch_managed || branchID != req.session.branch_managed) {
@@ -625,7 +653,7 @@ router.get('/branch_information', function(req, res, next) {
     "other_branch_managers": null
   };
 
-  req.pool.getConnection(function(err, connection) {
+  req.pool.getConnection(function (err, connection) {
     if (err) {
       res.sendStatus(500);
       return;
@@ -647,7 +675,7 @@ router.get('/branch_information', function(req, res, next) {
       }
     }
 
-    connection.query(query, prepared_array, function(err, rows, fields) {
+    connection.query(query, prepared_array, function (err, rows, fields) {
       // connection.release();
       if (err) {
         res.sendStatus(500);
@@ -664,7 +692,7 @@ router.get('/branch_information', function(req, res, next) {
     // Query 2
     query = `SELECT article_id, title, date_published FROM news WHERE branch_id = ? ORDER BY date_published DESC LIMIT 5;`;
 
-    connection.query(query, [branchID], function(err, rows, fields) {
+    connection.query(query, [branchID], function (err, rows, fields) {
       if (err) {
         res.sendStatus(500);
         return;
@@ -684,7 +712,7 @@ router.get('/branch_information', function(req, res, next) {
     // Query 3
     query = `SELECT event_id, event_name, start_date_time FROM events WHERE branch_id = ? AND start_date_time > NOW() ORDER BY start_date_time ASC LIMIT 5;`;
 
-    connection.query(query, [branchID], function(err, rows, fields) {
+    connection.query(query, [branchID], function (err, rows, fields) {
       if (err) {
         res.sendStatus(500);
         return;
@@ -704,7 +732,7 @@ router.get('/branch_information', function(req, res, next) {
     // Query 4
     query = `SELECT first_name, last_name, phone_num, email FROM users WHERE branch_managed = ?;`;
 
-    connection.query(query, [branchID], function(err, rows, fields) {
+    connection.query(query, [branchID], function (err, rows, fields) {
       connection.release();
       if (err) {
         res.sendStatus(500);
@@ -720,7 +748,7 @@ router.get('/branch_information', function(req, res, next) {
   });
 });
 
-router.get('/get_members', function(req, res, next) {
+router.get('/get_members', function (req, res, next) {
   var branchID = req.query.id;
 
   if (!req.session.branch_managed || branchID != req.session.branch_managed) {
@@ -733,37 +761,37 @@ router.get('/get_members', function(req, res, next) {
     "members": null
   };
 
-  req.pool.getConnection(function(err, connection) {
+  req.pool.getConnection(function (err, connection) {
     if (err) {
       console.log(err);
       res.sendStatus(500);
       return;
     }
 
-      // Query 1
-      var query = `SELECT branch_name FROM branches WHERE branch_id = ?;`;
+    // Query 1
+    var query = `SELECT branch_name FROM branches WHERE branch_id = ?;`;
 
-      connection.query(query, [branchID], function(err, rows, fields) {
-        // connection.release();
-        if (err) {
-          console.log(err);
-          res.sendStatus(500);
-          return;
-        }
+    connection.query(query, [branchID], function (err, rows, fields) {
+      // connection.release();
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
 
-        if (rows.length == 0) {
-          res.status(400).send("Branch not found");
-          return;
-        }
+      if (rows.length == 0) {
+        res.status(400).send("Branch not found");
+        return;
+      }
 
-        response.branch_name = rows[0]['branch_name'];
-      });
+      response.branch_name = rows[0]['branch_name'];
+    });
 
     // Query 2
     // Should systems admins be shown?
     query = `SELECT BIN_TO_UUID(users.user_id) AS user_id, first_name, last_name, email, phone_num, postcode, branch_managed FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.system_admin = FALSE;`;
 
-    connection.query(query, [branchID], function(err, rows, fields) {
+    connection.query(query, [branchID], function (err, rows, fields) {
       connection.release();
       if (err) {
         console.log(err);
@@ -791,11 +819,11 @@ router.post('/user/remove/:userID', function (req, res, next) {
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
     // console.log(results);
-    if (results.length == 0){
+    if (results.length == 0) {
       // Member not found
       res.status(400).send("Member not found");
       return;
-    } else if (results[0].branch !== req.session.branch_managed){
+    } else if (results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only remove non-manager members of branches you manage");
       return;
@@ -820,7 +848,7 @@ router.post('/user/remove/:userID', function (req, res, next) {
         return;
       });
     });
-  }).catch(function (err) {tools.sendError(res, err);});
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 router.post('/promote/manager/:userID', function (req, res, next) {
@@ -836,11 +864,11 @@ router.post('/promote/manager/:userID', function (req, res, next) {
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
     // console.log(results);
-    if (results.length == 0){
+    if (results.length == 0) {
       // Member not found
       res.status(400).send("Member not found");
       return;
-    } else if (!req.session.branch_managed || results[0].branch !== req.session.branch_managed){
+    } else if (!req.session.branch_managed || results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only promote non-manager members of branches you manage");
       return;
@@ -868,7 +896,7 @@ router.post('/promote/manager/:userID', function (req, res, next) {
         return;
       });
     });
-  }).catch(function (err) {tools.sendError(res, err);});
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 module.exports = router;

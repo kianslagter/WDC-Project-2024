@@ -150,6 +150,14 @@
     margin-bottom: 20px;
 }
 
+.image-container {
+    position: relative;
+  }
+
+.select-image {
+    width: 500px;
+}
+
 .preview_event_image {
     width: 40%;
 }

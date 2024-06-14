@@ -26,7 +26,7 @@
 
   <div class="page-content content">
     <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
-      onclick="window.location.href='/manage/events/create'"> New Event </button>
+      onclick="window.location.href='/manage/events/create'"> Create Event for your branch </button>
     <h1>Upcoming Events</h1>
     <p v-if="access_level == 0"> <a href="/login">Log in</a> to view private events and to RSVP for events </p>
     <div class="search-div">
@@ -81,9 +81,9 @@
           </div>
         </a>
         <!-- RSVP buttons should be replaced by an edit RSVP if an RSVP has already been sent -->
-        <button class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
+        <button v-if="branches.includes(event.branchID)" class="button primary-button event-rsvp-button" type="button" v-on:click="RSVP('yes', event.id)">RSVP
           Yes</button>
-        <button class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
+        <button v-if="branches.includes(event.branchID)" class="button secondary-button event-rsvp-button" type="button" v-on:click="RSVP('no', event.id)">RSVP
           No</button>
         <button v-if="access_level >= 2 && manages === event.branchID" class="button secondary-button event-rsvp-button" type="button"
           @click="eventRSVPresponse(event.id)"> View

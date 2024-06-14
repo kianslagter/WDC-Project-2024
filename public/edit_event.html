@@ -35,7 +35,7 @@
                         endTime: document.getElementById('endTime').value,
                         isPublic: document.getElementById('public').checked,
                         details: Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value),
-                        image_url: document.getElementById('image_url').value
+                        image_url: document.getElementById('image_path').value
                     };
                     updateEvent(eventID, eventData);
                 });
@@ -70,6 +70,8 @@
         <label for="public"> Public </label>
         <input id="private" type="radio" name="event_privacy" value="0" v-model="eventInfo.is_public">
         <label for="private"> Private </label>
+        <h4> Enter event location </h4>
+        <textarea id="location" type="text" class="create-event-title" v-model="eventInfo.location"></textarea>
         <h4>Enter Event Description Below</h4>
         <textarea id="description" class="create-event-description" v-model="eventInfo.event_description"></textarea>
         <p>Note: Event description should be brief, further details can go in the details section below</p>
@@ -83,16 +85,26 @@
                 </div>
             </template>
         </div>
-        <h4>Add an Image</h4>
-        <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
-        <div v-if="eventInfo.event_image">
-            <img :src="eventInfo.event_image" alt="Event Image">
+        <h4>Choose an Image</h4>
+        <select v-model="image_path">
+            <option v-for="image in images" :key="image.path" :value="image.path"> {{image.description}}</option>
+        </select>
+        <p id="image_path" class="hidden"> {{image_path}} </p>
+        <div class="image-container">
+            <img id="news_image" class="select-image" v-bind:src="image_path" alt="news image">
         </div>
-        <button id="updateEventButton" class="button primary-button create-event-button" type="button">
-            Update Event
-        </button>
-        <button class="button secondary-button create-event-button" type="button" id="deleteEventButton">Delete
-            event</button>
+
+        <div class="other-options">
+            <h4> Other Options </h4>
+            <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">
+            <label for="event-email-notify"> Send email notification to relevant members? </label>
+            <br><br>
+            <button id="updateEventButton" class="button primary-button create-event-button" type="button">
+                Update Event
+            </button>
+            <button class="button secondary-button create-event-button" type="button" id="deleteEventButton">Delete
+                event</button>
+        </div>
     </div>
 
     <footer>

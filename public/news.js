@@ -25,7 +25,7 @@ function createNews() {
     let content = document.getElementById('news-description').value;
     let today = new Date();
     let datePublished = today.toISOString().split('T')[0];
-    let image_url = document.getElementById('image_url').files[0]; // file upload
+    let image_url = document.getElementById('image_path').innerText; // path to uploaded file
     let publicValue = document.querySelector('input[name="news_privacy"]:checked').value;
     let sendEmail = document.getElementById('news-email-notify').checked;
 
@@ -35,7 +35,6 @@ function createNews() {
         return;
     }
 
-    // TODO: handle image upload
 
     submitNews(title, content, datePublished, '', publicValue, sendEmail);
 }

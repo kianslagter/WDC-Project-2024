@@ -81,26 +81,26 @@ function createEvent() {
   // get data
   let title = document.getElementById('title').value;
   let description = document.getElementById('description').value;
-  let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value).join('\n');
+  let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value);
   let date = document.getElementById('date').value;
   let startTime = document.getElementById('startTime').value;
   let endTime = document.getElementById('endTime').value;
-  let location = req.session.branch_managed;
+  let location = document.getElementById('location').value;
   let image_url = document.getElementById('image_path').innerText; // path to uploaded file
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
   let sendEmail = document.getElementById('event-email-notify').checked;
 
 
-    // Log all the variables
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Details:", details);
-    console.log("Date:", date);
-    console.log("Start Time:", startTime);
-    console.log("End Time:", endTime);
-    console.log("Location:", location);
-    console.log("Image URL:", image_url);
-    console.log("Public Value:", publicValue);
+  // Log all the variables
+  console.log("Title:", title);
+  console.log("Description:", description);
+  console.log("Details:", details);
+  console.log("Date:", date);
+  console.log("Start Time:", startTime);
+  console.log("End Time:", endTime);
+  console.log("Location:", location);
+  console.log("Image URL:", image_url);
+  console.log("Public Value:", publicValue);
 
   // validate data
   if (!title || !description || !date || !startTime || !endTime || !location || publicValue === undefined) {
@@ -142,6 +142,7 @@ function submitEvent(title, description, details, date, startTime, endTime, loca
     })
     .then(data => {
       alert('Event created successfully with ID: ' + data.id);
+      window.location.href = "/events";
     })
     .catch(error => {
       try {
@@ -187,24 +188,29 @@ function deleteEvent(eventID) {
 }
 function updateEvent(eventID) {
   // get details of event
-  const title = document.getElementById('title').value;
-  const description = document.getElementById('description').value;
-  const date = document.getElementById('date').value;
-  const startTime = document.getElementById('startTime').value;
-  const endTime = document.getElementById('endTime').value;
-  const isPublic = document.getElementById('public').checked ? 1 : 0;
-  const details = Array.from(document.querySelectorAll('.create-event-details')).map(input => input.value);
-  const image_url = document.getElementById('image_url').value;
+  let title = document.getElementById('title').value;
+  let description = document.getElementById('description').value;
+  let details = Array.from(document.getElementsByClassName('create-event-details')).map(input => input.value);
+  let date = document.getElementById('date').value;
+  let startTime = document.getElementById('startTime').value;
+  let endTime = document.getElementById('endTime').value;
+  let location = document.getElementById('location').value;
+  let image_url = document.getElementById('image_path').innerText; // path to uploaded file
+  let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
+  let sendEmail = document.getElementById('event-email-notify').checked;
+
 
   const eventDetails = {
-    title,
-    description,
-    date,
-    startTime,
-    endTime,
-    isPublic,
-    details,
-    image_url
+      title: title,
+      description: description,
+      details: details,
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      location: location,
+      image_url: image_url,
+      public: publicValue,
+      sendEmail: sendEmail
   };
 
   fetch(`/manage/event/edit/${eventID}`, {
@@ -217,6 +223,7 @@ function updateEvent(eventID) {
     .then(response => {
       if (response.ok) {
         alert('Event updated successfully!');
+        window.location.href = "/events";
       } else {
         throw new Error('Failed to update event');
       }
@@ -225,5 +232,4 @@ function updateEvent(eventID) {
       console.error('Error:', error);
       alert('Error updating event');
     });
-
 }
