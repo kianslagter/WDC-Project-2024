@@ -130,7 +130,7 @@ function alert_promote_manager(name, userID) {
   var res = confirm(`Are you sure you want to promote ${name} to a branch manager?`);
 
   if (res) {
-    fetch(`/manage/user/promote/${userID}`, {
+    fetch(`/manage/promote/manager/${userID}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

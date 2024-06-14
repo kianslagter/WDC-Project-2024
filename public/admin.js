@@ -63,6 +63,12 @@ function get_users() {
 
         var container;
 
+        var list_branches = "";
+
+        for (let i = 0; i < responseJSON.branches.length; i++) {
+          list_branches += `<option>${responseJSON.branches[i].branch_name}</option>`;
+        }
+
         container = document.getElementById('members-container');
         container.innerHTML = "";
         for (let i = 0; i < responseJSON.users.length; i++) {
@@ -93,6 +99,7 @@ function get_users() {
                   <u>Post Code:</u> ${responseJSON.users[i].postcode}
                   <br>
                   <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
+                  <div class="right button secondary-button manage-button"> <button onclick="alert_promote_manager('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Promote To Manager </button><label for="branch-to-manage"> Branch </label> <form> <select name="branch-to-manage" id="branch-to-manage-${responseJSON.users[i].user_id}"> ${list_branches} </select> </form> </div>
                   <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
                   <br>
                 </p>
@@ -112,7 +119,40 @@ function get_users() {
     var res = confirm(`Are you sure you want to promote ${name} to an admin?`);
 
     if (res) {
-      fetch(`/admin/user/promote/${userID}`, {
+      fetch(`/admin/promote/admin/${userID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          // promoted successfully
+          location.reload();
+          alert('Member promoted successfully!');
+        } else if (response.status === 403) {
+          alert('You do not have permission to promote this member.');
+        } else {
+          alert('Failed to promote member.');
+        }
+      })
+      .catch(error => {
+        // console.error('Error:', error);
+        alert('An error occurred while promoting the member.');
+      });
+    }
+    else {
+      return;
+    }
+  }
+
+  function alert_promote_manager(name, userID) {
+    var branchID = document.getElementById(`branch-to-manage-${userID}`).value;
+
+    var res = confirm(`Are you sure you want to promote ${name} to a manager of ${branchID}?`);
+
+    if (res) {
+      fetch(`/admin/branch/${branchID}/promote/manager/${userID}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
