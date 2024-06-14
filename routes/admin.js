@@ -314,7 +314,8 @@ router.post('/branch/create', function (req, res, next) {
   let postcode = req.body.postcode;
   let description = req.body.description;
   let image_url = req.body.image_url;
-
+  console.log(open_time);
+  console.log(close_time);
   // Validate each field of the branch
   if (!name || typeof (name) !== "string") {
     res.status(400).send("Branch name undefined or not string");
@@ -359,7 +360,7 @@ router.post('/branch/create', function (req, res, next) {
 
   // Add to DB
   // Construct the SQL query
-  let query = "INSERT INTO branches (branch_name, email, phone, street_number, street_name, city, branch_state, postcode, branch_description, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+  let query = "INSERT INTO branches (branch_name, email, phone, street_number, street_name, city, branch_state, postcode, branch_description, image_url, openingHours, closingHours) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
@@ -368,7 +369,7 @@ router.post('/branch/create', function (req, res, next) {
       res.status(500).json({ message: "Database connection error" });
       return;
     }
-    connection.query(query, [name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url], function (err, rows, fields) {
+    connection.query(query, [name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url, open_time, close_time], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
         res.status(500).json({ message: "Database query error" });

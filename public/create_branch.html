@@ -42,17 +42,21 @@
 
         <h3> <u> Branch Details </u> </h3>
         <h4> Set Trading Hours </h4>
-        <p> Opening time: <input type="time" class="create-event-time-inputs"></p>
-        <p> Closing time: <input type="time" class="create-event-time-inputs"></p>
+        <p> Opening time: <input type="time" id="openingHours" class="create-event-time-inputs"></p>
+        <p> Closing time: <input type="time" id="closingHours" class="create-event-time-inputs"></p>
 
         <h4> Enter Branch Description Below  </h4>
         <textarea class="create-branch-description"> Enter branch description here </textarea>
         <br>
 
-        <!-- Note there should be some validation of data before it is sent to server, i.e. dates are in future -->
-
-        <h4> Add an Image </h4>
-        <input class="create-branch-image-upload" type="file" name="branch-image" accept="image/*">
+        <h4> Choose an Image </h4>
+        <select v-model="image_path">
+          <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
+        </select>
+        <p id="image_path" class="hidden"> {{image_path}} </p>
+        <div class="image-container">
+          <img id="branch_image" class="select-image" v-bind:src="image_path" alt="news image">
+        </div>
         <button class="center button primary-button create-branch-button" type="button" onclick="createBranch()"> Create Branch </button>
         <br>
     </div>

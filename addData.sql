@@ -1,65 +1,75 @@
 USE volunteer_management_system;
 -- Add branches
 INSERT INTO branches
-	(branch_name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description)
+	(branch_name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description, openingHours, closingHours)
 VALUES
-	("Adelaide Mealmates", 695, "Bridges Key", "Adelaide", "SA", 2666, "adelaidebranch@mealmates.com.au", "0468 734 980", "/image/6",
-'Ipsam iusto maiores officia iusto harum sunt necessitatibus. Vitae odit commodi. Ut repellendus ex quaerat.
+    ("Adelaide Mealmates", 695, "Bridges Key", "Adelaide", "SA", 2666, "adelaidebranch@mealmates.com.au", "0468 734 980", "/image/6",
+    'Ipsam iusto maiores officia iusto harum sunt necessitatibus. Vitae odit commodi. Ut repellendus ex quaerat.
 
-Odit harum nisi soluta animi excepturi. Sequi voluptas perspiciatis voluptatum explicabo eius. Voluptate voluptates facilis vitae adipisci placeat. Excepturi id doloribus aut nemo repudiandae eius. Sunt eveniet fugiat vitae.'),
+Odit harum nisi soluta animi excepturi. Sequi voluptas perspiciatis voluptatum explicabo eius. Voluptate voluptates facilis vitae adipisci placeat. Excepturi id doloribus aut nemo repudiandae eius. Sunt eveniet fugiat vitae.',
+    '2024-06-01 09:00:00', '2024-06-01 18:00:00'),
 
-	("Sydney Mealmates", 694, "Adam Strip", "Sydney", "NSW", 2629, "sydneybranch@mealmates.com.au", "0466 281 657", "/image/3",
-'Nemo laboriosam laborum laboriosam fugit iste. Sed magnam optio dolorum voluptates tenetur praesentium eius. Fugiat unde eaque sed cum quis iste. Rerum dolore veritatis a. Neque ut reprehenderit dolor quibusdam rem.
+    ("Sydney Mealmates", 694, "Adam Strip", "Sydney", "NSW", 2629, "sydneybranch@mealmates.com.au", "0466 281 657", "/image/3",
+    'Nemo laboriosam laborum laboriosam fugit iste. Sed magnam optio dolorum voluptates tenetur praesentium eius. Fugiat unde eaque sed cum quis iste. Rerum dolore veritatis a. Neque ut reprehenderit dolor quibusdam rem.
 
 Officia dolorem impedit iste suscipit. Molestias quisquam molestiae aliquid occaecati assumenda. Beatae occaecati minima dolores quas modi ipsum. Hic repellat in corrupti quis. Sunt explicabo tempora.
 
-Numquam deserunt tenetur culpa nisi dicta totam. Corrupti voluptatum beatae nisi saepe eos. Distinctio quasi suscipit.'),
+Numquam deserunt tenetur culpa nisi dicta totam. Corrupti voluptatum beatae nisi saepe eos. Distinctio quasi suscipit.',
+    '2024-06-01 08:30:00', '2024-06-01 17:30:00'),
 
-	("Melbourne Mealmates", 5, "Obrien Footway", "Melbourne", "VIC", 2670, "melbournebranch@mealmates.com.au", "0482 551 675", "/image/4",
-'Sequi cupiditate repudiandae sequi magnam. Odit asperiores nihil error. Nemo velit veniam sint blanditiis vitae. Mollitia repudiandae culpa quasi. Id maxime est voluptates. Nisi quam in ad consequuntur possimus similique perspiciatis.
+    ("Melbourne Mealmates", 5, "Obrien Footway", "Melbourne", "VIC", 2670, "melbournebranch@mealmates.com.au", "0482 551 675", "/image/4",
+    'Sequi cupiditate repudiandae sequi magnam. Odit asperiores nihil error. Nemo velit veniam sint blanditiis vitae. Mollitia repudiandae culpa quasi. Id maxime est voluptates. Nisi quam in ad consequuntur possimus similique perspiciatis.
 
-Amet natus quas. Quas et doloremque fugit consequatur qui odio. Exercitationem sunt aliquid dignissimos odio optio eos iste. Ipsam voluptatum fugiat laborum quo. Numquam nihil omnis magnam. Ullam animi hic quibusdam mollitia.'),
+Amet natus quas. Quas et doloremque fugit consequatur qui odio. Exercitationem sunt aliquid dignissimos odio optio eos iste. Ipsam voluptatum fugiat laborum quo. Numquam nihil omnis magnam. Ullam animi hic quibusdam mollitia.',
+    '2024-06-01 09:30:00', '2024-06-01 18:30:00'),
 
-	("Brisbane Mealmates", 3, "Robert Key", "Brisbane", "QLD", 2841, "brisbanebranch@mealmates.com.au", "0437 198 139", "/image/4",
-'Vitae ratione sunt exercitationem. Cupiditate optio iure reiciendis. Molestias voluptate atque dolores similique. Ipsum harum dolor incidunt placeat nulla aut numquam. Veritatis accusantium ut enim voluptatibus.
+    ("Brisbane Mealmates", 3, "Robert Key", "Brisbane", "QLD", 2841, "brisbanebranch@mealmates.com.au", "0437 198 139", "/image/4",
+    'Vitae ratione sunt exercitationem. Cupiditate optio iure reiciendis. Molestias voluptate atque dolores similique. Ipsum harum dolor incidunt placeat nulla aut numquam. Veritatis accusantium ut enim voluptatibus.
 
-Ratione ut nesciunt quasi sapiente iusto veniam aperiam. Asperiores assumenda vitae impedit. Ullam repellat hic odit est mollitia. Excepturi repellat similique cum suscipit. Quae blanditiis dolores debitis cupiditate laboriosam repellendus. Ipsum aliquid ex illo.'),
+Ratione ut nesciunt quasi sapiente iusto veniam aperiam. Asperiores assumenda vitae impedit. Ullam repellat hic odit est mollitia. Excepturi repellat similique cum suscipit. Quae blanditiis dolores debitis cupiditate laboriosam repellendus. Ipsum aliquid ex illo.',
+    '2024-06-01 08:00:00', '2024-06-01 17:00:00'),
 
-	("Perth Mealmates", 194, "Webb Mount", "Perth", "WA", 2684, "perthbranch@mealmates.com.au", "0479 974 123", "/image/6",
-'Cupiditate deserunt eos occaecati. Voluptate quia enim voluptatibus repellendus iusto iure. Optio corrupti repudiandae esse in facere ipsum pariatur.
+    ("Perth Mealmates", 194, "Webb Mount", "Perth", "WA", 2684, "perthbranch@mealmates.com.au", "0479 974 123", "/image/6",
+    'Cupiditate deserunt eos occaecati. Voluptate quia enim voluptatibus repellendus iusto iure. Optio corrupti repudiandae esse in facere ipsum pariatur.
 
 Dignissimos possimus nam laudantium eveniet cumque nemo. Maxime eaque vel blanditiis ipsum at. Optio ab unde inventore quidem.
 
-Sapiente voluptate culpa eaque doloribus. Nihil eveniet suscipit occaecati. Illo tempore reprehenderit iure aliquam iste aliquid.'),
+Sapiente voluptate culpa eaque doloribus. Nihil eveniet suscipit occaecati. Illo tempore reprehenderit iure aliquam iste aliquid.',
+    '2024-06-01 07:30:00', '2024-06-01 16:30:00'),
 
-	("Canberra Mealmates", 8, "Andrews Stairs", "Canberra", "ACT", 2930, "canberrabranch@mealmates.com.au", "0454 941 194", "/image/9",
-'Similique sit minima saepe possimus saepe facilis. Doloremque voluptates animi tempora adipisci ratione placeat provident. Similique asperiores hic ipsum perspiciatis unde.
+    ("Canberra Mealmates", 8, "Andrews Stairs", "Canberra", "ACT", 2930, "canberrabranch@mealmates.com.au", "0454 941 194", "/image/9",
+    'Similique sit minima saepe possimus saepe facilis. Doloremque voluptates animi tempora adipisci ratione placeat provident. Similique asperiores hic ipsum perspiciatis unde.
 
-Adipisci consequuntur tenetur asperiores eveniet nulla. Neque nam quibusdam delectus. Facere natus vitae consequatur consectetur repellendus. Labore vitae itaque.'),
+Adipisci consequuntur tenetur asperiores eveniet nulla. Neque nam quibusdam delectus. Facere natus vitae consequatur consectetur repellendus. Labore vitae itaque.',
+    '2024-06-01 09:00:00', '2024-06-01 18:00:00'),
 
-	("Hobart Mealmates", 464, "3 Kelley Wade", "Hobart", "TAS", 2692, "hobartbranch@mealmates.com.au", "0405 107 179", "/image/9",
-'Voluptate sapiente quas eaque nobis officiis nobis. Repellendus occaecati officiis unde rerum. Minima at perspiciatis earum ducimus iure.
+    ("Hobart Mealmates", 464, "3 Kelley Wade", "Hobart", "TAS", 2692, "hobartbranch@mealmates.com.au", "0405 107 179", "/image/9",
+    'Voluptate sapiente quas eaque nobis officiis nobis. Repellendus occaecati officiis unde rerum. Minima at perspiciatis earum ducimus iure.
 
-Officiis fugiat unde optio. Adipisci repellat maiores velit voluptatum occaecati repellendus. Quis id ad.'),
+Officiis fugiat unde optio. Adipisci repellat maiores velit voluptatum occaecati repellendus. Quis id ad.',
+    '2024-06-01 08:30:00', '2024-06-01 17:30:00'),
 
-	("Darwin Mealmates", 605, "Jeremy Crescent", "Darwin", "NT", 2451, "darwinbranch@mealmates.com.au", "0496 496 218", "/image/2",
-'Adipisci dolorum eos quod architecto. Ad veritatis possimus ipsa minus natus tenetur. Harum architecto dolorem eaque mollitia. Saepe recusandae ipsum ea eveniet quam. Placeat facere consequatur eius nam occaecati qui. Sequi consequuntur necessitatibus asperiores aspernatur tempore corrupti saepe.
+    ("Darwin Mealmates", 605, "Jeremy Crescent", "Darwin", "NT", 2451, "darwinbranch@mealmates.com.au", "0496 496 218", "/image/2",
+    'Adipisci dolorum eos quod architecto. Ad veritatis possimus ipsa minus natus tenetur. Harum architecto dolorem eaque mollitia. Saepe recusandae ipsum ea eveniet quam. Placeat facere consequatur eius nam occaecati qui. Sequi consequuntur necessitatibus asperiores aspernatur tempore corrupti saepe.
 
-Aut vel quis repellendus deleniti cumque. Eum animi sint asperiores labore porro aut eos. Doloribus eum sit quia occaecati animi illo. Voluptas iure pariatur quia perspiciatis unde iure. Iure eum nulla delectus inventore. Mollitia sint nam mollitia.'),
+Aut vel quis repellendus deleniti cumque. Eum animi sint asperiores labore porro aut eos. Doloribus eum sit quia occaecati animi illo. Voluptas iure pariatur quia perspiciatis unde iure. Iure eum nulla delectus inventore. Mollitia sint nam mollitia.',
+    '2024-06-01 09:00:00', '2024-06-01 18:00:00'),
 
-	("Gold Coast Mealmates", 6, "James Ramble", "Gold Coast", "QLD", 2693, "goldcoastbranch@mealmates.com.au", "0424 914 898", "/image/2",
-'Sequi sunt autem ipsam voluptatibus soluta. Perspiciatis illum sed quae. Hic accusamus mollitia dignissimos. Voluptatum explicabo fugiat dicta. Corrupti enim provident nam molestias. Non debitis cum accusamus tempora.
+    ("Gold Coast Mealmates", 6, "James Ramble", "Gold Coast", "QLD", 2693, "goldcoastbranch@mealmates.com.au", "0424 914 898", "/image/2",
+    'Sequi sunt autem ipsam voluptatibus soluta. Perspiciatis illum sed quae. Hic accusamus mollitia dignissimos. Voluptatum explicabo fugiat dicta. Corrupti enim provident nam molestias. Non debitis cum accusamus tempora.
 
 Debitis sunt inventore occaecati. Quaerat eaque nisi. Itaque asperiores magnam accusantium blanditiis exercitationem. Velit labore necessitatibus voluptatibus libero. Doloribus consectetur est. Similique adipisci corporis officiis natus.
 
-Tempora quos nesciunt earum aut omnis dolore tempore. Id distinctio voluptatem. A architecto pariatur maiores. Minima neque dolorum error. Fugit tempore neque quasi.'),
+Tempora quos nesciunt earum aut omnis dolore tempore. Id distinctio voluptatem. A architecto pariatur maiores. Minima neque dolorum error. Fugit tempore neque quasi.',
+    '2024-06-01 08:00:00', '2024-06-01 17:00:00'),
 
-	("Newcastle Mealmates", 872, "Price Basin", "Newcastle", "NSW", 5364, "newcastlebranch@mealmates.com.au", "0488 668 418", "/image/2",
-'Repellendus modi nisi autem laborum laudantium. Ratione incidunt numquam modi itaque unde fugiat. Dolores voluptate optio aliquam aliquid.
+    ("Newcastle Mealmates", 872, "Price Basin", "Newcastle", "NSW", 5364, "newcastlebranch@mealmates.com.au", "0488 668 418", "/image/2",
+    'Repellendus modi nisi autem laborum laudantium. Ratione incidunt numquam modi itaque unde fugiat. Dolores voluptate optio aliquam aliquid.
 
 Officiis recusandae accusantium adipisci quis nisi expedita. Omnis numquam fuga libero sunt porro. Beatae voluptas ea ut tempora ullam.
 
-Eius totam aliquam ab aut ducimus odit. Quos voluptatum fuga animi. Enim quia deleniti dolore cum beatae. Voluptas quis quis recusandae autem in.');
+Eius totam aliquam ab aut ducimus odit. Quos voluptatum fuga animi. Enim quia deleniti dolore cum beatae. Voluptas quis quis recusandae autem in.',
+    '2024-06-01 07:30:00', '2024-06-01 16:30:00');
 
 -- Add images
 INSERT INTO images

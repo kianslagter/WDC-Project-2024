@@ -32,10 +32,12 @@ function createBranch() {
     let state = document.getElementById('state').value;
     let postcode = document.getElementById('postcode').value;
     let description = document.querySelector('.create-branch-description').value;
-    let image_url = document.querySelector('.create-branch-image-upload').files[0]; // file upload
+    let openingHours = document.getElementById('openingHours').value;
+    let closingHours = document.getElementById('closingHours').value;
+    let image_url = document.getElementById('image_path').innerText;
 
     // Validate data
-    if (!name || !email || !city || !state || !postcode || !description) {
+    if (!name || !email || !city || !state || !postcode || !description || !openingHours || !closingHours) {
         alert('Please fill all required fields.');
         return;
     }
@@ -46,10 +48,10 @@ function createBranch() {
     // }
     // TODO: handle image upload
 
-    submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url);
+    submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url, openingHours, closingHours);
 }
 
-function submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, imageUrl) {
+function submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, imageUrl, openingHours, closingHours) {
     let branchData = {
         name: name,
         email: email,
@@ -60,6 +62,8 @@ function submitBranch(name, email, phone, streetNumber, streetName, city, state,
         state: state,
         postcode: postcode,
         description: description,
+        openingHours: openingHours,
+        closingHours: closingHours,
         image_url: imageUrl
     };
 
@@ -135,18 +139,22 @@ function updateBranch(branchID) {
     const postcode = document.getElementById('postcode').value;
     const description = document.getElementById('description').value;
     const image_url = document.getElementById('image_url').value;
+    const closing_time = document.getElementById('closing_hours').value;
+    const opening_time = document.getElementById('opening_hours').value;
 
     const branchDetails = {
-        name,
-        email,
-        phone,
-        streetNumber,
-        streetName,
-        city,
-        state,
-        postcode,
-        description,
-        image_url
+        'branch_name': name,
+        'email': email,
+        'phone': phone,
+        'streetNumber': streetNumber,
+        'streetName': streetName,
+        'city': city,
+        'state': state,
+        'postcode': postcode,
+        'description': description,
+        'image_url': image_url,
+        'closing_time': closing_time,
+        'opening_time': opening_time
     };
 
     fetch(`/manage/branch/edit/${branchID}`, {

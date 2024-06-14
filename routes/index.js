@@ -771,7 +771,7 @@ router.get('/branch/id/:branchID/details.json', function (req, res, next) {
       return;
     }
     // Get the branch details
-    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description
+    query = `SELECT branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description, DATE_FORMAT(openingHours, '%l:%i %p') AS open_time, DATE_FORMAT(closingHours, '%l:%i %p') AS close_time
                FROM branches
                WHERE branch_id=?;`;
     tools.sqlHelper(query, [branch_id], req).then(function (results) {
@@ -784,7 +784,7 @@ router.get('/branch/id/:branchID/details.json', function (req, res, next) {
 
 router.get('/branches/get', function (req, res, next) {
   // Construct the SQL query
-  let query = `SELECT branch_id AS id, branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description FROM branches`;
+  let query = `SELECT branch_id AS id, branch_name AS name, street_number, street_name, city, branch_state, postcode, email, phone, image_url, branch_description AS description, DATE_FORMAT(openingHours, '%l:%i %p') AS open_time, DATE_FORMAT(closingHours, '%l:%i %p') AS close_time FROM branches`;
 
   let params = [];
   // Add any additional filters if needed
@@ -793,7 +793,7 @@ router.get('/branches/get', function (req, res, next) {
     params.push(req.query.city);
   }
 
-  query += " ORDER BY branch_name ASC LIMIT 10;";
+  query += " ORDER BY branch_name ASC LIMIT 50;";
 
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
