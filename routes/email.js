@@ -138,8 +138,8 @@ function parseReceivers(rows) {
         }
     }
 
-    return receivers;
     // console.log(receivers);
+    return receivers;
 }
 
 // --- Email Notification Service ---
@@ -149,34 +149,9 @@ const transporter = nodemailer.createTransport({
     secure: false, // Use `true` for port 465, `false` for all other ports
     auth: {
         user: "marian.lehner22@ethereal.email",
-        pass: String.raw`ARBQpE3ANmf2A4VtnS`,
+        pass: `ARBQpE3ANmf2A4VtnS`,
     },
 });
-
-// // Interface
-// sendMail(
-//     // from:
-//     '"Meal Mates Updates" <realmealmates@outlook.com>',
-//     // to:
-//     "realmealmates@outlook.com, realmealmates@outlook.com",
-//     // subject
-//     testUpdateDetails.title,
-//     // text (plain text)
-//     testUpdateDetails.details[0],
-//     // html
-//     // can simply make these as templates
-//     `<div style="background-color: lightgrey">
-//     <br>
-//     <div style="background-color: crimson; padding: 20px; border-radius: 20px; margin: 10px">
-//       <b style="colour: white">${testUpdateDetails.title}</b>
-//     </div>
-//     <div style="background-color: white; padding: 10px; border-radius: 20px; margin: 10px">
-//       <p>${testUpdateDetails.details[0]}</p>
-//       <img src="https://communityactioncenter.org/wp-content/uploads/2022/10/CAC-Faribault-Food-Market.jpg" alt="image" width="200">
-//     </div>
-//     <br>
-//   </div>`
-// );
 
 function sendMail(sender, receivers, title, plain_text, html_body) {
     var mailOptions = {

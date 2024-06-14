@@ -78,7 +78,8 @@
       <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
     </select>
     <p id="image_path" class="hidden"> {{image_path}} </p>
-    <img id="news_image" v-bind:src="image_path" alt="news image">
+    <br>
+    <img class="preview_event_image" v-bind:src="image_path" alt="news image">
 
     <h4> Other Options </h4>
     <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">
