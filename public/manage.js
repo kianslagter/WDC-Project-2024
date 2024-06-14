@@ -61,6 +61,9 @@ function get_branch_information() {
           </div>`;
       }
     }
+    else if (this.status == 403)  {
+      window.location.replace("/");
+    }
   };
 
   var branchID = window.location.pathname.split('/')[4];
@@ -96,7 +99,7 @@ function get_members() {
         }
 
         container.innerHTML += `
-          <div id="member-${responseJSON.members[i].username}" class="view-members-container">
+          <div id="member-${responseJSON.members[i].user_id}" class="view-members-container">
               <p>
                 <b> ${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name} ${note_manager} </b>
                 &emsp;
@@ -106,12 +109,15 @@ function get_members() {
                 <br>
                 <u>Address:</u> ${responseJSON.members[i].postcode}
                 <br>
-                <button onclick="alert_remove_member('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].username}')" class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
-                <button onclick="alert_promote_manager('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].username}')" class="right button primary-button manage-button" type="button"> Promote To Manager </button>
+                <button onclick="alert_remove_member('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].user_id}')" class="right button secondary-button manage-button" type="button"> Remove Member From Branch </button>
+                <button onclick="alert_promote_manager('${responseJSON.members[i].first_name} ${responseJSON.members[i].last_name}', '${responseJSON.members[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Manager </button>
                 <br>
               </p>
           </div>`;
       }
+    }
+    else if (this.status == 403)  {
+      window.location.replace("/");
     }
   };
 
@@ -121,7 +127,7 @@ function get_members() {
 }
 
 function alert_promote_manager(name, userID) {
-  var res = confirm(`Are you sure you want to promote ${name} (${userID}) to a branch manager?`);
+  var res = confirm(`Are you sure you want to promote ${name} to a branch manager?`);
 
   if (res) {
     fetch(`/manage/user/promote/${userID}`, {
@@ -152,7 +158,7 @@ function alert_promote_manager(name, userID) {
 }
 
 function alert_remove_member(name, userID) {
-  var res = confirm(`Are you sure you want to remove ${name} (${userID}) from this branch?`);
+  var res = confirm(`Are you sure you want to remove ${name} from this branch?`);
 
   if (res) {
     fetch(`/manage/user/remove/${userID}`, {

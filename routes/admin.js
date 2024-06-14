@@ -6,6 +6,17 @@ var tools = require('./helpers');
 
 var router = express.Router();
 
+router.use(checkPermission);
+
+function checkPermission(req, res, next) {
+  if (!req.session.admin) {
+    res.status(403).send("You do not have permission to view admin pages.");
+    return;
+  }
+
+  next();
+}
+
 router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin_dashboard.html'));
 });
@@ -19,12 +30,18 @@ router.get('/branches/create', function (req, res, next) {
 });
 
 router.get('/site_information', function (req, res, next) {
+  if (!req.session.admin) {
+    res.status(403).send("You do not have permission to get the details of this site.");
+    return;
+  }
+
   var statistics = {
     "num_site_users": 0,
     "num_upcoming_events": 0,
     "num_total_events": 0,
     "num_total_news": 0,
     "num_today_news": 0,
+    "num_managers": 0,
     "other_admins": null
   };
 
@@ -40,7 +57,8 @@ router.get('/site_information', function (req, res, next) {
       (SELECT COUNT(*) FROM events WHERE start_date_time > NOW()) AS num_upcoming_events,
       (SELECT COUNT(*) FROM events) AS num_total_events,
       (SELECT COUNT(*) FROM news WHERE DATE(date_published) = CURRENT_DATE) AS num_today_news,
-      (SELECT COUNT(*) FROM news) AS num_total_news;
+      (SELECT COUNT(*) FROM news) AS num_total_news,
+      (SELECT COUNT(*) FROM users WHERE branch_managed IS NOT NULL) AS num_managers;
     `;
 
     connection.query(query, function (err, rows, fields) {
@@ -55,6 +73,7 @@ router.get('/site_information', function (req, res, next) {
       statistics.num_total_events = rows[0]['num_total_events'];
       statistics.num_today_news = rows[0]['num_today_news'];
       statistics.num_total_news = rows[0]['num_total_news'];
+      statistics.num_managers = rows[0]['num_managers'];
     });
 
 
@@ -76,11 +95,10 @@ router.get('/site_information', function (req, res, next) {
 });
 
 router.get('/get_users', function (req, res, next) {
-  // Need to add admin validation
-
-  // Need to double-check.
-  if (req.session.admin === false) {
-    res.status(403).send("Only system admins can view users.");
+  // Admin validation
+  if (!req.session.admin) {
+    res.status(403).send("Only system admins can get users.");
+    return;
   }
 
   var response = {
@@ -94,11 +112,12 @@ router.get('/get_users', function (req, res, next) {
     }
 
     // Query 1
-    var query = `SELECT users.username, first_name, last_name, email, phone_num, postcode, branch_managed, system_admin FROM users;`;
+    var query = `SELECT BIN_TO_UUID(user_id) AS user_id, first_name, last_name, email, phone_num, postcode, branch_managed, system_admin FROM users;`;
 
     connection.query(query, function (err, rows, fields) {
       connection.release();
       if (err) {
+        console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -114,10 +133,15 @@ router.get('/get_users', function (req, res, next) {
 
 router.post('/user/delete/:userID', function (req, res, next) {
   const userID = req.params.userID;
-  // console.log(userID);
+
+  // Admin validation
+  if (!req.session.admin) {
+    res.status(403).send("Only system admins can delete users.");
+    return;
+  }
 
   // Check the member exists.
-  var query = `SELECT user_id AS user FROM users WHERE username = ? AND users.system_admin = FALSE;`;
+  var query = `SELECT user_id AS user FROM users WHERE user_id = UUID_TO_BIN(?) AND system_admin = FALSE;`;
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
     // console.log(results);
@@ -135,7 +159,7 @@ router.post('/user/delete/:userID', function (req, res, next) {
       }
 
       // Remove from branches
-      let query = "DELETE FROM user_branch_affiliation WHERE user_id IN (SELECT user_id FROM users WHERE username = ?);";
+      let query = "DELETE FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
 
       connection.query(query, [userID], function (err, rows, fields) {
         // connection.release(); // release connection
@@ -147,7 +171,7 @@ router.post('/user/delete/:userID', function (req, res, next) {
       });
 
       // Delete from user_event_attendance
-      query = `DELETE FROM user_event_attendance WHERE user_id IN (SELECT user_id FROM users WHERE username = ?);`;
+      query = `DELETE FROM user_event_attendance WHERE user_id = UUID_TO_BIN(?);`;
 
       connection.query(query, [userID], function (err, rows, fields) {
         // connection.release(); // release connection
@@ -159,7 +183,7 @@ router.post('/user/delete/:userID', function (req, res, next) {
       });
 
       // Remove from users
-      query = "DELETE FROM users WHERE username = ?;";
+      query = "DELETE FROM users WHERE user_id = UUID_TO_BIN(?);";
 
       connection.query(query, [userID], function (err, rows, fields) {
         connection.release(); // release connection
@@ -168,48 +192,55 @@ router.post('/user/delete/:userID', function (req, res, next) {
           res.sendStatus(500);
           return;
         }
+
         res.sendStatus(200);
         return;
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 router.post('/user/promote/:userID', function (req, res, next) {
-  const userID = req.params.userID;
-  // console.log(userID);
+  var userID = req.params.userID;
 
-  // Check the member exists.
-  var query = `SELECT user_id AS user FROM users WHERE username = ? AND users.system_admin = FALSE;`;
+  // Admin validation
+  if (!req.session.admin) {
+    res.status(403).send("Only system admins can promote users.");
+    return;
+  }
+
+  // Check the member exists and is not an admin.
+  var query = `SELECT user_id FROM users WHERE user_id = UUID_TO_BIN(?) AND users.system_admin = FALSE;`;
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
-    // console.log(results);
     if (results.length == 0) {
       // Member not found
       res.status(400).send("Member not found");
       return;
     }
 
-    let query = `UPDATE users SET system_admin = TRUE WHERE username = ?;`;
-
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        // console.log(err);
+        console.log(err);
         res.sendStatus(500);
         return;
       }
+
+      query = `UPDATE users SET system_admin = TRUE WHERE user_id = UUID_TO_BIN(?);`;
+
       connection.query(query, [userID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          // console.log(err);
+          console.log(err);
           res.sendStatus(500);
           return;
         }
+
         res.sendStatus(200);
         return;
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) {tools.sendError(err);});
 });
 
 module.exports = router;
