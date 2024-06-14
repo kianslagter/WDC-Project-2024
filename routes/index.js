@@ -412,9 +412,8 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     DATE_FORMAT(e.start_date_time, '%D %M') AS date,
     DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
     DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
-    DAYOFWEEK(e.start_date_time) AS dayOfWeek,
     b.branch_name AS location, e.event_image AS image_url,
-    e.is_public AS public, e.branch_id AS branch
+    e.is_public AS public, e.branch_id AS branch, e.event_details AS details
     FROM events e
     JOIN branches b ON e.branch_id = b.branch_id
     WHERE e.event_id = ?`;
@@ -687,7 +686,7 @@ router.post('/branches/join/:branchID', function (req, res, next) {
     return;
   }
   // Convert username to user ID
-  let query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users WHERE username=?;";
+  let query = "SELECT BIN_TO_UUID(user_id) as user_id FROM users;";
   req.pool.query(query, [userID], function (err, results) {
     if (err) {
       console.log(err);
