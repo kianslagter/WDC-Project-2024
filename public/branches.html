@@ -25,8 +25,8 @@
   </header>
 
   <div class="page-content content">
-    <button class="button primary-button right new-button" type="button" v-if="access_level >= 2"
-      onclick="window.location.href='/manage/branches/create'"> New Branch </button>
+    <button class="button primary-button right new-button" type="button" v-if="access_level >= 3"
+      onclick="window.location.href='/admin/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_results">
       <div class="branch-content">
@@ -62,11 +62,8 @@
   </div>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
-    These buttons will be removed, for testing purposes only
-    <button type="button" v-on:click="access_level=0"> Visitor </button>
-    <button type="button" v-on:click="access_level=1"> User </button>
-    <button type="button" v-on:click="access_level=2"> Manager </button>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

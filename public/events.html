@@ -74,7 +74,7 @@
             <h2 class="event-title"> {{event.title}} </h2>
             <!-- Link the location to the branch page? -->
             <span class="event-header">
-              {{event.date}}&emsp;{{event.startTime}}-{{event.endTime}}&emsp;{{event.location}}&emsp;
+              <i class="fa fa-calendar-o"></i> {{event.date}} &emsp; &emsp; &emsp; <i class="fa fa-clock-o"></i> {{event.startTime}} - {{event.endTime}} &emsp; &emsp; &emsp; <i class="fa fa-map-marker"></i> {{event.location}} &emsp; &emsp; &emsp;
               <span v-if="event.public === 0"><i class="fa fa-lock"></i> Private</span>
               <span v-else><i class="fa fa-unlock"></i> Public</span></span>
             <p class="event-description"> {{event.description}} </p>
@@ -105,12 +105,9 @@
 
   </div>
 
-    <footer>
-      &copy; 2024 Your Website. All rights reserved.
-      These buttons will be removed, for testing purposes only
-      <button type="button" v-on:click="access_level=0"> Visitor </button>
-      <button type="button" v-on:click="access_level=1"> User </button>
-      <button type="button" v-on:click="access_level=2"> Manager </button>
-    </footer>
+  <footer>
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
+  </footer>
   </body>
   </html>

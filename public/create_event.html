@@ -74,6 +74,7 @@
       <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
     </select>
     <p id="image_path" class="hidden"> {{image_path}} </p>
+
     <div class="image-container">
       <img id="news_image" class="select-image" v-bind:src="image_path" alt="news image">
     </div>
@@ -92,7 +93,8 @@
   </div>
 
   <footer>
-    &copy; 2024 Your Website. All rights reserved.
+    &copy; 2024 Meal Mates. All rights reserved.
+    <a class="private_policy" href="/private_policy"> Private Policy</a>
   </footer>
 </body>
 

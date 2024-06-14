@@ -7,7 +7,7 @@ const path = require('path');
 router.use(checkPermission);
 
 function checkPermission(req, res, next) {
-  if (!req.session.branch_managed) {
+  if (!req.session.branch_managed && !req.session.admin) {
     res.status(403).send("You do not have permission to view manager pages.");
     return;
   }
@@ -43,9 +43,10 @@ router.get('/news/edit/:newsId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_news.html'));
 });
 
-router.get('/branches/create', function (req, res, next) {
-  res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
-});
+// Managers cannot create branches
+// router.get('/branches/create', function (req, res, next) {
+//   res.sendFile(path.join(__dirname, '..', 'public', 'create_branch.html'));
+// });
 
 router.get('/branches/edit/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_branches.html'));

@@ -71,7 +71,7 @@ router.get('/site_information', function (req, res, next) {
       statistics.num_site_users = rows[0]['num_site_users'];
       statistics.num_upcoming_events = rows[0]['num_upcoming_events'];
       statistics.num_total_events = rows[0]['num_total_events'];
-      statistics.num_today_news = rows[0]['num_today_news'];
+      statistics.num_managers = rows[0]['num_managers'];
       statistics.num_total_news = rows[0]['num_total_news'];
       statistics.num_managers = rows[0]['num_managers'];
     });

@@ -40,7 +40,6 @@ router.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-
 async function updateSessionVariables(req, res, user_id) {
   return new Promise((resolve, reject) => {
     // Correct username and password
@@ -98,6 +97,7 @@ async function updateSessionVariables(req, res, user_id) {
 }
 
 const { OAuth2Client } = require('google-auth-library');
+const { hasBrowserCrypto } = require('google-auth-library/build/src/crypto/crypto');
 const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
 
 async function dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode) {
@@ -110,9 +110,10 @@ async function dbRegisterUser(req, res, google_uid, email, first_name, last_name
     req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err,results) {
 
       if (err) {
-        console.error(err);
+        reject(err);
       }
       console.log("Completed DB Register Insert query");
+      resolve();
     });
   });
 };
@@ -186,28 +187,41 @@ router.post('/api/login', function (req, res, next) {
   }
 
   // Check for matching user in database
-  var query = "SELECT COUNT(*) AS count FROM users WHERE email=? AND password_hash=?";
-  var queryPromise = tools.sqlHelper(query, [email, password], req);
+  var query = "SELECT COUNT(*) AS count FROM users WHERE email=?";
+  var queryPromise = tools.sqlHelper(query, [email], req);
 
   // Wait for query to complete
-  queryPromise.then(function (result) {
+  queryPromise.then(async function (result) {
+    console.log("YO1");
     // Query completed successfully
     if (result[0].count == 0) {
       // Wrong email or password
       res.status(403).send("Wrong email or password");
       return;
     } else {
-      // Get their user id
-      query = "SELECT BIN_TO_UUID(user_id) AS user_id FROM users WHERE email=?;";
-      var user_id;
-      tools.sqlHelper(query, [email], req).then((result) => {
+      console.log("YO2");
+      // Get their user id and password hash
+      query = "SELECT BIN_TO_UUID(user_id) AS user_id, password_hash FROM users WHERE email=?;";
+      queryPromise2 = tools.sqlHelper(query, [email], req)
+      
+      queryPromise2.then(async function (result) {
         user_id = result[0].user_id;
-        // Log them in by updating the appropriate session variables.
-        updateSessionVariables(req, res, user_id).then(function () {
-          // Session variables updated succesfully
-          res.status(200).send("Log in succesful");
-          return;
-        }).catch(function (err) { tools.sendError(res, err); });
+        hash = result[0].password_hash.toString();
+        console.log("YO3");
+        result = await checkUser(password, hash)
+        if (result == true) {
+          // Log them in by updating the appropriate session variables.
+          updateSessionVariables(req, res, user_id).then(function () {
+            // Session variables updated succesfully
+            res.status(200).send("Log in succesful");
+            return;
+
+          }).catch(function (err) { tools.sendError(res, err); });
+        } else {
+          console.log("Wrong password");
+          res.status(403).send("Wrong password");
+        }
+
       }).catch((err) => { tools.sendError(res, err); });
     }
   }
@@ -247,6 +261,60 @@ router.get('/api/access', (req, res) => {
   res.json(response);
 });
 
+const bcrypt = require('bcrypt');
+
+async function validateAndHashPassword(plainTextPassword) {
+  const saltRounds = 10;
+  
+  // Password validation requirements
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(plainTextPassword);
+  const hasLowerCase = /[a-z]/.test(plainTextPassword);
+  const hasNumber = /\d/.test(plainTextPassword);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(plainTextPassword);
+  
+  // Validate password
+
+  // TODO these errors need to be displayed client side not backend
+  if (plainTextPassword.length < minLength) {
+    throw new Error('Password must be at least 8 characters long.');
+  }
+  if (!hasUpperCase) {
+    throw new Error('Password must contain at least one uppercase letter.');
+  }
+  if (!hasLowerCase) {
+    throw new Error('Password must contain at least one lowercase letter.');
+  }
+  if (!hasNumber) {
+    throw new Error('Password must contain at least one number.');
+  }
+  if (!hasSpecialChar) {
+    throw new Error('Password must contain at least one special character.');
+  }
+  
+  // Hash password
+  try {
+    const hash = await bcrypt.hash(plainTextPassword, saltRounds);
+    return hash;
+  } catch (err) {
+    throw new Error('Error hashing the password: ' + err.message);
+  }
+}
+
+async function checkUser(plainTextPassword, hash) {
+
+  //fetch user from db
+  console.log("checkUser(): ", plainTextPassword, hash);
+  const match = await bcrypt.compare(plainTextPassword, hash);
+  if (match) {
+    console.log("checkUser(): good password");
+    return true;
+  } else {
+    console.log("checkUser(): bad password");
+    return false;
+  }
+}
+
 router.post('/api/register', async function (req, res, next) {
   const { email, password, first_name, last_name, phone_num, postcode } = req.body;
 
@@ -259,27 +327,28 @@ router.post('/api/register', async function (req, res, next) {
   const emailExistsQuery = "SELECT COUNT(*) AS count FROM users WHERE email=?";
   var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
 
-  emailExistsQueryPromise.then(function (result) {
-    if (result[0].count > 0) {
-      return res.status(400).json({ success: false, message: 'Email already registered' });
-    } else {
-      // Hash the password (you should use a more secure method in production)
-      const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+  emailExistsQueryPromise.then(async function (result) {
+      if (result[0].count > 0) {
+        return res.status(400).json({ success: false, message: 'Email already registered' });
+      } else {
 
-      // Prepare SQL query to insert new user into the database
-      const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
-        VALUES (?, ?, ?, ?, ?, ?);`;
+        await validateAndHashPassword(password).then( function(hash) {
+          // Prepare SQL query to insert new user into the database
+          const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
+          VALUES (?, ?, ?, ?, ?, ?);`;
 
-      req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err, results) {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ success: false, message: 'Error registering user' });
-        }
-        // Registration successful
-        res.status(200).json({ success: true, message: 'Registration successful' });
-      });
-    }
-  }).catch((err) => tools.sendError(res, err));
+          req.pool.query(query, [email, hash, first_name, last_name, phone_num, postcode], function (err,results) {
+            if (err) {
+              console.error(err);
+              return res.status(500).json({ success: false, message: 'Error registering user' });
+            }
+            // Registration successful
+            res.status(200).json({ success: true, message: 'Registration successful' });
+          });
+        })
+        .catch(err => console.error('Error:', err.message));
+      }
+    }).catch((err) => tools.sendError(res, err));
 });
 
 router.get('/api/logout', function (req, res, next) {
