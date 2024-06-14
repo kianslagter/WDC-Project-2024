@@ -205,7 +205,7 @@ router.post('/api/login', function (req, res, next) {
           res.status(200).send("Log in succesful");
           return;
         }).catch(function (err) { tools.sendError(res, err); });
-      }).catch((err) => { tools.sendError(res, err);});
+      }).catch((err) => { tools.sendError(res, err); });
     }
   }
   ).catch((err) => { tools.sendError(res, err); });
@@ -242,7 +242,7 @@ router.get('/api/access', (req, res) => {
     manages: manages
   };
   res.json(response);
-  });
+});
 
 router.post('/api/register', async function (req, res, next) {
   const { email, password, first_name, last_name, phone_num, postcode } = req.body;
@@ -279,10 +279,10 @@ router.post('/api/register', async function (req, res, next) {
     }).catch((err) => tools.sendError(res, err));
 });
 
-router.get('/api/logout', function (req,res, next) {
+router.get('/api/logout', function (req, res, next) {
   req.session.destroy();
   res.status(200).redirect('/');
-  });
+});
 
 
 // EVENTS ROUTES
@@ -328,28 +328,28 @@ router.get('/events/search', function (req, res, next) {
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
-    query += " AND (event_name LIKE ? OR event_description LIKE ?)";
+    query += " AND (e.event_name LIKE ? OR e.event_description LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (from_date !== undefined) {
-    query += " AND start_date_time >= ?";
+    query += " AND e.start_date_time >= ?";
     params.push(from_date);
   }
   if (to_date !== undefined) {
-    query += " AND start_date_time <= ?";
+    query += " AND e.start_date_time <= ?";
     params.push(to_date);
   }
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      query += " AND e.branch_id IN (" + branches.map(() => '?').join(',') + ")";
       params = params.concat(branches);
     } else {
-      query += " AND branch_id = ?";
+      query += " AND e.branch_id = ?";
       params.push(branches);
     }
   }
 
-  query += " ORDER BY start_date_time ASC LIMIT ?;";
+  query += " ORDER BY e.start_date_time ASC LIMIT ?;";
   params.push(max_num);
 
 
@@ -389,14 +389,14 @@ router.get('/events/get', function (req, res, next) {
              WHERE e.is_public = TRUE`;
   let params = [];
   if (from_date !== undefined) {
-    query += " AND start_date_time >= ?";
+    query += " AND e.start_date_time >= ?";
     params.push(from_date);
   }
   if (branches !== undefined) {
-    query += " AND branch_id = ?";
+    query += " AND e.branch_id = ?";
     params.push([branches]);
   }
-  query += " ORDER BY start_date_time ASC LIMIT 10;";
+  query += " ORDER BY e.start_date_time ASC LIMIT 10;";
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -434,9 +434,8 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     DATE_FORMAT(e.start_date_time, '%D %M') AS date,
     DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
     DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
-    DAYOFWEEK(e.start_date_time) AS dayOfWeek,
     b.branch_name AS location, e.event_image AS image_url,
-    e.is_public AS public, e.branch_id AS branch
+    e.is_public AS public, e.branch_id AS branch, e.event_details AS details
     FROM events e
     JOIN branches b ON e.branch_id = b.branch_id
     WHERE e.event_id = ?`;
@@ -455,6 +454,38 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
     }).catch(function (err) { tools.sendError(res, err); });
   }).catch(function (err) { tools.sendError(res, err); });
 });
+
+// for editing events
+router.get('/api/get/event/:eventID', function (req, res, next) {
+  let event_id = req.params.eventID;
+  // Check if the event exists
+  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
+  tools.sqlHelper(query, [event_id], req).then(function (results) {
+    if (results[0].event_exists == 0) {
+      // Event does not exist
+      res.status(404).send("Event not found");
+      return;
+    }
+    // Get the event details
+    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
+            FROM events
+            WHERE event_id=?;`;
+    tools.sqlHelper(query, [event_id], req).then(function (results) {
+      if (!results[0].public) {
+        // Authenticate user
+        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
+          // Not logged in or not correct branch
+          res.status(403).send("Not a member of correct branch (or not logged in)");
+          return;
+        }
+      }
+      // Send the details
+      res.json(results[0]);
+      return;
+    }).catch(function (err) { tools.sendError(res, err); });
+  }).catch(function (err) { tools.sendError(res, err); });
+});
+
 
 // NEWS ROUTES
 
@@ -498,21 +529,21 @@ router.get('/news/get', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
              DATE_FORMAT(n.date_published, '%D %M') AS date,
-             n.image_url, b.branch_name AS location
+             n.image_url, b.branch_name AS location, n.is_public AS public
              FROM news n
              JOIN branches b ON n.branch_id = b.branch_id
              WHERE n.is_public = TRUE`;
 
   let params = [];
   if (to_date !== undefined) {
-    query += " AND date_published <= ?";
+    query += " AND n.date_published <= ?";
     params.push(to_date);
   }
   if (branches !== undefined) {
-    query += " AND branch_id = ?";
+    query += " AND n.branch_id = ?";
     params.push([branches]);
   }
-  query += " ORDER BY date_published DESC LIMIT 10;";
+  query += " ORDER BY n.date_published DESC LIMIT 10;";
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -563,29 +594,29 @@ router.get('/news/search', function (req, res, next) {
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
-    query += " AND (title LIKE ? OR content LIKE ?)";
+    query += " AND (n.title LIKE ? OR n.content LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (to_date !== undefined) {
-    query += " AND date_published <= ?";
+    query += " AND n.date_published <= ?";
     params.push(to_date);
   }
   if (from_date !== undefined) {
-    query += " AND date_published >= ?";
+    query += " AND n.date_published >= ?";
     params.push(from_date);
   }
 
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      query += " AND n.branch_id IN (" + branches.map(() => '?').join(',') + ")";
       params = params.concat(branches);
     } else {
-      query += " AND branch_id = ?";
+      query += " AND n.branch_id = ?";
       params.push(branches);
     }
   }
 
-  query += " ORDER BY date_published DESC LIMIT ?;";
+  query += " ORDER BY n.date_published DESC LIMIT ?;";
   params.push(max_num);
 
   // Query the SQL database
