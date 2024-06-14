@@ -177,7 +177,7 @@ footer {
 
 .scrolling-wrapper {
   width: 90%;
-  height: 350px;
+  height: 450px;
   overflow-x: scroll;
   overflow-y: hidden;
   white-space: nowrap;
