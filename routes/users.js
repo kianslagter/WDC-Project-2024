@@ -336,7 +336,7 @@ router.get('/news/get', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location, n.is_public AS public
+  n.image_url, b.branch_name AS location, n.is_public AS public, n.branch_id AS branchID
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
@@ -408,7 +408,7 @@ router.get('/news/search', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location, n.is_public AS public
+  n.image_url, b.branch_name AS location, n.is_public AS public, n.branch_id AS branchID
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
