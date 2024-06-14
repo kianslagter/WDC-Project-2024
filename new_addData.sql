@@ -213,9 +213,9 @@ VALUES
 
 -- Add a system admin
 INSERT INTO users
-	(first_name, last_name, password_hash, phone_num, email, postcode)
+	(first_name, last_name, password_hash, phone_num, email, postcode, system_admin)
 VALUES
-	('System', 'Admin', CONVERT('$2b$12$rt0DW5.ZgFSmg1MWv036VerfnUfPj.UsKm9sJv9Ta/QmxrzJ07QNq', BINARY), '0401 900 655', 'admin@mealmates.com', 5000); -- PWD: adminPWD
+	('System', 'Admin', CONVERT('$2b$12$rt0DW5.ZgFSmg1MWv036VerfnUfPj.UsKm9sJv9Ta/QmxrzJ07QNq', BINARY), '0401 900 655', 'admin@mealmates.com', 5000, 1); -- PWD: adminPWD
 
 -- Add USERS to BRANCHES
 INSERT INTO user_branch_affiliation
