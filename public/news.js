@@ -36,7 +36,7 @@ function createNews() {
     }
 
 
-    submitNews(title, content, datePublished, '', publicValue, sendEmail);
+    submitNews(title, content, datePublished, image_url, publicValue, sendEmail);
 }
 
 function submitNews(title, content, datePublished, imageUrl, publicValue, sendEmail) {
@@ -65,6 +65,7 @@ function submitNews(title, content, datePublished, imageUrl, publicValue, sendEm
         })
         .then(data => {
             alert('News article created successfully with ID: ' + data.id);
+            window.location.href = "/news";
         })
         .catch(error => {
             try {
@@ -112,18 +113,21 @@ function deleteNews(articleID) {
 
 function updateNews(articleID) {
     // get details of article
-    const title = document.getElementById('title').value;
-    const content = document.getElementById('content').value;
-    const datePublished = document.getElementById('datePublished').value;
-    const isPublic = document.getElementById('public').checked ? 1 : 0;
-    const image_url = document.getElementById('image_url').value;
+    let title = document.getElementById('news-title').value;
+    let content = document.getElementById('news-description').value;
+    let today = new Date();
+    let datePublished = today.toISOString().split('T')[0];
+    let image_url = document.getElementById('image_path').innerText; // path to uploaded file
+    let publicValue = document.querySelector('input[name="news_privacy"]:checked').value;
+    let sendEmail = document.getElementById('news-email-notify').checked;
 
-    const newsDetails = {
-        title,
-        content,
-        datePublished,
-        isPublic,
-        image_url
+    let newsData = {
+        title: title,
+        content: content,
+        datePublished: datePublished,
+        image_url: image_url,
+        public: publicValue,
+        sendEmail: sendEmail
     };
 
     fetch(`/manage/news/edit/${articleID}`, {
@@ -131,11 +135,12 @@ function updateNews(articleID) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newsDetails)
+        body: JSON.stringify(newsData)
     })
         .then(response => {
             if (response.ok) {
                 alert('News article updated successfully!');
+                window.location.href = "/news";
             } else {
                 throw new Error('Failed to update news article');
             }

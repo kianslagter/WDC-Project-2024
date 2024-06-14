@@ -762,6 +762,7 @@ createApp({
                 .then(data => {
                     console.log("Fetched news:", data);
                     this.newsInfo = data;
+                    this.image_path = data.image_url;
                 })
                 .catch(error => {
                     console.error("Error fetching news:", error);
