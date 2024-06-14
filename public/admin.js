@@ -99,7 +99,15 @@ function get_users() {
                   <u>Post Code:</u> ${responseJSON.users[i].postcode}
                   <br>
                   <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
-                  <div class="right button secondary-button manage-button"> <button onclick="alert_promote_manager('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Promote To Manager </button><label for="branch-to-manage"> Branch </label> <form> <select name="branch-to-manage" id="branch-to-manage-${responseJSON.users[i].user_id}"> ${list_branches} </select> </form> </div>
+                  <button class="right button secondary-button" onclick="alert_promote_manager('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')">
+                    <form>
+                      <label>
+                        Promote To
+                        <select onclick="event.stopPropagation();" name="branch-to-manage" id="branch-to-manage-${responseJSON.users[i].user_id}"> ${list_branches} </select> <label>
+                        Manager
+                      </label>
+                    </form>
+                  </button>
                   <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
                   <br>
                 </p>
