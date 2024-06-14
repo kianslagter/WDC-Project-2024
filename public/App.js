@@ -20,6 +20,7 @@ createApp({
             num_points: 1,
             point_level: [0],
             branch_selected: null,
+            branches: [],
             profile: {
                 id: '',
                 email: '',
@@ -43,7 +44,8 @@ createApp({
                 event_location: '',
                 event_image: '',
                 is_public: 1,
-                branch: ''
+                branch: '',
+                location: ''
             }, // info for event data
             newsInfo: {
                 article_id: '',
@@ -717,6 +719,7 @@ createApp({
                 .then(data => {
                     this.access_level = data.access_level;
                     this.manages = data.manages;
+                    this.branches = data.branches;
                     return data;
                 })
                 .catch(error => {
@@ -800,13 +803,13 @@ createApp({
         this.getProfileInfo();
 
         // edit event
-        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'events') {
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'events' && window.location.pathname.split('/')[3] == 'edit') {
             let editEventID = window.location.pathname.split('/')[4];
             this.getEventInfo(editEventID);
         }
 
         // edit news
-        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'news') {
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'news' && window.location.pathname.split('/')[3] == 'edit') {
             let editNewsID = window.location.pathname.split('/')[4];
             this.getNewsInfo(editNewsID);
         }

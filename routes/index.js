@@ -474,7 +474,7 @@ router.get('/api/get/event/:eventID/details.json', function (req, res, next) {
                   DATE_FORMAT(events.start_date_time, '%H:%i') AS start_time,
                   DATE_FORMAT(events.end_date_time, '%Y-%m-%d') AS end_date,
                   DATE_FORMAT(events.end_date_time, '%H:%i') AS end_time,
-                  events.event_description, events.event_details, events.event_location,
+                  events.event_description, events.event_details, events.event_location AS location,
                   events.event_image, events.is_public,
                   branches.branch_name AS branch
                   FROM events

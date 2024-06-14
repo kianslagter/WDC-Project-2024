@@ -70,6 +70,8 @@
         <label for="public"> Public </label>
         <input id="private" type="radio" name="event_privacy" value="0" v-model="eventInfo.is_public">
         <label for="private"> Private </label>
+        <h4> Enter event location </h4>
+        <textarea id="location" type="text" class="create-event-title" v-model="eventInfo.location"></textarea>
         <h4>Enter Event Description Below</h4>
         <textarea id="description" class="create-event-description" v-model="eventInfo.event_description"></textarea>
         <p>Note: Event description should be brief, further details can go in the details section below</p>
