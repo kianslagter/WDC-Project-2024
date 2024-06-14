@@ -133,10 +133,10 @@ createApp({
     computed: {
         navitems() {
             const common_nav = [
-                { title: 'Home', url: '/', class: null},
-                { title: 'Events', url: '/events', class: null },
-                { title: 'News', url: '/news',class: null },
-                { title: 'Branches', url: '/branches', class: null }
+                { title: 'Meal Mates', url: '/', alignClass: "lobster-regular"},
+                { title: 'Events', url: '/events', alignClass: null },
+                { title: 'News', url: '/news', alignClass: null },
+                { title: 'Branches', url: '/branches', alignClass: null }
             ];
 
             // logged in
