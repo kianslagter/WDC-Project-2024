@@ -7,7 +7,7 @@ const path = require('path');
 router.use(checkPermission);
 
 function checkPermission(req, res, next) {
-  if (!req.session.branch_managed) {
+  if (!req.session.branch_managed && !req.session.admin) {
     res.status(403).send("You do not have permission to view manager pages.");
     return;
   }
