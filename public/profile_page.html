@@ -24,15 +24,14 @@
         <h1>Profile information</h1>
         <h3> {{ profile.first_name + " " + profile.last_name }}</h4>
         <img :src="profile.image_url" alt="Profile Image" style="max-width: 100px">
-        <h4> Change profile photo </h4>
+        <!-- <h4> Change profile photo </h4>
         <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">
           <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
           <input type="number" id="branch_id" name="branch" class="hidden" value=1>
           <input id="public_image" type="checkbox" name="public" class="hidden" checked>
           <button type="submit"> Upload Image </button>
-        </form>
+        </form> -->
         <p id="status_text"> </p>
-        <br>
 
         <form @submit="setProfileInfo">
           <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
