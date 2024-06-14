@@ -12,8 +12,6 @@ createApp({
             event_selected: null, // set to null intially in real thing
             event_attendance: 4,
             news_results: [],
-            show_preview: true,
-            create_news_preview: "",
             news_array: [],
             news_array1: [],
             article_selected: null,
