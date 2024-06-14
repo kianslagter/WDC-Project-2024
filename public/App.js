@@ -170,22 +170,26 @@ createApp({
             }
             console.log("query parameters: " + query_parameters);
 
-            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
-            let query_path = "";
-            if (this.access_level > 0) {
-                // requires authentication on server
-                query_path = "/users/events/search" + query_parameters;
-            } else {
-                // Only allow public events
-                query_path = "/events/search" + query_parameters;
-            }
-            // AJAX
-            fetch(query_path, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+            // Fetch the access level and then load events based on it
+            this.getAccessLevel()
+                .then(accessData => {
+                    let query_path = "";
+                    if (accessData.access_level > 0) {
+                        // requires authentication on server
+                        query_path = "/users/events/search" + query_parameters;
+                    } else {
+                        // Only allow public events
+                        query_path = "/events/search" + query_parameters;
+                    }
+
+                    // AJAX
+                    return fetch(query_path, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`error status: ${response.status}`);
@@ -209,23 +213,26 @@ createApp({
             this.isLoading = true;
             this.error = null;
 
-            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
-            let query_path = "";
-            if (this.access_level > 0) {
-                // requires authentication on server
-                query_path = "/users/events/get";
-            } else {
-                // Only allow public events
-                query_path = "/events/get";
-            }
+            // Fetch the access level and then load events based on it
+            this.getAccessLevel()
+                .then(accessData => {
+                    let query_path = "";
+                    if (accessData.access_level > 0) {
+                        // requires authentication on server
+                        query_path = "/users/events/get";
+                    } else {
+                        // Only allow public events
+                        query_path = "/events/get";
+                    }
 
-            // AJAX
-            fetch(query_path, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+                    // AJAX
+                    return fetch(query_path, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`error status: ${response.status}`);
@@ -331,23 +338,26 @@ createApp({
             }
             console.log("query parameters: " + query_parameters);
 
-            // Construct the URL based on whether user is logged in or not (to determine whether they can see private events or not)
-            let query_path = "";
-            if (this.access_level > 0) {
-                // requires authentication on server
-                query_path = "/users/news/search" + query_parameters;
-            } else {
-                // Only allow public events
-                query_path = "/news/search" + query_parameters;
-            }
+            // Fetch the access level and then load news based on it
+            this.getAccessLevel()
+                .then(accessData => {
+                    let query_path = "";
+                    if (accessData.access_level > 0) {
+                        // requires authentication on server
+                        query_path = "/users/news/search" + query_parameters;
+                    } else {
+                        // Only allow public events
+                        query_path = "/news/search" + query_parameters;
+                    }
 
-            // AJAX
-            fetch(query_path, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+                    // AJAX
+                    return fetch(query_path, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`error status: ${response.status}`);
@@ -648,9 +658,9 @@ createApp({
         }
 
         // load branches on branches page (also needed for events and news filtering)
-        //if ((window.location.pathname.split('/')[1] == 'branches' || window.location.pathname.split('/')[1] == 'events' || window.location.pathname.split('/')[1] == 'news') && !window.location.pathname.split('/')[2]) {
-        this.branches_load();
-        //}
+        if ((window.location.pathname.split('/')[1] == 'branches' || window.location.pathname.split('/')[1] == 'events' || window.location.pathname.split('/')[1] == 'news') && !window.location.pathname.split('/')[2]) {
+            this.branches_load();
+        }
 
         this.getAccessLevel();
 

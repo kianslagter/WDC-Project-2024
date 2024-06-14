@@ -82,6 +82,7 @@ router.get('/events/search', function (req, res, next) {
   let to_date = req.query.to;
   let max_num = req.query.n;
   let branches = req.query.branch;
+  let user_branches = req.session.branches;
 
   // Update to default if they weren't set (if there is a sensible default)
   if (from_date === undefined) {
@@ -94,58 +95,59 @@ router.get('/events/search', function (req, res, next) {
     max_num = parseInt(max_num);
   }
 
-  // Print the values
-  /*
-  console.log("Search term: " + search_term);
-  console.log("from date: " + from_date);
-  console.log("To date: " + to_date);
-  console.log("Max num: " + max_num);
-  console.log("Branches: " + branches);
-  */
-
   // Construct the SQL query
   let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
   DATE_FORMAT(e.start_date_time, '%D %M') AS date,
   DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
   DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
   DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-  b.branch_name AS location, e.event_image AS image_url
+  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public
   FROM events e
   JOIN branches b ON e.branch_id = b.branch_id`;
-  // check if where has been added to query
-  let hasWhere = false;
+
+  // creating the condtions
+  let conditions = [];
+  let params = [];
 
   // MODIFY QUERY BASED ON FILTERS
-  let params = [];
   if (search_term !== undefined) {
-    query += hasWhere ? " AND (event_name LIKE ? OR event_description LIKE ?)" : " WHERE (event_name LIKE ? OR event_description LIKE ?)";
-    hasWhere = true;
+    conditions.push("(e.event_name LIKE ? OR e.event_description LIKE ?)");
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (from_date !== undefined) {
-    query += hasWhere ? " AND start_date_time >= ?" : " WHERE start_date_time >= ?";
-    hasWhere = true;
+    conditions.push("e.start_date_time >= ?");
     params.push(from_date);
   }
   if (to_date !== undefined) {
-    query += hasWhere ? " AND start_date_time <= ?" : " WHERE start_date_time <= ?";
-    hasWhere = true;
+    conditions.push("e.start_date_time <= ?");
     params.push(to_date);
   }
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += hasWhere ? " AND branch_id IN (" + branches.map(() => '?').join(',') + ")" : " WHERE branch_id IN (" + branches.map(() => '?').join(',') + ")";
-      hasWhere = true;
+      conditions.push("e.branch_id IN (" + branches.map(() => '?').join(',') + ")");
       params = params.concat(branches);
     } else {
-      query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
-      hasWhere = true;
+      conditions.push("e.branch_id = ?");
       params.push(branches);
     }
   }
 
-  query += " ORDER BY start_date_time ASC LIMIT ?;";
+  // show all public, but only private for branch which member of
+  if (user_branches && user_branches.length > 0) {
+    conditions.push("(e.is_public = 1 OR (e.is_public = 0 AND e.branch_id IN (?)))");
+    params.push(user_branches);
+  } else {
+    // else just show public
+    conditions.push("e.is_public = 1");
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += " ORDER BY e.start_date_time ASC LIMIT ?;";
   params.push(max_num);
+
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -170,30 +172,45 @@ router.get('/events/search', function (req, res, next) {
 router.get('/events/get', function (req, res, next) {
   let from_date = new Date().toISOString().slice(0, 10);
   let branches = req.query.branch;
+  let user_branches = req.session.branches;
+
   // Construct the SQL query
   let query = `SELECT e.event_id AS id, e.event_name AS title, e.event_description AS description,
   DATE_FORMAT(e.start_date_time, '%D %M') AS date,
   DATE_FORMAT(e.start_date_time, '%l:%i %p') AS startTime,
   DATE_FORMAT(e.end_date_time, '%l:%i %p') AS endTime,
   DAYOFWEEK(e.start_date_time) AS dayOfWeek,
-  b.branch_name AS location, e.event_image AS image_url
+  b.branch_name AS location, e.event_image AS image_url, e.is_public AS public
   FROM events e
   JOIN branches b ON e.branch_id = b.branch_id`;
-  // check if where has been added to query
-  let hasWhere = false;
 
+  // creating the condtions
+  let conditions = [];
   let params = [];
-  if (from_date !== undefined) {
-    query += hasWhere ? " AND start_date_time >= ?" : " WHERE start_date_time >= ?";
-    hasWhere = true;
+
+ if (from_date !== undefined) {
+    conditions.push("e.start_date_time >= ?");
     params.push(from_date);
   }
   if (branches !== undefined) {
-    query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
-    hasWhere = true;
-    params.push([branches]);
+    conditions.push("e.branch_id = ?");
+    params.push(branches);
   }
-  query += " ORDER BY start_date_time ASC LIMIT 10;";
+
+  // show all public, but only private for branch which member of
+  if (user_branches && user_branches.length > 0) {
+    conditions.push("(e.is_public = 1 OR (e.is_public = 0 AND e.branch_id IN (?)))");
+    params.push(user_branches);
+  } else {
+    // else just show public
+    conditions.push("e.is_public = 1");
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += " ORDER BY e.start_date_time ASC LIMIT 10;";
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -228,7 +245,7 @@ router.get('/news/get', function (req, res, next) {
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
-  // creating the where
+  // creating the condtions
   let conditions = [];
   let params = [];
 
@@ -281,6 +298,7 @@ router.get('/news/search', function (req, res, next) {
   let to_date = req.query.to;
   let max_num = req.query.n;
   let branches = req.query.branch;
+  let user_branches = req.session.branches;
 
   // Update to default if they weren't set (if there is a sensible default)
   let today = new Date().toISOString().slice(0, 10);
@@ -295,43 +313,51 @@ router.get('/news/search', function (req, res, next) {
   // Construct the SQL query
   let query = `SELECT n.article_id AS id, n.title, n.content,
   DATE_FORMAT(n.date_published, '%D %M') AS date,
-  n.image_url, b.branch_name AS location
+  n.image_url, b.branch_name AS location, n.is_public AS public
   FROM news n
   JOIN branches b ON n.branch_id = b.branch_id`;
 
-  // check if where has been added to query
-  let hasWhere = false;
+  // creating the condtions
+  let conditions = [];
+  let params = [];
 
   // MODIFY QUERY BASED ON FILTERS
-  let params = [];
   if (search_term !== undefined) {
-    query += hasWhere ? "AND (title LIKE ? OR content LIKE ?)" : " WHERE (title LIKE ? OR content LIKE ?)";
-    hasWhere = true;
+    conditions.push("(n.title LIKE ? OR n.content LIKE ?)");
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (to_date !== undefined) {
-    query += hasWhere ? " AND date_published <= ?" : " WHERE date_published <= ?";
-    hasWhere = true;
+    conditions.push("n.date_published <= ?");
     params.push(to_date);
   }
   if (from_date !== undefined) {
-    query += hasWhere ? " AND date_published >= ?" : " WHERE date_published >= ?";
-    hasWhere = true;
+    conditions.push("n.date_published >= ?");
     params.push(from_date);
   }
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += hasWhere ? " AND branch_id IN (" + branches.map(() => '?').join(',') + ")" : " WHERE branch_id IN (" + branches.map(() => '?').join(',') + ")";
-      hasWhere = true;
+      conditions.push("n.branch_id IN (" + branches.map(() => '?').join(',') + ")");
       params = params.concat(branches);
     } else {
-      query += hasWhere ? " AND branch_id = ?" : " WHERE branch_id = ?";
-      hasWhere = true;
+      conditions.push("n.branch_id = ?");
       params.push(branches);
     }
   }
 
-  query += " ORDER BY date_published DESC LIMIT ?;";
+  // show all public, but only private for branch which member of
+  if (user_branches && user_branches.length > 0) {
+    conditions.push("(n.is_public = 1 OR (n.is_public = 0 AND n.branch_id IN (?)))");
+    params.push(user_branches);
+  } else {
+    // else just show public
+    conditions.push("n.is_public = 1");
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += " ORDER BY n.date_published DESC LIMIT ?;";
   params.push(max_num);
 
   // Query the SQL database

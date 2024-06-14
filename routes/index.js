@@ -306,28 +306,28 @@ router.get('/events/search', function (req, res, next) {
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
-    query += " AND (event_name LIKE ? OR event_description LIKE ?)";
+    query += " AND (e.event_name LIKE ? OR e.event_description LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (from_date !== undefined) {
-    query += " AND start_date_time >= ?";
+    query += " AND e.start_date_time >= ?";
     params.push(from_date);
   }
   if (to_date !== undefined) {
-    query += " AND start_date_time <= ?";
+    query += " AND e.start_date_time <= ?";
     params.push(to_date);
   }
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      query += " AND e.branch_id IN (" + branches.map(() => '?').join(',') + ")";
       params = params.concat(branches);
     } else {
-      query += " AND branch_id = ?";
+      query += " AND e.branch_id = ?";
       params.push(branches);
     }
   }
 
-  query += " ORDER BY start_date_time ASC LIMIT ?;";
+  query += " ORDER BY e.start_date_time ASC LIMIT ?;";
   params.push(max_num);
 
 
@@ -367,14 +367,14 @@ router.get('/events/get', function (req, res, next) {
              WHERE e.is_public = TRUE`;
   let params = [];
   if (from_date !== undefined) {
-    query += " AND start_date_time >= ?";
+    query += " AND e.start_date_time >= ?";
     params.push(from_date);
   }
   if (branches !== undefined) {
-    query += " AND branch_id = ?";
+    query += " AND e.branch_id = ?";
     params.push([branches]);
   }
-  query += " ORDER BY start_date_time ASC LIMIT 10;";
+  query += " ORDER BY e.start_date_time ASC LIMIT 10;";
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -515,14 +515,14 @@ router.get('/news/get', function (req, res, next) {
 
   let params = [];
   if (to_date !== undefined) {
-    query += " AND date_published <= ?";
+    query += " AND n.date_published <= ?";
     params.push(to_date);
   }
   if (branches !== undefined) {
-    query += " AND branch_id = ?";
+    query += " AND n.branch_id = ?";
     params.push([branches]);
   }
-  query += " ORDER BY date_published DESC LIMIT 10;";
+  query += " ORDER BY n.date_published DESC LIMIT 10;";
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
@@ -573,29 +573,29 @@ router.get('/news/search', function (req, res, next) {
   // MODIFY QUERY BASED ON FILTERS
   let params = [];
   if (search_term !== undefined) {
-    query += " AND (title LIKE ? OR content LIKE ?)";
+    query += " AND (n.title LIKE ? OR n.content LIKE ?)";
     params.push('%' + search_term + '%', '%' + search_term + '%');
   }
   if (to_date !== undefined) {
-    query += " AND date_published <= ?";
+    query += " AND n.date_published <= ?";
     params.push(to_date);
   }
   if (from_date !== undefined) {
-    query += " AND date_published >= ?";
+    query += " AND n.date_published >= ?";
     params.push(from_date);
   }
 
   if (branches !== undefined && branches.length > 0) {
     if (Array.isArray(branches)) {
-      query += " AND branch_id IN (" + branches.map(() => '?').join(',') + ")";
+      query += " AND n.branch_id IN (" + branches.map(() => '?').join(',') + ")";
       params = params.concat(branches);
     } else {
-      query += " AND branch_id = ?";
+      query += " AND n.branch_id = ?";
       params.push(branches);
     }
   }
 
-  query += " ORDER BY date_published DESC LIMIT ?;";
+  query += " ORDER BY n.date_published DESC LIMIT ?;";
   params.push(max_num);
 
   // Query the SQL database
