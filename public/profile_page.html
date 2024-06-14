@@ -36,9 +36,10 @@
         <h4> {{ profile.username }}</h4>
         <h4> Email: <input id="email" type="email" v-model="profile.email" required></h4>
         <!-- <h4> Password: <input class="" type="text" name="title"></h4> -->
+
+        <h4> Email notifications <input id="email_notifications" type="checkbox" true-value="1" false-value="0" v-model="profile.email_notifications"></h4>
         <br>
 
-        <!-- Can make these to block-inline to save space later -->
         <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
         <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
         <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>

@@ -29,7 +29,8 @@ createApp({
                 phone_num: '',
                 postcode: '',
                 description: '',
-                image_url: ''
+                image_url: '',
+                email_notifications: ''
             }, // returns profile information for profile_page.html
             eventInfo: {
                 title: '',

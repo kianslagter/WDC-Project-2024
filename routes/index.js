@@ -153,13 +153,14 @@ router.post('/api/login/google', async (req, res) => {
 
         console.log('about to register user function');
         await dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode);
+        // TODO error handling here
         console.log("done register user function");
       } else {
         console.log("line 150: user id is", result[0].user_id);
         user_id = result[0].user_id;
         // user does exist
       }
-    });
+    }); // need a catch error here
 
     console.log("About to update session variables");
     await updateSessionVariables(req, res, user_id).then(function () {
@@ -782,7 +783,7 @@ router.get('/api/get/profile', function (req, res, next) {
   const UserID = req.session.userID;
 
   // Query to retrieve user details
-  let query = `SELECT user_id, email, first_name, last_name, postcode, phone_num, image_url, branch_managed, system_admin
+  let query = `SELECT user_id, email, first_name, last_name, postcode, phone_num, image_url, email_notifications, branch_managed, system_admin
                FROM users
                WHERE user_id = UUID_TO_BIN(?);`;
 
@@ -811,7 +812,7 @@ router.post('/api/set/profile', function (req, res, next) {
 
   userID = req.session.userID;
 
-  const { email, first_name, last_name, phone_num, postcode, image_url } = req.body;
+  const { email, first_name, last_name, phone_num, postcode, image_url, email_notifications } = req.body;
 
   // // Update image_url if a file is uploaded
   // if (req.files && req.files['profile-image']) {
@@ -834,7 +835,6 @@ router.post('/api/set/profile', function (req, res, next) {
     res.status(400).json({ success: false, message: 'Invalid last name' });
     return;
   }
-  console.log(phone_num);
   if (!phone_num || !/^\+?[0-9 ]*$/.test(phone_num)) {
     res.status(400).json({ success: false, message: 'Invalid phone number' });
     return;
@@ -845,10 +845,10 @@ router.post('/api/set/profile', function (req, res, next) {
   }
 
   let query = `UPDATE users
-               SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?
+               SET email = ?, first_name = ?, last_name = ?, phone_num = ?, postcode = ?, image_url = ?, email_notifications = ?
                WHERE user_id = UUID_TO_BIN(?)`;
 
-  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, userID], function (err, results) {
+  req.pool.query(query, [email, first_name, last_name, phone_num, postcode, image_url, email_notifications, userID], function (err, results) {
     if (err) {
       console.log(err);
       res.status(500).json({ success: false, message: 'Error updating user information' });
