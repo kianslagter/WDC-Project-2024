@@ -28,11 +28,11 @@
                 updateNewsButton.addEventListener('click', function () {
                     const articleID = window.location.pathname.split('/')[4];
                     const newsData = {
-                        title: document.getElementById('title').value,
-                        content: document.getElementById('content').value,
+                        title: document.getElementById('news-title').value,
+                        content: document.getElementById('news-description').value,
                         datePublished: document.getElementById('datePublished').value,
                         isPublic: document.getElementById('public').checked,
-                        image_url: document.getElementById('image_url').value
+                        image_url: document.getElementById('image_path').value
                     };
                     updateNews(articleID, newsData);
                 });
@@ -44,18 +44,20 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-          <ul class="nav-horizontal">
-            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
-          </ul>
+            <ul class="nav-horizontal">
+                <li v-for="item in navitems"> <a :key="item.title" :href="item.url"
+                        :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+            </ul>
         </nav>
     </header>
 
     <div class="page-content content">
         <h1>Edit News Article</h1>
         <p> Branch: {{ newsInfo.branch_name }} </p>
-        <h4> Title: <input id="title" class="create-news-title" type="text" v-model="newsInfo.title"></h4>
+        <h4> Title: <input id="news-title" class="create-news-title" type="text" v-model="newsInfo.title"></h4>
         <h4> Publish Date: </h4>
-        <p> Date: <input id="datePublished" type="date" class="create-news-date-input" v-model="newsInfo.date_published"></p>
+        <p> Date: <input id="datePublished" type="date" class="create-news-date-input"
+                v-model="newsInfo.date_published"></p>
 
         <h4> Set News Article to Public or Private </h4>
         <input id="public" type="radio" name="news_privacy" value="1" v-model="newsInfo.is_public">
@@ -64,14 +66,21 @@
         <label for="private"> Private </label>
 
         <h4> Enter News Content Below </h4>
-        <textarea id="content" class="create-news-content" v-model="newsInfo.content"></textarea>
+        <textarea id="news-description" class="create-news-content" v-model="newsInfo.content"></textarea>
 
-        <h4> Add an Image </h4>
-        <input id="image_url" class="create-news-image-upload" type="file" name="news-image" accept="image/*">
-        <div v-if="newsInfo.image_url">
-            <img :src="newsInfo.image_url" alt="News Image">
+        <h4>Choose an Image</h4>
+        <select v-model="image_path">
+            <option v-for="image in images" :key="image.path" :value="image.path"> {{image.description}}</option>
+        </select>
+        <p id="image_path" class="hidden"> {{image_path}} </p>
+        <div class="image-container">
+            <img id="news_image" class="select-image" v-bind:src="image_path" alt="news image">
         </div>
-        <div>
+        <div class="other-options">
+            <h4> Other Options </h4>
+            <input type="checkbox" id="news-email-notify" name="news-email-notify" value="news-email-notify">
+            <label for="news-email-notify"> Send email notification to relevant members? </label>
+            <br><br>
             <button id="updateNewsButton" class="button primary-button create-news-button" type="button">
                 Update News
             </button>
