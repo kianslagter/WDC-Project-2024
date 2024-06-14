@@ -206,6 +206,7 @@ INSERT INTO users
 VALUES
 	('System', 'Admin', 'adminPWD', '0401 900 655', 'admin@mealmates.com', 5000, TRUE);
 
+
 -- Add USERS to BRANCHES
 INSERT INTO user_branch_affiliation
 	(user_id, branch_id)

@@ -589,6 +589,34 @@ createApp({
                     alert('Failed to update profile.');
                 });
         },
+        async alt_profile_picture_upload(){
+            var vm = this;
+            const form = document.getElementById("upload_form");
+            const status_text = document.getElementById("status_text");
+            var form_data = new FormData(form);
+            var im_path;
+            const response = await fetch(form.action,
+                {
+                    method: form.method,
+                    headers : {
+                        'accept': 'application/JSON'
+                        },
+                    body: form_data,
+                    processData: false,
+                    contentType: false
+            });
+            if(response.ok){
+                resp_json = response.json();
+                resp_json.then(function (resp_json){
+                    status_text.innerText = "Uploaded Succesfully!";
+                    vm.profile.image_url = resp_json.image_path;
+                })
+            } else {
+                status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
+            }
+            console.log(im_path)
+            this.profile.image_url = im_path;
+        },
         getAccessLevel() {
             fetch('/api/access', {
                 method: 'GET',

@@ -23,7 +23,13 @@
         <h1>Profile information</h1>
         <img :src="profile.image_url" alt="Profile Image">
         <h4> Change profile photo </h4>
-        <input type="file" name="profile-image" id="profile-image" accept="image/*">
+        <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">
+          <label for="file_upload"> Upload Image Here:  </label>  <input type="file" name="file" accept="image/*"> <br>
+          <input type="number" id="branch_id" name="branch" class="hidden" value=1>
+          <input id="public_image" type="checkbox" name="public" class="hidden" checked>
+          <button type="submit"> Upload Image </button>
+        </form>
+        <p id="status_text"> </p>
         <br>
 
         <h4> {{ profile.username }}</h4>
@@ -35,7 +41,7 @@
         <h4> First Name: <input id="first_name" type="text" v-model="profile.first_name"></h4>
         <h4> Last Name: <input id="last_name" type="text" v-model="profile.last_name"></h4>
         <h4> Phone Number: <input id="phone_num" type="tel" v-model="profile.phone_num" pattern="^\+?[0-9]*$"></h4>
-        <h4> Postcode: <input id="postcode" type="text" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
+        <h4> Postcode: <input id="postcode" type="number" v-model="profile.postcode" pattern="^[A-Za-z0-9 ]+$"></h4>
 
         <button class="center button primary-button" type="button" @click="setProfileInfo"> Update profile information </button>
 
