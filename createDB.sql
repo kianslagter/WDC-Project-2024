@@ -20,7 +20,7 @@ CREATE TABLE branches (
 CREATE TABLE users (
     user_id BINARY(16) DEFAULT (UUID_TO_BIN(UUID())),
     google_uid decimal(21, 0) DEFAULT NULL,
-    password_hash VARCHAR(100),
+    password_hash BINARY(60),
     first_name VARCHAR(64) NOT NULL,
     last_name VARCHAR(64) NOT NULL,
     phone_num VARCHAR(14) DEFAULT NULL, -- Add check for validity
