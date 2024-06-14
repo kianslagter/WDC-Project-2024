@@ -702,6 +702,8 @@ router.post('/branches/join/:branchID', function (req, res, next) {
   const branchID = req.params.branchID;
   // user id from session
   const userID = req.session.userID;
+  let user_branches = req.session.branches;
+  let branchIdInt = parseInt(branchID);
 
   if (!req.session.isLoggedIn || !userID) {
     res.status(401).json({ success: false, message: 'User not logged in' });
@@ -728,6 +730,7 @@ router.post('/branches/join/:branchID', function (req, res, next) {
         res.status(500).json({ success: false, message: 'Error adding user to branch' });
         return;
       }
+      req.session.branches.push(branchIdInt);
       res.status(200).json({ success: true, message: 'User successfully joined the branch' });
     });
   });

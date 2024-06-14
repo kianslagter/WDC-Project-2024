@@ -228,6 +228,7 @@ router.get('/events/search', function (req, res, next) {
 
   // show all public, but only private for branch which member of
   if (user_branches && user_branches.length > 0) {
+    console.log(user_branches);
     conditions.push("(e.is_public = 1 OR (e.is_public = 0 AND e.branch_id IN (?)))");
     params.push(user_branches);
   } else {
