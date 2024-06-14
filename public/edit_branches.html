@@ -27,8 +27,8 @@
                 document.getElementById('postcode').value = data.postcode;
                 document.getElementById('description').value = data.description;
                 document.getElementById('image_url').value = data.image_url;
-                document.getElementById('openingHours').value = data.open_time;
-                document.getElementById('closingHours').value = data.close_time;
+                //document.getElementById('openingHours').value = data.open_time;
+                //document.getElementById('closingHours').value = data.close_time;
             });
             // Delete branch
             const deleteBranchButton = document.getElementById('deleteBranchButton');
@@ -53,7 +53,7 @@
                         state: document.getElementById('state').value,
                         postcode: document.getElementById('postcode').value,
                         description: document.getElementById('description').value,
-                        image_url: document.getElementById('image_url').value,
+                        image_url: document.getElementById('image_url').innerText,
                         closing_time: document.getElementById('closing_hours').value,
                         opening_time: document.getElementById('opening_hours').value
                     };
@@ -85,14 +85,14 @@
         <h4> State: <input id="state" class="create-branch-state" type="text" name="state"></h4>
         <h4> Postcode: <input id="postcode" class="create-branch-postcode" type="text" name="postcode"></h4>
         <h4> Set Trading Hours </h4>
-        <p> Opening time: <input type="time" id="openingHours" class="create-event-time-inputs"></p>
-        <p> Closing time: <input type="time" id="closingHours" class="create-event-time-inputs"></p>
+        <p> Opening time: <input type="time" id="opening_hours" class="create-event-time-inputs"></p>
+        <p> Closing time: <input type="time" id="closing_hours" class="create-event-time-inputs"></p>
         <h4> Description: <textarea id="description" class="create-branch-description"></textarea></h4>
         <h4> Choose an Image </h4>
         <select v-model="image_path">
           <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
         </select>
-        <p id="image_path" class="hidden"> {{image_path}} </p>
+        <p id="image_url" class="hidden"> {{image_path}} </p>
         <div class="image-container">
           <img id="branch_image" class="select-image" v-bind:src="image_path" alt="news image">
         </div>

@@ -550,11 +550,14 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
   // Check if the branch exists and the user is authorized to edit it
   let query = `SELECT branch_id AS branch FROM branches WHERE branch_id = ?;`;
   tools.sqlHelper(query, [branchID], req).then(function (results) {
+    console.log("here1");
+    console.log(req.session);
+    console.log("here2");
     if (results.length == 0) {
       // Branch not found
       res.status(400).send("Branch not found");
       return;
-    } else if (!req.sesssion.admin && results[0].branch !== req.session.branch_managed) {
+    } else if (!req.session.admin && results[0].branch !== req.session.branch_managed) {
       // Wrong branch
       res.status(403).send("Can only edit branches you manage");
       return;
@@ -605,11 +608,11 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
     }
     if (req.body.opening_time !== undefined) {
       fieldsToUpdate.push("openingHours=?");
-      values.push('2024-01-01 ' + req.body.openingHours);
+      values.push('2024-01-01 ' + req.body.opening_time);
     }
     if (req.body.closing_time !== undefined) {
       fieldsToUpdate.push("closingHours=?");
-      values.push('2024-01-01 ' + req.body.closingHours);
+      values.push('2024-01-01 ' + req.body.closing_time);
     }
 
     if (fieldsToUpdate.length === 0) {
