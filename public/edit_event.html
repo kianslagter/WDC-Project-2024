@@ -84,7 +84,10 @@
             </template>
         </div>
         <h4>Add an Image</h4>
-        <input id="image_url" class="create-event-image-upload" type="file">
+        <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
+        <div v-if="eventInfo.event_image">
+            <img :src="eventInfo.event_image" alt="Event Image">
+        </div>
         <button id="updateEventButton" class="button primary-button create-event-button" type="button">
             Update Event
         </button>

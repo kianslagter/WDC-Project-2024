@@ -14,17 +14,6 @@
     <script src="/App.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const articleID = window.location.pathname.split('/')[4];
-            // Load initial news details
-            getNewsDetails(articleID, function (data) {
-                document.getElementById('title').value = data.title;
-                document.getElementById('content').value = data.content;
-                const date = new Date(data.date);
-                const formattedDate = date.toISOString().split('T')[0];
-                document.getElementById('datePublished').value = formattedDate;
-                document.getElementById(data.isPublic ? 'public' : 'private').checked = true;
-                document.getElementById('image_url').value = data.image_url;
-            });
             // Delete news
             const deleteNewsButton = document.getElementById('deleteNewsButton');
             if (deleteNewsButton) {
@@ -63,21 +52,25 @@
 
     <div class="page-content content">
         <h1>Edit News Article</h1>
-        <p> Branch: { branchName } </p>
-        <h4> Title: <input id="title" class="create-news-title" type="text" name="title"></h4>
-        <h4> Publish Date </h4>
-        <p> Date: <input id="datePublished" type="date" class="create-news-date-input"></p>
+        <p> Branch: {{ newsInfo.branch_name }} </p>
+        <h4> Title: <input id="title" class="create-news-title" type="text" v-model="newsInfo.title"></h4>
+        <h4> Publish Date: </h4>
+        <p> Date: <input id="datePublished" type="date" class="create-news-date-input" v-model="newsInfo.date_published"></p>
 
         <h4> Set News Article to Public or Private </h4>
-        <input id="public" type="radio" name="news_privacy" value="1">
+        <input id="public" type="radio" name="news_privacy" value="1" v-model="newsInfo.is_public">
         <label for="public"> Public </label>
-        <input id="private" type="radio" name="news_privacy" value="0">
+        <input id="private" type="radio" name="news_privacy" value="0" v-model="newsInfo.is_public">
         <label for="private"> Private </label>
+
         <h4> Enter News Content Below </h4>
-        <textarea id="content" class="create-news-content">Enter news content here</textarea>
+        <textarea id="content" class="create-news-content" v-model="newsInfo.content"></textarea>
 
         <h4> Add an Image </h4>
         <input id="image_url" class="create-news-image-upload" type="file" name="news-image" accept="image/*">
+        <div v-if="newsInfo.image_url">
+            <img :src="newsInfo.image_url" alt="News Image">
+        </div>
         <div>
             <button id="updateNewsButton" class="button primary-button create-news-button" type="button">
                 Update News

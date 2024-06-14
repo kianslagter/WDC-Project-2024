@@ -44,6 +44,16 @@ createApp({
                 is_public: 1,
                 branch: ''
             }, // info for event data
+            newsInfo: {
+                article_id: '',
+                branch_id: '',
+                branch_name: '',
+                title: '',
+                date_published: '',
+                is_public: '',
+                content: '',
+                image_url: ''
+            },// info for news data
             loading: true,
             event: null,
             isLoading: false,
@@ -734,6 +744,27 @@ createApp({
                     console.error("Error fetching event:", error);
                 });
         },
+        getNewsInfo(articleID) {
+            fetch(`/api/get/news/${articleID}/details.json`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Fetched news:", data);
+                    this.newsInfo = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching news:", error);
+                });
+        },
 
     },
     mounted() {
@@ -766,10 +797,16 @@ createApp({
         // if the user isn't logged in... but this is what checks if the user is logged
         this.getProfileInfo();
 
-        let editEventID = window.location.pathname.split('/')[4];
-
-        if (editEventID && window.location.pathname.split('/')[1] == 'manage') {
+        // edit event
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'events') {
+            let editEventID = window.location.pathname.split('/')[4];
             this.getEventInfo(editEventID);
+        }
+
+        // edit news
+        if (window.location.pathname.split('/')[1] == 'manage' && window.location.pathname.split('/')[2] == 'news') {
+            let editNewsID = window.location.pathname.split('/')[4];
+            this.getNewsInfo(editNewsID);
         }
 
 
