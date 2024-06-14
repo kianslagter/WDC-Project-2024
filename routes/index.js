@@ -109,7 +109,7 @@ async function dbRegisterUser(req, res, google_uid, email, first_name, last_name
     VALUES (?, ?, ?, ?, ?, ?);`;
 
     console.log("About to do DB register query");
-    req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err,results) {
+    req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err, results) {
       if (err) {
         console.error(err);
         return res.status(500).json({ success: false, message: 'Error registering user' });
@@ -257,26 +257,26 @@ router.post('/api/register', async function (req, res, next) {
   var emailExistsQueryPromise = tools.sqlHelper(emailExistsQuery, [email], req);
 
   emailExistsQueryPromise.then(function (result) {
-      if (result[0].count > 0) {
-        return res.status(400).json({ success: false, message: 'Email already registered' });
-      } else {
-        // Hash the password (you should use a more secure method in production)
-        const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
+    if (result[0].count > 0) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    } else {
+      // Hash the password (you should use a more secure method in production)
+      const passwordHash = password; // Replace with actual hashing method (e.g., bcrypt or whatever we choose)
 
-        // Prepare SQL query to insert new user into the database
-        const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
+      // Prepare SQL query to insert new user into the database
+      const query = `INSERT INTO users (email, password_hash, first_name, last_name, phone_num, postcode)
         VALUES (?, ?, ?, ?, ?, ?);`;
 
-        req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err,results) {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Error registering user' });
-          }
-          // Registration successful
-          res.status(200).json({ success: true, message: 'Registration successful' });
-        });
-      }
-    }).catch((err) => tools.sendError(res, err));
+      req.pool.query(query, [email, passwordHash, first_name, last_name, phone_num, postcode], function (err, results) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ success: false, message: 'Error registering user' });
+        }
+        // Registration successful
+        res.status(200).json({ success: true, message: 'Registration successful' });
+      });
+    }
+  }).catch((err) => tools.sendError(res, err));
 });
 
 router.get('/api/logout', function (req, res, next) {
@@ -456,36 +456,45 @@ router.get('/events/id/:eventID/details.json', function (req, res, next) {
 });
 
 // for editing events
-router.get('/api/get/event/:eventID', function (req, res, next) {
-  let event_id = req.params.eventID;
-  // Check if the event exists
-  let query = "SELECT EXISTS(SELECT * FROM events WHERE event_id = ?) AS event_exists;";
-  tools.sqlHelper(query, [event_id], req).then(function (results) {
-    if (results[0].event_exists == 0) {
-      // Event does not exist
-      res.status(404).send("Event not found");
+router.get('/api/get/event/:eventID/details.json', function (req, res, next) {
+  const eventID = req.params.eventID;
+
+  // Ensure the user is authenticated
+  if (!req.session.isLoggedIn || !req.session.userID) {
+    res.status(401).json({ success: false, message: 'User not logged in' });
+    return;
+  }
+
+  // Query to retrieve event details
+  let query = `SELECT events.event_id, events.branch_id, events.event_name,
+    DATE_FORMAT(events.start_date_time, '%Y-%m-%d') AS start_date,
+    DATE_FORMAT(events.start_date_time, '%H:%i') AS start_time,
+    DATE_FORMAT(events.end_date_time, '%Y-%m-%d') AS end_date,
+    DATE_FORMAT(events.end_date_time, '%H:%i') AS end_time,
+    events.event_description, events.event_details, events.event_location,
+    events.event_image, events.is_public,
+    branches.branch_name AS branch
+    FROM events
+    JOIN branches ON events.branch_id = branches.branch_id
+    WHERE events.event_id = ?;`;
+
+
+  req.pool.query(query, [eventID], function (err, results) {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Error retrieving event information' });
       return;
     }
-    // Get the event details
-    query = `SELECT event_name AS title, event_description AS description, DATE(start_date_time) AS date, TIME(start_date_time) AS startTime, TIME(end_date_time) AS endTime, DAYOFWEEK(start_date_time) AS dayOfWeek, event_location AS location, event_image AS image_url, is_public AS public, branch_id AS branch
-            FROM events
-            WHERE event_id=?;`;
-    tools.sqlHelper(query, [event_id], req).then(function (results) {
-      if (!results[0].public) {
-        // Authenticate user
-        if (!req.session.isLoggedIn || !req.session.branches.includes(results[0].branch)) {
-          // Not logged in or not correct branch
-          res.status(403).send("Not a member of correct branch (or not logged in)");
-          return;
-        }
-      }
-      // Send the details
-      res.json(results[0]);
-      return;
-    }).catch(function (err) { tools.sendError(res, err); });
-  }).catch(function (err) { tools.sendError(res, err); });
-});
 
+    if (results.length === 0) {
+      res.status(404).json({ success: false, message: 'Event not found' });
+      return;
+    }
+
+    // Send the event details
+    res.json(results[0]);
+  });
+});
 
 // NEWS ROUTES
 
