@@ -29,6 +29,11 @@
       onclick="window.location.href='/admin/branches/create'"> New Branch </button>
     <h1>Our Branches!</h1>
     <div class="branch-container" v-for="branch in branches_results">
+      <div class="branch-image-container"
+      style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+      <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
+      <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
+    </div>
       <div class="branch-content">
         <a :href="'/branches/id/' + branch.id" @click="selectBranch(branch.id)"
           style="text-decoration: none; color: inherit;">
@@ -44,11 +49,6 @@
             </div>
           </div>
         </a>
-        <div class="branch-image-container"
-          style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-          <img class="branch-image" v-bind:src="branch.image_url" alt="Branch Image">
-          <button @click="joinBranch(branch.id)" class="button join-branch-button" type="button">Join Branch</button>
-        </div>
       </div>
 
       <div class="branch-buttons">

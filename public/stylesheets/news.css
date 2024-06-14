@@ -151,3 +151,10 @@
 .select-image {
     width: 500px;
 }
+
+.news-details-image{
+    width: 70%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
