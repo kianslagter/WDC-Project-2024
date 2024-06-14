@@ -91,6 +91,7 @@ async function updateSessionVariables(req, res, user_id) {
       } else {
         req.session.admin = false;
       }
+      console.log("updateSessionVariables(): User logged in");
       return resolve();
     }).catch((err) => { return reject(err); });
   });
@@ -101,22 +102,16 @@ const client = new OAuth2Client(process.env.GOOGLE_OAUTH_TOKEN);
 
 async function dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode) {
   return new Promise((resolve, reject) => {
-    console.log("Waiting 500ms");
-    setTimeout(resolve, 500);
-
     // Prepare SQL query to insert new user into the database
     const query = `INSERT INTO users (google_uid, email, first_name, last_name, phone_num, postcode)
     VALUES (?, ?, ?, ?, ?, ?);`;
 
-    console.log("About to do DB register query");
+    console.log("About to do DB Register Insert query");
     req.pool.query(query, [google_uid, email, first_name, last_name, phone_num, postcode], function (err,results) {
       if (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: 'Error registering user' });
       }
-      console.log("Completed DB register query");
-      // Registration successful
-      res.status(200).json({ success: true, message: 'Registration successful' });
+      console.log("Completed DB Register Insert query");
     });
   });
 };
@@ -152,21 +147,27 @@ router.post('/api/login/google', async (req, res) => {
         phone_num = 1234567890;
 
         console.log('about to register user function');
-        await dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode);
-        // TODO error handling here
-        console.log("done register user function");
+        var dbRegisterUserPromise = dbRegisterUser(req, res, google_uid, email, first_name, last_name, phone_num, postcode);
+        await dbRegisterUserPromise.then(async function (result) {
+          var queryPromise = tools.sqlHelper(query, [google_uid], req);
+          await queryPromise.then(async function (result) {
+            user_id = result[0].user_id;
+            console.log("Fetched user ID of newly made user", user_id);
+          });
+          console.log("done register user function");
+        });
+
       } else {
-        console.log("line 150: user id is", result[0].user_id);
+        console.log("/api/login/google: user exists and user id is", result[0].user_id);
         user_id = result[0].user_id;
-        // user does exist
       }
-    }); // need a catch error here
+    }).catch(function (err) { tools.sendError(res, err); });; // need a catch error here
 
     console.log("About to update session variables");
-    await updateSessionVariables(req, res, user_id).then(function () {
+    updateSessionVariables(req, res, user_id).then(function () {
       // Session variables updated succesfully
-      res.status(200).json({ success: true, message: 'Login successful' });
-    });
+      res.status(200).send("Log in succesful");
+    }).catch(function (err) { tools.sendError(res, err); });
 
   } catch (error) {
     console.error(error);
