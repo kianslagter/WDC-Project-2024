@@ -118,7 +118,7 @@ router.get('/get_users', function (req, res, next) {
     connection.query(query, function (err, rows, fields) {
       // connection.release();
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -133,7 +133,7 @@ router.get('/get_users', function (req, res, next) {
     connection.query(query, function (err, rows, fields) {
       connection.release();
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -235,7 +235,7 @@ router.post('/promote/admin/:userID', function (req, res, next) {
 
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -245,7 +245,7 @@ router.post('/promote/admin/:userID', function (req, res, next) {
       connection.query(query, [userID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -364,7 +364,7 @@ router.post('/branch/create', function (req, res, next) {
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
-      console.log(err);
+      // console.log(err);
       res.status(500).json({ message: "Database connection error" });
       return;
     }
@@ -400,14 +400,14 @@ router.post('/branch/delete/:branchID', function (req, res, next) {
     query = "DELETE FROM branches WHERE branch_id=?;";
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, [req.params.branchID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }

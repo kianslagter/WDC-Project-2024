@@ -70,7 +70,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
     var yes_responses;
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -83,7 +83,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
       connection.query(yesQuery, [req.params.eventID], function (err, yesRows) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -93,7 +93,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
         var no_responses;
         req.pool.getConnection(function (err, connection) {
           if (err) {
-            console.log(err);
+            // console.log(err);
             res.sendStatus(500);
             return;
           }
@@ -106,7 +106,7 @@ router.post('/event/responses/:eventID', function (req, res, next) {
           connection.query(noQuery, [req.params.eventID], function (err, noRows) {
             connection.release(); // release connection
             if (err) {
-              console.log(err);
+              // console.log(err);
               res.sendStatus(500);
               return;
             }
@@ -128,8 +128,8 @@ router.post('/event/responses/:eventID', function (req, res, next) {
 });
 
 router.post('/event/create', function (req, res, next) {
-  console.log(req.body);
-  console.log(req.body.details);
+  // console.log(req.body);
+  // console.log(req.body.details);
   // Get the event content from the request body
   let title = req.body.title;
   let description = req.body.description;
@@ -198,14 +198,14 @@ router.post('/event/create', function (req, res, next) {
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
-      console.log(err);
+      // console.log(err);
       res.status(500).json({ message: "Database connection error" });
       return;
     }
     connection.query(query, [branch_id, title, description, details, start_date_time, end_date_time, location, image_url, public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
@@ -299,14 +299,14 @@ router.post('/event/edit/:eventID', function (req, res, next) {
     // Query the SQL database
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, values, function (err, results) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -340,14 +340,14 @@ router.post('/event/delete/:eventID', function (req, res, next) {
     let query = "DELETE FROM events WHERE event_id=?;";
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, [req.params.eventID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -408,14 +408,14 @@ router.post('/news/create', function (req, res, next) {
   // Query the SQL database
   req.pool.getConnection(function (err, connection) {
     if (err) {
-      console.log(err);
+      // console.log(err);
       res.status(500).json({ message: "Database connection error" });
       return;
     }
     connection.query(query, [branch_id, title, content, date_published, image_url, is_public], function (err, rows, fields) {
       connection.release(); // release connection
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.status(500).json({ message: "Database query error" });
         return;
       }
@@ -489,14 +489,14 @@ router.post('/news/edit/:articleID', function (req, res, next) {
     // Query the SQL database
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, values, function (err, results) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -524,14 +524,14 @@ router.post('/news/delete/:articleID', function (req, res, next) {
     let query = "DELETE FROM news WHERE article_id=?;";
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, [req.params.articleID], function (err, rows, fields) {
         connection.release(); // release connection
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -614,14 +614,14 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
 
     req.pool.getConnection(function (err, connection) {
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
       connection.query(query, values, function (err, results) {
         connection.release();
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.sendStatus(500);
           return;
         }
@@ -763,7 +763,7 @@ router.get('/get_members', function (req, res, next) {
 
   req.pool.getConnection(function (err, connection) {
     if (err) {
-      console.log(err);
+      // console.log(err);
       res.sendStatus(500);
       return;
     }
@@ -774,7 +774,7 @@ router.get('/get_members', function (req, res, next) {
     connection.query(query, [branchID], function (err, rows, fields) {
       // connection.release();
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }
@@ -794,7 +794,7 @@ router.get('/get_members', function (req, res, next) {
     connection.query(query, [branchID], function (err, rows, fields) {
       connection.release();
       if (err) {
-        console.log(err);
+        // console.log(err);
         res.sendStatus(500);
         return;
       }

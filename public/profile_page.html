@@ -22,7 +22,7 @@
 
     <div class="page-content content">
         <h1>Profile information</h1>
-        <h3> {{ profile.first_name + " " + profile.last_name }}</h4>
+        <h4> {{ profile.first_name + " " + profile.last_name }}</h4>
         <img :src="profile.image_url" alt="Profile Image" style="max-width: 100px">
         <!-- <h4> Change profile photo </h4>
         <form id="upload_form" action="/users/image/upload" method="POST" @submit.prevent="alt_profile_picture_upload()">

@@ -9,9 +9,9 @@ function getBranchDetails(branchID, callback, errorCallback) {
                 var data = JSON.parse(xhttp.responseText);
                 callback(data);
             } else if (xhttp.status == 404) {
-                console.error("Branch not found");
+                // console.error("Branch not found");
             } else {
-                console.error("Error fetching branch details");
+                // console.error("Error fetching branch details");
                 if (errorCallback) {
                     errorCallback(xhttp.status);
                 }
@@ -68,7 +68,7 @@ function submitBranch(name, email, phone, streetNumber, streetName, city, state,
     })
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => { throw new Error(text) });
+                return response.text().then(text => { throw new Error(text); });
             }
             return response.json();
         })
@@ -113,7 +113,7 @@ function deleteBranch(branchID) {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            // console.error('Error:', error);
             alert('An error occurred while deleting the branch');
         });
 }
@@ -159,7 +159,7 @@ function updateBranch(branchID) {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            // console.error('Error:', error);
             alert('Error updating branch');
         });
 }
