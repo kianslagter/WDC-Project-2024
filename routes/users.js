@@ -1,6 +1,100 @@
 var express = require('express');
 var router = express.Router();
 var tools = require('./helpers');
+const formidable = require('formidable');
+var fs = require('fs');
+
+router.post('/image/upload', function (req, res, next) {
+  /*
+    Expected format:
+      {
+        file: file
+        public: true or false
+        branch: id of branch it belongs to
+      }
+
+    Returns:
+      {
+        image_id: the id of the file e.g. 34
+        image_path: path to make get request to get image e.g. /image/34
+      }
+  */
+
+  // Code modified from https://www.geeksforgeeks.org/how-to-upload-file-using-formidable-module-in-node-js/
+  const form = new formidable.IncomingForm();
+  form.parse(req, function (err, fields, files) {
+    // Check for error in parsing form
+    if (err) {
+      tools.sendError(res, err);
+      return;
+    }
+    // Check validity of inputs
+    // Check for the file
+    if (files.file === undefined) {
+      res.status(400).send("File undefined");
+      return;
+    }
+    // Check file type here
+    if (!files.file[0].mimetype.includes("image")) {
+      // maybe this should be made more specific?
+      res.status(400).send("Incorrect file type");
+      return;
+    }
+    // Check the public field
+    if (fields.public === undefined) {
+      // Doesn't exist, so public = false
+      fields.public = false;
+    }
+    // Change public from on off to true false
+    if (fields.public == 'on') {
+      fields.public = true;
+    } else {
+      fields.public = false;
+    }
+
+    // Check supplied branch
+    if (fields.branch === undefined || !Number.isInteger(parseInt(fields.branch))) {
+      res.status(400).send("bad branch");
+      return;
+    }
+
+    // Add the entry to the database
+    let query = `INSERT INTO images
+      (filetype, file_name_orig, branch_id, public)
+      VALUES (?,?,?,?);`;
+    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results) {
+      // Wait for insertion in table
+      // get the id of the inserted image
+      query = `SELECT LAST_INSERT_ID() AS image_id;`;
+      tools.sqlHelper(query, [], req).then(function (results) {
+        // Now have the id, so get the filename
+        let image_id = results[0].image_id;
+        query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name FROM images WHERE image_id = ?;`;
+        tools.sqlHelper(query, [image_id], req).then(function (results) {
+          // Get old and new path to image
+          let oldPath = files.file[0].filepath;
+          let newPath = 'images/' + results[0].file_name;
+          // Read image data
+          let rawData = fs.readFileSync(oldPath);
+          // Write the file
+          fs.writeFile(newPath, rawData, function (err) {
+            if (err) {
+              tools.sendError(res, err);
+              return;
+            }
+            let return_struct = {
+              'image_id': image_id,
+              'image_path': '/image/' + image_id
+            };
+            res.status(200).json(return_struct);
+            return;
+          });
+        }).catch(function (err) { return tools.sendError(res, err); });
+      }).catch(function (err) { return tools.sendError(res, err); });
+    }).catch(function (err) { return tools.sendError(res, err); });
+  });
+  return;
+});
 
 // EVENTS
 

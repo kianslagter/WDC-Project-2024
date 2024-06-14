@@ -86,7 +86,7 @@ function createEvent() {
   let startTime = document.getElementById('startTime').value;
   let endTime = document.getElementById('endTime').value;
   let location = req.session.branch_managed;
-  let image_url = document.getElementById('image_url').files[0]; // file upload
+  let image_url = document.getElementById('image_path').innerText; // path to uploaded file
   let publicValue = document.querySelector('input[name="event_privacy"]:checked').value;
   let sendEmail = document.getElementById('event-email-notify').checked;
 
@@ -107,9 +107,8 @@ function createEvent() {
     alert('Please fill all required fields.');
     return;
   }
-  // TODO: handle image upload
 
-  submitEvent(title, description, details, date, startTime, endTime, location, '', publicValue, sendEmail);
+  submitEvent(title, description, details, date, startTime, endTime, location, image_url, publicValue, sendEmail);
 
 }
 

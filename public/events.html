@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://kit.fontawesome.com/bbe06e3f12.js" crossorigin="anonymous"></script>
   <script src="/events.js"></script>
@@ -17,7 +18,9 @@
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class=nav-link v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
@@ -25,7 +28,7 @@
     <button class="button primary-button right new-event-button" type="button" v-if="access_level >= 2"
       onclick="window.location.href='/manage/events/create'"> New Event </button>
     <h1>Upcoming Events</h1>
-    <p v-if="access_level == 0"> <a href="/login"> Log in </a> to view private events and to RSVP for events </p>
+    <p v-if="access_level == 0"> <a href="/login">Log in</a> to view private events and to RSVP for events </p>
     <div class="search-div">
       <input id="events-search" class="search-bar" type="text" placeholder="Search...">
       <button class="button primary-button search-button" type="button" v-on:click="events_search()">Search</button>

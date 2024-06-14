@@ -1,10 +1,19 @@
 var express = require('express');
 var router = express.Router();
-const formidable = require('formidable');
-var fs = require('fs');
 var tools = require('./helpers');
 var email = require('./email');
 const path = require('path');
+
+router.use(checkPermission);
+
+function checkPermission(req, res, next) {
+  if (!req.session.branch_managed) {
+    res.status(403).send("You do not have permission to view manager pages.");
+    return;
+  }
+
+  next();
+}
 
 router.get('/events/create', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'create_event.html'));
@@ -42,97 +51,6 @@ router.get('/branches/edit/:branchId', function (req, res, next) {
   res.sendFile(path.join(__dirname, '..', 'public', 'edit_branches.html'));
 });
 
-router.post('/image/upload', function (req, res, next) {
-  /*
-    Expected format:
-      {
-        file: file
-        public: true or false
-        branch: id of branch it belongs to
-      }
-
-    Returns:
-      {
-        image_id: the id of the file e.g. 34
-        image_path: path to make get request to get image e.g. /image/34
-      }
-  */
-
-  // Code modified from https://www.geeksforgeeks.org/how-to-upload-file-using-formidable-module-in-node-js/
-  const form = new formidable.IncomingForm();
-  form.parse(req, function (err, fields, files) {
-    // Check for error in parsing form
-    if (err) {
-      tools.sendError(res, err);
-      return;
-    }
-    // Check validity of inputs
-    // Check for the file
-    if (files.file === undefined) {
-      res.status(400).send("File undefined");
-      return;
-    }
-    // Check file type here
-    if (!files.file[0].mimetype.includes("image")) {
-      // maybe this should be made more specific?
-      res.status(400).send("Incorrect file type");
-      return;
-    }
-    // Check the public field
-    if (fields.public === undefined) {
-      // Doesn't exist, so public = false
-      fields.public = false;
-    }
-    // Change public from on off to true false
-    if (fields.public == 'on') {
-      fields.public = true;
-    } else {
-      fields.public = false;
-    }
-
-    // Check supplied branch
-    if (fields.branch === undefined || !Number.isInteger(parseInt(fields.branch))) {
-      res.status(400).send("bad branch");
-      return;
-    }
-
-    // Add the entry to the database
-    let query = `INSERT INTO images
-      (filetype, file_name_orig, branch_id, public)
-      VALUES (?,?,?,?);`;
-    tools.sqlHelper(query, [files.file[0].mimetype, files.file[0].originalFilename, fields.branch, fields.public], req).then(function (results) {
-      // Wait for insertion in table
-      // get the id of the inserted image
-      query = `SELECT LAST_INSERT_ID() AS image_id;`;
-      tools.sqlHelper(query, [], req).then(function (results) {
-        // Now have the id, so get the filename
-        let image_id = results[0].image_id;
-        query = `SELECT CONCAT(BIN_TO_UUID(file_name_rand), file_name_orig) AS file_name FROM images WHERE image_id = ?;`;
-        tools.sqlHelper(query, [image_id], req).then(function (results) {
-          // Get old and new path to image
-          let oldPath = files.file[0].filepath;
-          let newPath = 'images/' + results[0].file_name;
-          // Read image data
-          let rawData = fs.readFileSync(oldPath);
-          // Write the file
-          fs.writeFile(newPath, rawData, function (err) {
-            if (err) {
-              tools.sendError(res, err);
-              return;
-            }
-            let return_struct = {
-              'image_id': image_id,
-              'image_path': '/image/' + image_id
-            };
-            res.status(200).json(return_struct);
-            return;
-          });
-        }).catch(function (err) { return tools.sendError(res, err); });
-      }).catch(function (err) { return tools.sendError(res, err); });
-    }).catch(function (err) { return tools.sendError(res, err); });
-  });
-  return;
-});
 
 router.post('/event/responses/:eventID', function (req, res, next) {
   // Check manager is manager of the branch the event is owned by
@@ -802,6 +720,11 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
 router.get('/branch_information', function(req, res, next) {
   var branchID = req.query.id;
 
+  if (!req.session.branch_managed || branchID != req.session.branch_managed) {
+    res.status(403).send("You do not have permission to get the details of this branch.");
+    return;
+  }
+
   // Need to add branch id validation
 
   var statistics = {
@@ -912,7 +835,10 @@ router.get('/branch_information', function(req, res, next) {
 router.get('/get_members', function(req, res, next) {
   var branchID = req.query.id;
 
-  // Need to add branch id validation
+  if (!req.session.branch_managed || branchID != req.session.branch_managed) {
+    res.status(403).send("You do not have permission to get branch members.");
+    return;
+  }
 
   var response = {
     "branch_name": null,
@@ -921,6 +847,7 @@ router.get('/get_members', function(req, res, next) {
 
   req.pool.getConnection(function(err, connection) {
     if (err) {
+      console.log(err);
       res.sendStatus(500);
       return;
     }
@@ -931,7 +858,13 @@ router.get('/get_members', function(req, res, next) {
       connection.query(query, [branchID], function(err, rows, fields) {
         // connection.release();
         if (err) {
+          console.log(err);
           res.sendStatus(500);
+          return;
+        }
+
+        if (rows.length == 0) {
+          res.status(400).send("Branch not found");
           return;
         }
 
@@ -940,18 +873,17 @@ router.get('/get_members', function(req, res, next) {
 
     // Query 2
     // Should systems admins be shown?
-    query = `SELECT users.username, first_name, last_name, email, phone_num, postcode, branch_managed FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.system_admin = FALSE;`;
+    query = `SELECT BIN_TO_UUID(users.user_id) AS user_id, first_name, last_name, email, phone_num, postcode, branch_managed FROM users INNER JOIN user_branch_affiliation ON user_branch_affiliation.user_id = users.user_id WHERE branch_id = ? AND users.system_admin = FALSE;`;
 
     connection.query(query, [branchID], function(err, rows, fields) {
       connection.release();
       if (err) {
+        console.log(err);
         res.sendStatus(500);
         return;
       }
 
       response.members = rows;
-
-      // console.log(response.members);
 
       res.status(200).send(response);
     });
@@ -960,13 +892,14 @@ router.get('/get_members', function(req, res, next) {
 
 router.post('/user/remove/:userID', function (req, res, next) {
   const userID = req.params.userID;
-  // console.log(userID);
 
-  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
-  req.session.branch_managed = 1;
+  if (!req.session.branch_managed) {
+    res.status(403).send("You do not have permission to remove branch members.");
+    return;
+  }
 
   // Check the member exists, and it is the correct branch (the manager's branch)
-  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE users.user_id = UUID_TO_BIN(?) AND users.system_admin = FALSE AND branch_managed IS NULL;`;
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
     // console.log(results);
@@ -980,7 +913,7 @@ router.post('/user/remove/:userID', function (req, res, next) {
       return;
     }
 
-    let query = "DELETE FROM user_branch_affiliation WHERE user_id IN (SELECT user_id FROM users WHERE username = ?);";
+    let query = "DELETE FROM user_branch_affiliation WHERE user_id = UUID_TO_BIN(?);";
 
     req.pool.getConnection(function (err, connection) {
       if (err) {
@@ -999,18 +932,19 @@ router.post('/user/remove/:userID', function (req, res, next) {
         return;
       });
     });
-  }).catch(function (err) {tools.sendError(err);});
+  }).catch(function (err) {tools.sendError(res, err);});
 });
 
 router.post('/user/promote/:userID', function (req, res, next) {
   const userID = req.params.userID;
-  // console.log(userID);
 
-  // FOR TESTS - IMPORTANT NEED TO REMOVE THIS BEFORE SUBMISSION ---------------------
-  req.session.branch_managed = 1;
+  if (!req.session.branch_managed) {
+    res.status(403).send("You do not have permission to promote branch members.");
+    return;
+  }
 
   // Check the member exists, and it is the correct branch (the manager's branch)
-  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE username = ? AND users.system_admin = FALSE AND branch_managed IS NULL;`;
+  var query = `SELECT branch_id AS branch FROM user_branch_affiliation INNER JOIN users ON users.user_id = user_branch_affiliation.user_id WHERE users.user_id = UUID_TO_BIN(?) AND system_admin = FALSE AND branch_managed IS NULL;`;
 
   tools.sqlHelper(query, [userID], req).then(function (results) {
     // console.log(results);
@@ -1018,7 +952,7 @@ router.post('/user/promote/:userID', function (req, res, next) {
       // Member not found
       res.status(400).send("Member not found");
       return;
-    } else if (!req.sesssion.admin && results[0].branch !== req.session.branch_managed){
+    } else if (!req.session.branch_managed || results[0].branch !== req.session.branch_managed){
       // Wrong branch
       res.status(403).send("Can only promote non-manager members of branches you manage");
       return;
@@ -1026,7 +960,7 @@ router.post('/user/promote/:userID', function (req, res, next) {
 
     const branchID = req.session.branch_managed;
 
-    let query = `UPDATE users SET branch_managed = ${branchID} WHERE username = ?;`;
+    let query = `UPDATE users SET branch_managed = ${branchID} WHERE user_id = UUID_TO_BIN(?);`;
 
     req.pool.getConnection(function (err, connection) {
       if (err) {
@@ -1045,9 +979,7 @@ router.post('/user/promote/:userID', function (req, res, next) {
         return;
       });
     });
-  }).catch(function (err) {tools.sendError(err);});
+  }).catch(function (err) {tools.sendError(res, err);});
 });
-
-
 
 module.exports = router;

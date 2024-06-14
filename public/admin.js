@@ -20,12 +20,14 @@ function get_site_information() {
         statistic_element = document.getElementById('num-total-events');
         statistic_element.innerText = responseJSON.num_total_events;
 
+        statistic_element = document.getElementById('num-managers');
+        statistic_element.innerText = responseJSON.num_managers;
+
         statistic_element = document.getElementById('num-today-news');
         statistic_element.innerText = responseJSON.num_today_news;
 
         statistic_element = document.getElementById('num-total-news');
         statistic_element.innerText = responseJSON.num_total_news;
-
 
         statistic_element = document.getElementById('other-admins');
         statistic_element.innerHTML = "";
@@ -41,6 +43,9 @@ function get_site_information() {
                 </p>
             </div>`;
         }
+      }
+      else if (this.status == 403)  {
+        window.location.replace("/");
       }
     };
 
@@ -77,7 +82,7 @@ function get_users() {
           }
 
           container.innerHTML += `
-            <div id="member-${responseJSON.users[i].username}" class="view-members-container">
+            <div id="member-${responseJSON.users[i].user_id}" class="view-members-container">
                 <p>
                   <b> ${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name} ${note_admin} ${note_manager} </b>
                   &emsp;
@@ -85,14 +90,17 @@ function get_users() {
                   &emsp;
                   (<u>Phone:</u> ${responseJSON.users[i].phone_num})
                   <br>
-                  <u>Address:</u> ${responseJSON.users[i].postcode}
+                  <u>Post Code:</u> ${responseJSON.users[i].postcode}
                   <br>
-                  <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].username}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
-                  <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].username}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
+                  <button onclick="alert_delete_user('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button secondary-button manage-button" type="button"> Delete User </button>
+                  <button onclick="alert_promote_admin('${responseJSON.users[i].first_name} ${responseJSON.users[i].last_name}', '${responseJSON.users[i].user_id}')" class="right button primary-button manage-button" type="button"> Promote To Admin </button>
                   <br>
                 </p>
             </div>`;
         }
+      }
+      else if (this.status == 403)  {
+        window.location.replace("/");
       }
     };
 
@@ -101,7 +109,7 @@ function get_users() {
   }
 
   function alert_promote_admin(name, userID) {
-    var res = confirm(`Are you sure you want to promote ${name} (${userID}) to a branch manager?`);
+    var res = confirm(`Are you sure you want to promote ${name} to an admin?`);
 
     if (res) {
       fetch(`/admin/user/promote/${userID}`, {
@@ -123,7 +131,7 @@ function get_users() {
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while promoting the member');
+        alert('An error occurred while promoting the member.');
       });
     }
     else {
@@ -132,7 +140,7 @@ function get_users() {
   }
 
   function alert_delete_user(name, userID) {
-    var res = confirm(`Are you sure you want to delete user ${name} (${userID})?`);
+    var res = confirm(`Are you sure you want to delete user ${name}?`);
 
     if (res) {
       fetch(`/admin/user/delete/${userID}`, {

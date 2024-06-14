@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/branches.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="/branches.js" defer></script>
     <script src="/App.js" defer></script>
@@ -62,7 +63,9 @@
 <body id="app">
     <header class="top-pane">
         <nav>
-            <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+          <ul class="nav-horizontal">
+            <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+          </ul>
         </nav>
     </header>
 

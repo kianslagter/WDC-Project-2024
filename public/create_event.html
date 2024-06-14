@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/stylesheets/styles.css">
   <link rel="stylesheet" href="/stylesheets/events.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="/events.js" defer></script>
   <script src="/App.js" defer></script>
@@ -26,7 +27,9 @@
 <body id="app">
   <header class="top-pane">
     <nav>
-      <a class="nav-link" v-for="item in navitems" :key="item.title" :href="item.url">{{ item.title }}</a>
+      <ul class="nav-horizontal">
+        <li v-for="item in navitems"> <a :key="item.title" :href="item.url" :class="['nav-link', item.alignClass]"> {{ item.title }} </a> </li>
+      </ul>
     </nav>
   </header>
 
@@ -49,6 +52,8 @@
     <label for="public"> Public </label>
     <input id="private" type="radio" name="event_privacy" value="0" checked="checked">
     <label for="private"> Private </label>
+    <h4> Enter event location </h4>
+
     <h4> Enter Event Description Below </h4>
     <textarea id="description" class="create-event-description"> Enter event description here </textarea>
     <p> Note: Event description should be brief, further details can go in the details section below </p>
@@ -68,8 +73,12 @@
     <button class="secondary-button button" type="button" v-on:click="num_points++; point_level.push(0)"> Add another
       point </button>
 
-    <h4> Add an Image </h4>
-    <input id="image_url" class="create-event-image-upload" type="file" name="event-image" accept="image/*">
+    <h4> Choose an Image </h4>
+    <select v-model="image_path">
+      <option v-for="image in images" v-bind:value="image.path"> {{image.description}}</option>
+    </select>
+    <p id="image_path" class="hidden"> {{image_path}} </p>
+    <img id="news_image" v-bind:src="image_path" alt="news image">
 
     <h4> Other Options </h4>
     <input type="checkbox" id="event-email-notify" name="event-email-notify" value="event-email-notify">

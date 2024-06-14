@@ -4,6 +4,7 @@ createApp({
     data() {
         return {
             access_level: null,    // 0 for visitor, 1 for user, 2 for manager, 3 for admin
+            manages: null,
             message: 'Hello Vue!',
             events_results: [],
             show_events_filters: false,
@@ -47,6 +48,41 @@ createApp({
             event: null,
             isLoading: false,
             error: null,
+            image_path: '/image/10',
+            images: [
+                {
+                    'description': 'Food Truck',
+                    'path' : '/image/2'
+                },
+                {
+                    'description': 'Gardening',
+                    'path' : '/image/3'
+                },
+                {
+                    'description': 'Handing out Food',
+                    'path' : '/image/4'
+                },
+                {
+                    'description': 'Packing Boxes',
+                    'path' : '/image/5'
+                },
+                {
+                    'description': 'People with Box',
+                    'path' : '/image/7'
+                },
+                {
+                    'description': 'Potatoes',
+                    'path' : '/image/8'
+                },
+                {
+                    'description': 'Sausage Sizzle',
+                    'path' : '/image/9'
+                },
+                {
+                    'description': 'Volunteers',
+                    'path' : '/image/10'
+                }
+            ]
         };
     },
     setup() {
@@ -100,26 +136,34 @@ createApp({
     },
     computed: {
         navitems() {
+            const common_nav = [
+                { title: 'Meal Mates', url: '/', alignClass: "lobster-regular"},
+                { title: 'Events', url: '/events', alignClass: null },
+                { title: 'News', url: '/news', alignClass: null },
+                { title: 'Branches', url: '/branches', alignClass: null }
+            ];
+
             // logged in
             if (this.profile.email) {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Welcome ' + this.profile.first_name + '!', url: '/profile' },
-                    { title: 'Log Out', url: '/api/logout' }
-                ];
-                // logged out
+                common_nav.push({ title: 'Log Out', url: '/api/logout', alignClass: "right" });
+
+                // manager
+                if (this.access_level == 2) {
+                    this.access_level.branchID;
+                    common_nav.push({ title: 'Manager Dashboard', url: '/manage/branches/id/' + this.manages, alignClass: "right"});
+                // admin
+                } else if (this.access_level == 3) {
+                    common_nav.push({ title: 'Admin Dashboard', url: '/admin', alignClass: "right"});
+                }
+
+                common_nav.push({ title: 'Welcome ' + this.profile.first_name + '!', url: '/profile', alignClass: "right" });
+            // logged out
             } else {
-                return [
-                    { title: 'Home', url: '/' },
-                    { title: 'Events', url: '/events' },
-                    { title: 'News', url: '/news' },
-                    { title: 'Branches', url: '/branches' },
-                    { title: 'Log In', url: '/login' }
-                ];
+                common_nav.push({ title: 'Log In', url: '/login', alignClass: "right" });
+                common_nav.push({ title: 'Register', url: '/register', alignClass: "right" });
             }
+
+            return (common_nav);
         }
     },
     methods: {
@@ -593,6 +637,58 @@ createApp({
                     alert('Failed to update profile.');
                 });
         },
+        async alt_profile_picture_upload(){
+            var vm = this;
+            const form = document.getElementById("upload_form");
+            const status_text = document.getElementById("status_text");
+            var form_data = new FormData(form);
+            var im_path;
+            const response = await fetch(form.action,
+                {
+                    method: form.method,
+                    headers : {
+                        'accept': 'application/JSON'
+                        },
+                    body: form_data,
+                    processData: false,
+                    contentType: false
+            });
+            if(response.ok){
+                resp_json = response.json();
+                resp_json.then(function (resp_json){
+                    status_text.innerText = "Uploaded Succesfully!";
+                    vm.profile.image_url = resp_json.image_path;
+                })
+            } else {
+                status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
+            }
+        },
+        async news_picture_upload(){
+            const form = document.getElementById("upload_form");
+            const status_text = document.getElementById("status_text");
+            const im_path_p = document.getElementById("image_path");
+            var form_data = new FormData(form);
+            const response = await fetch(form.action,
+                {
+                    method: form.method,
+                    headers : {
+                        'accept': 'application/JSON'
+                        },
+                    body: form_data,
+                    processData: false,
+                    contentType: false
+            });
+            if(response.ok){
+                resp_json = response.json();
+                resp_json.then(function (resp_json){
+                    status_text.innerText = "Uploaded Succesfully!";
+                    im_path_p.innerText = resp_json.image_path;
+                    document.getElementById("news_image").src = resp_json.image_path;
+                })
+            } else {
+                status_text.innerText = "Upload Failed! If this persists, try refreshing the page";
+            }
+        },
         getAccessLevel() {
             return fetch('/api/access', {
                 method: 'GET',
@@ -609,6 +705,7 @@ createApp({
                 })
                 .then(data => {
                     this.access_level = data.access_level;
+                    this.manages = data.manages;
                     return data;
                 })
                 .catch(error => {

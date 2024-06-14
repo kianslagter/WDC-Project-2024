@@ -15,8 +15,6 @@ body {
   text-align: center;
   height: 60px;
   /* Specified height */
-  display: flex;
-  align-items: center;
 }
 
 .page-content {
@@ -33,17 +31,34 @@ body {
   margin-bottom: 20px;
 }
 
+.nav-horizontal {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+  text-align: center;
+  line-height: 60px; /* Should be same as top-pane height */
+}
+
 .nav-link {
+  float: left;
+  padding: 0 15px;
+  margin: 0 5px;
+  overflow: hidden;
   color: #fff;
   text-decoration: none;
   font-weight: bold;
-  padding: 0 15px;
-  margin: 0 5px;
 }
 
 .nav-link:hover {
   color: #ffd700;
   /* Change color on hover */
+}
+
+.lobster-regular {
+  font-size: 1.5em;
+  font-family: "Lobster", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .bottom-pane {
@@ -177,4 +192,8 @@ footer {
 .homepage-img {
 padding: 10px;
 width: 30%;
+}
+
+.hidden {
+  display: none;
 }
