@@ -628,7 +628,7 @@ router.post('/branch/edit/:branchID', function (req, res, next) {
         res.sendStatus(200);
       });
     });
-  }).catch(function (err) { tools.sendError(err); });
+  }).catch(function (err) { tools.sendError(res, err); });
 });
 
 

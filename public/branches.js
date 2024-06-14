@@ -39,6 +39,11 @@ function createBranch() {
         alert('Please fill all required fields.');
         return;
     }
+
+    // if (typeof postcode !== "number") {
+    //     alert('Incorrect types in one or more fields.');
+    //     return;
+    // }
     // TODO: handle image upload
 
     submitBranch(name, email, phone, streetNumber, streetName, city, state, postcode, description, image_url);
